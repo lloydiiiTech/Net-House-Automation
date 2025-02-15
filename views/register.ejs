@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Oswald', sans-serif;
+            font-weight: bold;
+        }
+
+        body {
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .login-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        .left-column {
+            width: 40%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('images/Farm.jpg');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 20px;
+            color: white;
+            text-align: right;
+            border-right: 25px solid rgb(14, 70, 14);
+
+        }
+
+        .left-column a {
+            color: rgb(255, 255, 255);
+            text-decoration: none;
+            font-size: 25px;
+            margin: 10px 0;
+            margin-right: -50px;
+            padding-right: 50px;
+            padding-left:50px;
+            padding-top:20px;
+            padding-bottom: 20px;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(255, 255, 255, 0.473);
+        }
+        .left-column a:hover {
+            color: rgb(254, 255, 254); /* Changes text color to white */
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(255, 255, 255, 0.473);
+            
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+            padding-right: 40px;
+}
+
+        .left-column a.active {
+            background: rgb(255, 255, 255);
+            color: rgb(23, 97, 56); /* Changes text color to white */
+            -webkit-text-stroke: 1px rgb(25, 85, 20); /* Darker border */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Adds slight shadow */
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+        }
+
+        .left-content {
+            position: absolute;
+            top: 35%;
+            left: 45px; 
+            font-size: 55px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            width: 480px;
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(99, 148, 113, 0.486);
+        }
+
+        .right-column {
+            width: 60%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-top: 25px solid rgb(14, 70, 14);
+            border-right: 25px solid rgb(14, 70, 14);
+            border-bottom: 25px solid rgb(14, 70, 14);
+        }
+
+        .logo {
+            width: 150px;
+            border-radius: 100%;
+        }
+
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            align-self: flex-start;
+            font-weight: 800;
+            font-size: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #0c702d;
+            border-radius: 10px;
+            outline: none;
+            font-size: 18px;
+        }
+
+        .register-btn {
+           background-color: #0c702d;
+           color: white;
+           padding: 15px;
+           border: none;
+           border-radius: 30px;
+           cursor: pointer;
+           font-weight: 800;
+           margin-top: 20px;
+           font-size: 18px;
+            width: 30%;
+           display: block; /* Ensures it takes up full width for centering */
+           margin-left: auto;
+
+           text-align: center;
+         }
+
+
+        .loginn h1 {
+            color: rgb(25, 77, 20);
+            font-family: "elephant";
+            font-size: 280%;
+            font-weight: 800;
+            padding: 50px;
+        }
+        .register-box {
+           width: 800px;
+           height: 800px;
+           padding-left: 70px;
+           padding-right: 70px;
+           padding-top: 50px;
+           padding-bottom: 70px;
+           background: #a4dab1c4;
+           border-radius: 15px;
+           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+           text-align: center;
+           border: 5px solid #0c702d;
+           box-shadow: 0 0 15px rgba(0, 0, 0, 0.425);
+        }
+        .message {
+            display: none;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-column">
+            <div class="left-content">
+                <h2>Demo Farm Net House Automation</h2>
+            </div>
+            <a href="/login" >Login</a>
+            <a href="/#"class="active">Register</a>
+        </div>
+        <div class="right-column">
+            
+            <form id="registerForm" action="/register" method="post" class="register-box">
+                <img src="images/logo.png" alt="register" class="logo">
+                <div class="loginn">
+                    <h1>REGISTER</h1>
+                </div>
+                <div class="form-container">
+                    <div class="form-row">
+                        <div class="form-column">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-column">
+                            <label for="contact-number">Contact Number:</label>
+                            <input type="tel" id="contact-number" name="contact-number" placeholder="Enter your contact number" required>
+                        </div>
+                        <div class="form-column">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-column">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        </div>
+                        <div class="form-column">
+                            <label for="confirm-password">Confirm Password:</label>
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="register-btn">REGISTER</button>
+                    <p class="message error" id="errorMessage" style="display: none;">Passwords do not match.</p>
+                    <p class="message success" id="successMessage" style="display: none;">Successfully registered! Redirecting to login...</p>
+                </div>
+                
+            </form>
+            
+            <script>
+            document.getElementById("registerForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirm-password").value;
+                const errorMessage = document.getElementById("errorMessage");
+                const successMessage = document.getElementById("successMessage");
+            
+                if (password !== confirmPassword) {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerText = "Passwords do not match.";
+                    successMessage.style.display = "none";
+                } else {
+                    errorMessage.style.display = "none";
+                    successMessage.style.display = "block";
+                    successMessage.innerText = "Successfully registered! Redirecting to login...";
+                    
+                    setTimeout(() => {
+                        document.getElementById("registerForm").submit();
+                    }, 3000);
+                }
+            });
+            </script>
+            
+</body>
+</html>

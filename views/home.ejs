@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Farm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c6e49;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+        .sidebar ul li a:hover,
+        .sidebar ul li.active a {
+            background: #1e5235;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            height: 100vh;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .card i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #2c6e49;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2c6e49;
+            color: white;
+        }
+        .graph-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .graphs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        canvas {
+            width: 100% !important;
+            height: 350px !important;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Demo Farm</h2>
+        <ul>
+            <li id="dashboard-link"><a onclick="showContent('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li id="user-management-link"><a onclick="showContent('user-management')"><i class="fas fa-users"></i> User Management</a></li>
+            <li id="plants-overview-link"><a onclick="showContent('plants-overview')"><i class="fas fa-seedling"></i> Plants Overview</a></li>
+            <li id="irrigation-control-link"><a onclick="showContent('irrigation-control')"><i class="fas fa-tint"></i> Irrigation Control</a></li>
+            <li id="reports-analytics-link"><a onclick="showContent('reports-analytics')"><i class="fas fa-chart-bar"></i> Reports & Analytics</a></li>
+            <li id="settings-link"><a onclick="showContent('settings')"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
+    </div>
+    <div class="content" id="main-content">
+        <h1>Dashboard</h1>
+        <div class="dashboard-grid">
+            <div class="card"><i class="fas fa-thermometer-half"></i><h3>Real-Time Monitoring</h3><p>Temperature: 21°C</p><p>Humidity: 65%</p><p>Soil Quality: Optimal</p></div>
+            <div class="card"><i class="fas fa-leaf"></i><h3>Crop Recommendation</h3><p>Recommended Crop: Corn</p></div>
+            <div class="card"><i class="fas fa-clock"></i><h3>Time Series Forecast</h3><p>Next 30 Days: Stable Climate</p></div>
+            <div class="card"><i class="fas fa-water"></i><h3>Automated Irrigation</h3><p>Watering Status: Active</p></div>
+            <div class="extra-card card"><i class="fas fa-chart-line"></i><h3>Growth Trend</h3><p>Growth: Healthy</p><p>Estimated Yield: High</p></div>
+        </div>
+        <div class="graphs-row">
+            <div class="graph-card">
+                <canvas id="soilGraph"></canvas>
+            </div>
+            <div class="graph-card">
+                <canvas id="temperatureGraph"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showContent(section) {
+            let content = {
+                'dashboard': `<h1>Dashboard</h1><div class='dashboard-grid'>
+                    <div class='card'><i class='fas fa-thermometer-half'></i><h3>Real-Time Monitoring</h3><p>Temperature: 21°C</p><p>Humidity: 65%</p><p>Soil Quality: Optimal</p></div>
+                    <div class='card'><i class='fas fa-leaf'></i><h3>Crop Recommendation</h3><p>Recommended Crop: Corn</p></div>
+                    <div class='card'><i class='fas fa-clock'></i><h3>Time Series Forecast</h3><p>Next 30 Days: Stable Climate</p></div>
+                    <div class='card'><i class='fas fa-water'></i><h3>Automated Irrigation</h3><p>Watering Status: Active</p></div>
+                    <div class='extra-card card'><i class='fas fa-chart-line'></i><h3>Growth Trend</h3><p>Growth: Healthy</p><p>Estimated Yield: High</p></div>
+                </div><div class="graphs-row">
+                    <div class="graph-card"><canvas id="soilGraph"></canvas></div>
+                    <div class="graph-card"><canvas id="temperatureGraph"></canvas></div>
+                </div>`,
+
+                'user-management': `<h1>User Management</h1><p>Manage users and their roles here.</p><table><tr><th>Username</th><th>Role</th></tr><tr><td>Admin</td><td>Administrator</td></tr><tr><td>Qwerty</td><td>Farmer</td></tr><tr><td>asdfg</td><td>Supervisor</td></tr></table>`,
+                'plants-overview': `<h1>Plants Overview</h1><p>View plant details and recommendations.</p><table><tr><th>Plant Name</th><th>Growth Stage</th><th>Health Status</th></tr><tr><td>Tomato</td><td>Flowering</td><td>Good</td></tr><tr><td>Carrots</td><td>Harvesting</td><td>Excellent</td></tr><tr><td>Potatoes</td><td>Sprouting</td><td>Average</td></tr></table>`,
+                'irrigation-control': `<h1>Irrigation Control</h1><p>Monitor and adjust irrigation settings.</p><p>Status: <b>Active</b></p><p>Last Watering: <b>2 hours ago</b></p><p>Water Level: <b>75%</b></p>`,
+                'reports-analytics': `<h1>Reports & Analytics</h1><p>View environmental data and trends.</p><div class="graph-card"><canvas class="reports-analytics-graph" id="chart"></canvas></div><p>Soil Moisture Level: <b>80%</b></p><p>Plant Growth Rate: <b>Normal</b></p>`,
+                'settings': `<h1>Settings</h1><p>Adjust system preferences and configurations.</p><p>Notification Alerts: <b>Enabled</b></p><p>Auto-Watering: <b>On</b></p><p>Language: <b>English</b></p>`
+            };
+            document.getElementById('main-content').innerHTML = content[section] || '<h1>Page Not Found</h1>';
+
+            // Update active class
+            const links = document.querySelectorAll('.sidebar ul li');
+            links.forEach(link => link.classList.remove('active'));
+            const activeLink = document.querySelector(`#${section}-link`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            // Re-render graphs
+            if (section === 'dashboard') {
+                renderGraphs();
+            }
+        }
+
+        function renderGraphs() {
+            // Soil Quality Graph
+            const ctx1 = document.getElementById('soilGraph').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Soil Quality',
+                        data: [80, 85, 90, 88, 92],
+                        borderColor: 'rgba(56, 162, 60, 0.8)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            grid: {color: 'rgba(0, 0, 0, 0.1)'}
+                        },
+                        y: {
+                            grid: {color: 'rgba(0, 0, 0, 0.1)'}
+                        }
+                    }
+                }
+            });
+
+            // Temperature Graph
+            const ctx2 = document.getElementById('temperatureGraph').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [24, 26, 28, 30, 32],
+                        backgroundColor: 'rgba(255, 165, 0, 0.7)',
+                        borderColor: 'rgba(255, 165, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            grid: {color: 'rgba(0, 0, 0, 0.1)'}
+                        },
+                        y: {
+                            grid: {color: 'rgba(0, 0, 0, 0.1)'}
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show Dashboard by default
+        showContent('dashboard');
+    </script>
+</body>
+</html>

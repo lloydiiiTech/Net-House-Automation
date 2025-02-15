@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter PIN </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Oswald', sans-serif;
+            font-weight: bold;
+        }
+
+        body {
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .pin-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left-column {
+            width: 40%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('images/Farm.jpg');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 20px;
+            color: white;
+            text-align: right;
+            border-right: 25px solid rgb(14, 70, 14);
+
+        }
+
+        .left-column a {
+            color: rgb(255, 255, 255);
+            text-decoration: none;
+            font-size: 25px;
+            margin: 10px 0;
+            margin-right: -50px;
+            padding-right: 50px;
+            padding-left:50px;
+            padding-top:20px;
+            padding-bottom: 20px;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(255, 255, 255, 0.473);
+        }
+        .left-column a:hover {
+            color: rgb(254, 255, 254); /* Changes text color to white */
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(255, 255, 255, 0.473);
+            
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+            padding-right: 40px;
+}
+
+        .left-column a.active {
+            background: rgb(255, 255, 255);
+            color: rgb(23, 97, 56); /* Changes text color to white */
+            -webkit-text-stroke: 1px rgb(25, 85, 20); /* Darker border */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Adds slight shadow */
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+        }
+
+        .left-content {
+            position: absolute;
+            top: 35%;
+            left: 45px; 
+            font-size: 55px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            width: 480px;
+            -webkit-text-stroke: 1px rgb(129, 187, 122);
+            text-shadow: 4px 4px 10px rgba(99, 148, 113, 0.486);
+        }
+
+        
+        .right-column {
+            width: 60%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-top: 25px solid rgb(14, 70, 14);
+            border-right: 25px solid rgb(14, 70, 14);
+            border-bottom: 25px solid rgb(14, 70, 14);
+        }
+
+        .logo {
+            width: 150px;
+            border-radius: 100%;
+        }
+
+        form {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            align-self: center;
+            font-weight: 800;
+            font-size: 25px;
+        }
+
+        input[type="text"] {
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 40px;
+            border: 2px solid #0c702d;
+            border-radius: 20px;
+            outline: none;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background-color: #0c702d;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 18px;
+            width: 30%;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .submit-btn:hover {
+            background-color: #094f20;
+        }
+
+        .back-text {
+            margin-top: 10px;
+            color: #1f6637;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .back-text a {
+            color: #325ff1;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .back-text a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            color: rgb(8, 94, 8);
+            font-size: 16px;
+            margin-top: 10px;
+            display: none;
+        }
+        .pin h1{
+            color:rgb(25, 77, 20);
+            font-family: "elephant";
+            font-size: 280%;
+            font-weight: 800;
+            padding: 50px
+        }
+        .pin-box {
+            width: 800px;
+           height: 800px;
+           padding-left: 140px;
+           padding-right: 140px;
+           padding-top: 50px;
+           padding-bottom: 70px;
+           background: #a4dab1c4;
+           border-radius: 15px;
+           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+           text-align: center;
+           border: 5px solid #0c702d;
+           box-shadow: 0 0 15px rgba(0, 0, 0, 0.425);
+        }
+    </style>
+</head>
+<body>
+    <div class="pin-container">
+        <div class="left-column">
+            <div class="left-content">
+                <h2>Demo Farm Net House Automation</h2>
+            </div>
+            <a href="#" class="active">Enter PIN</a>
+            <a href="/login">Back to Login</a>
+        </div>
+        <div class="right-column">
+            
+            <form id="pinForm" class="pin-box">
+                <img src="images/logo.png" alt="Enter PIN" class="logo">
+               <div class="pin">
+                <h1>Enter PIN</h1>
+               </div>
+                <label for="pin">Enter the PIN sent to your email:</label>
+                <input type="text" id="pin" name="pin" placeholder="Enter 6-digit PIN" required minlength="6" maxlength="6">
+                <button type="submit" class="submit-btn">VERIFY</button>
+
+                <p class="back-text">Didn't receive a PIN? <a id="resendPin">Resend PIN</a></p>
+                <p class="message" id="resendMessage">PIN has been resent to your email.</p>
+            </form>
+            
+            
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("pinForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            window.location.href = "/newpassword"; 
+        });
+
+        document.getElementById("resendPin").addEventListener("click", function(event) {
+            event.preventDefault();
+            document.getElementById("resendMessage").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("resendMessage").style.display = "none";
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
