@@ -1,14 +1,12 @@
-const admin = require('firebase-admin');
-const dotenv = require("dotenv");
-dotenv.config();
-const serviceAccount = require('./path/to/serviceAccountKey.json'); // Replace with actual path
+const admin = require("firebase-admin");
+const serviceAccount = require("./firebaseConfig.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://net-house-automation-demofarm.firebaseio.com" // Replace if using Firestore
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://your-project-id.firebaseio.com",
 });
 
-const db = admin.firestore(); // Use Firestore
-const auth = admin.auth(); // Use Firebase Authentication
+const db = admin.firestore();
+const auth = admin.auth(); // Firebase Authentication
 
-module.exports = { db, auth };
+module.exports = { admin, db, auth };

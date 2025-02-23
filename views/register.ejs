@@ -100,7 +100,7 @@
         form {
             width: 100%;
             max-width: 500px;
-            height: 90%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: #f9f9f9;
@@ -163,6 +163,7 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             width: 100%;
+            margin-top: 15px;
         }
 
         .register-btn:hover {
@@ -234,6 +235,67 @@
                 font-size: 0.8rem; /* Adjust link font size for smaller screens */
             }
         }
+
+        #password, #confirm-password{
+            margin-bottom: 0;
+        }
+        #password-requirements, #password-match {
+            margin: 5px;
+        }
+
+        #password-requirements p, #password-match {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .invalid {
+            color: red;
+        }
+
+        .right-column {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative; /* Set position to relative for absolute positioning of notification */
+        }
+        .notification {
+            position: absolute;
+            width: 80%;
+            left: 50%;
+            top: 20%;
+            transform: translateX(-50%);
+            padding: 15px;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none; /* Initially hidden */
+            z-index: 100;
+            opacity: 0; /* Start fully transparent */
+            transition: opacity 0.5s ease-in-out; /* Smooth fade effect */
+        }
+
+        .notification.success {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #3e8e41;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+            color: white;
+            border: 1px solid #d32f2f;
+        }
+
+
+        
     </style>
 </head>
 <body>
@@ -248,49 +310,149 @@
         <div class="right-column">
             <form id="registerForm" action="/register" method="post">
                 <h1 class="register-title">REGISTER</h1>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                <div id="notification" class="notification"
+                    style="<%= Data && (Data.error || Data.success) ? 'display: block;' : 'display: none;' %>">
+                </div>
+
                 
-                <label for="contact-number">Contact Number:</label>
-                <input type="tel" id="contact-number" name="contact-number" placeholder="Enter your contact number" required>
+               
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required value="<%= typeof Data !== 'undefined' ? Data.name : '' %>">
+
+                <label for="contactNumber">Contact Number:</label>
+                <input type="text" id="contactNumber" name="contactNumber" placeholder="Enter your contact number" required value="<%= typeof Data !== 'undefined' ? Data.contactNumber : '' %>">
+
                 
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                
+                <input type="email" id="email" name="email" placeholder="Enter your email" required value="<%= typeof Data !== 'undefined' ? Data.email : '' %>">
+
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" placeholder="Create a password" required>
-                
+
+                <div id="password-requirements">
+                    <p id="length" class="invalid">✖ At least 8 characters</p>
+                    <p id="letter" class="invalid">✖ Contains uppercase and lowercase letters</p>
+                    <p id="number" class="invalid">✖ Contains at least one number</p>
+                </div>
+
                 <label for="confirm-password">Confirm Password:</label>
-                <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" required>
-                
+                <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" required disabled>
+                <p id="password-match" class="invalid">✖ Passwords do not match</p>
+
                 <button type="submit" class="register-btn">REGISTER</button>
-                <p class="message error" id="errorMessage" style="display: none;">Passwords do not match.</p>
-                <p class="message success" id="successMessage" style="display: none;">Successfully registered! Redirecting to login...</p>
             </form>
         </div>
     </div>
 
     <script>
-        document.getElementById("registerForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirm-password").value;
-            const errorMessage = document.getElementById("errorMessage");
-            const successMessage = document.getElementById("successMessage");
+ function showNotification(message, isSuccess) {
+    const notification = document.getElementById('notification');
 
-            if (password !== confirmPassword) {
-                errorMessage.style.display = "block";
-                successMessage.style.display = "none";
+    if (!notification) {
+        console.error('Notification element not found in the DOM.');
+        return;
+    }
+
+    // Set message and class
+    notification.textContent = message;
+    notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
+
+    // Make visible first
+    notification.style.display = 'block';
+
+    // Force reflow before applying opacity
+    setTimeout(() => {
+        notification.style.opacity = '1';
+    }, 10); // Small delay to ensure transition works
+
+    // Fade out after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0'; // Start fade-out
+    }, 3000);
+
+    // Hide after fade-out completes
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3500);
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Retrieve message from server-side EJS variables
+    const message = "<%= Data && (Data.error || Data.success) ? (Data.error || Data.success) : '' %>";
+    const isSuccess = <%= Data && Data.success ? 'true' : 'false' %>;
+
+    if (message.trim() !== '') {
+        showNotification(message, isSuccess);
+    }
+});
+
+ 
+
+
+
+        // Password validation logic
+        const passwordField = document.getElementById("password");
+        const confirmPasswordField = document.getElementById("confirm-password");
+        const passwordMatchText = document.getElementById("password-match");
+
+        passwordField.addEventListener("input", validatePassword);
+        confirmPasswordField.addEventListener("input", checkPasswordMatch);
+
+        function validatePassword() {
+            const password = passwordField.value;
+            const lengthCheck = password.length >= 8;
+            const letterCheck = /[a-z]/.test(password) && /[A-Z]/.test(password);
+            const numberCheck = /\d/.test(password);
+
+            updateRequirement("length", lengthCheck);
+            updateRequirement("letter", letterCheck);
+            updateRequirement("number", numberCheck);
+
+            confirmPasswordField.disabled = !(lengthCheck && letterCheck && numberCheck);
+            checkPasswordMatch();
+        }
+
+        function updateRequirement(id, condition) {
+            const element = document.getElementById(id);
+            if (condition) {
+                element.className = "valid";
+                element.innerText = element.innerText.replace("✖", "✔");
             } else {
-                errorMessage.style.display = "none";
-                successMessage.style.display = "block";
-                
-                setTimeout(() => {
-                    document.getElementById("registerForm").submit();
-                }, 3000);
+                element.className = "invalid";
+                element.innerText = element.innerText.replace("✔", "✖");
+            }
+        }
+
+        function checkPasswordMatch() {
+            const password = passwordField.value;
+            const confirmPassword = confirmPasswordField.value;
+
+            if (password && confirmPassword) {
+                if (password === confirmPassword) {
+                    passwordMatchText.className = "valid";
+                    passwordMatchText.innerText = "✔ Passwords match";
+                } else {
+                    passwordMatchText.className = "invalid";
+                    passwordMatchText.innerText = "✖ Passwords do not match";
+                }
+            } else {
+                passwordMatchText.className = "invalid";
+                passwordMatchText.innerText = "✖ Passwords do not match";
+            }
+        }
+
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            if (passwordField.value !== confirmPasswordField.value) {
+                showNotification("error", "Passwords do not match.");
+                event.preventDefault();
             }
         });
+
     </script>
+
 </body>
+
+
 </html>
