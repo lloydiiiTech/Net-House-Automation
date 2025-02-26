@@ -121,7 +121,7 @@ exports.registerUser = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-
+    
 
     res.render("login", {
         Data: {
@@ -372,7 +372,8 @@ exports.ResetPassword = async (req, res) => {
         res.render("newpassword", {
             Data: {
                 email: email,
-                
+                error: req.flash("error")[0] || null,
+                success: req.flash("success")[0] || null,
             }
         });
         
@@ -434,15 +435,15 @@ exports.handleNewPassword = async (req, res) => {
 
         // Validate password match
         if (newPassword !== confirmPassword) {
-            console.log("error", "Passwords do not match.");
-            return res.redirect("back");
+            req.flash("error", "Passwords do not match.");
+            return res.redirect("/reset-password");
         }
 
         // Validate password strength
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
-            console.log("error", "Password must be at least 8 characters long, with uppercase, lowercase, and a number.");
-            return res.redirect("back");
+            req.flash("error", "Password must be at least 8 characters long, with uppercase, lowercase, and a number.");
+            return res.redirect("/reset-password");
         }
 
         // Get Firebase Auth user
@@ -463,13 +464,13 @@ exports.handleNewPassword = async (req, res) => {
         // Delete reset token from Firestore after successful reset
         await db.collection("password_resets").doc(resetDoc.id).delete();
 
-
+        delete req.session.token;
 
         req.flash("success", "Password reset successful! Please log in.");
         res.redirect("/login");
     } catch (error) {
         console.error("Error updating password:", error);
         req.flash("error", "Server error. Please try again later.");
-        res.redirect("back");
+        res.redirect("/reset-password");
     }
 };
