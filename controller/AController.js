@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { admin, db } = require("../config/firebase");
+const { admin, firestore } = require("../config/firebase");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
@@ -100,7 +100,7 @@ exports.registerUser = async (req, res) => {
 
         // Save user to Firestore (optional)
         const newUser = new User(name, contactNumber, email, hashedPassword, false);
-        await db.collection("users").doc(userRecord.uid).set(newUser.toFirestore());
+        await firestore.collection("users").doc(userRecord.uid).set(newUser.toFirestore());
 
         req.flash('success', 'Check your email to verify your account before logging in.');
         return res.redirect('/login');
@@ -145,7 +145,7 @@ exports.loginUser = async (req, res) => {
         }
 
         // 🔹 Check Firestore for user data
-        const userQuery = await db.collection("users").where("email", "==", email).get();
+        const userQuery = await firestore.collection("users").where("email", "==", email).get();
 
         if (userQuery.empty) {
             req.flash("error", "Email is not register.");
@@ -177,7 +177,7 @@ exports.loginUser = async (req, res) => {
         if (!userData.isVerified) {
             const authUser = await auth.getUserByEmail(email); // Optional, only needed for verification
             if (authUser.emailVerified) {
-                await db.collection("users").doc(userId).update({ isVerified: true });
+                await firestore.collection("users").doc(userId).update({ isVerified: true });
                 userData.isVerified = true;
             } else {
                 req.flash("error", "Please verify your email before logging in.");
@@ -271,7 +271,7 @@ exports.handleForgotPassword = async (req, res) => {
 
     try {
         // Check if user exists in Firestore
-        const userSnapshot = await db.collection("users").where("email", "==", email).get();
+        const userSnapshot = await firestore.collection("users").where("email", "==", email).get();
 
         if (userSnapshot.empty) {
             req.flash("error", "Email not found.");
@@ -284,7 +284,7 @@ exports.handleForgotPassword = async (req, res) => {
         const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes in milliseconds
         const Email = email;
         // Save token to Firestore
-        await db.collection("password_resets").doc(email).set({
+        await firestore.collection("password_resets").doc(email).set({
             token: hashedToken,  // Store the hashed token
             expiresAt: new Date(expiresAt).toISOString(), // Store as an ISO string
             email: Email
@@ -331,7 +331,7 @@ exports.ResetPassword = async (req, res) => {
     
     try {
         // Get all password reset documents
-        const resetSnapshot = await db.collection("password_resets").get();
+        const resetSnapshot = await firestore.collection("password_resets").get();
 
         if (resetSnapshot.empty) {
             req.flash("error", "Invalid or expired reset link.");
@@ -362,7 +362,7 @@ exports.ResetPassword = async (req, res) => {
 
         // Check if the reset token is expired
         if (Date.now() > expiryTime) {
-            await db.collection("password_resets").doc(resetDoc.id).delete(); // Cleanup expired token
+            await firestore.collection("password_resets").doc(resetDoc.id).delete(); // Cleanup expired token
             req.flash("error", "Reset link expired. Request a new one.");
             return res.redirect("/forgotpassword");
         }
@@ -399,7 +399,7 @@ exports.handleNewPassword = async (req, res) => {
 
     try {
         // Retrieve reset token data from Firestore
-        const resetSnapshot = await db.collection("password_resets").get();
+        const resetSnapshot = await firestore.collection("password_resets").get();
 
         if (resetSnapshot.empty) {
             req.flash("error", "Invalid or expired reset link.");
@@ -428,7 +428,7 @@ exports.handleNewPassword = async (req, res) => {
 
         // Check if token has expired
         if (Date.now() > expiryTime) {
-            await db.collection("password_resets").doc(resetDoc.id).delete(); // Cleanup expired token
+            await firestore.collection("password_resets").doc(resetDoc.id).delete(); // Cleanup expired token
             req.flash("error", "Reset link expired. Request a new one.");
             return res.redirect("/forgotpassword");
         }
@@ -453,7 +453,7 @@ exports.handleNewPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Update password in Firestore (if stored)
-        await db.collection("users").doc(userRecord.uid).update({
+        await firestore.collection("users").doc(userRecord.uid).update({
             password: hashedPassword,  // Store hashed password (if needed)
             lastPasswordUpdate: admin.firestore.FieldValue.serverTimestamp()
         });
@@ -462,7 +462,7 @@ exports.handleNewPassword = async (req, res) => {
         await auth.updateUser(userRecord.uid, { password: newPassword });
 
         // Delete reset token from Firestore after successful reset
-        await db.collection("password_resets").doc(resetDoc.id).delete();
+        await firestore.collection("password_resets").doc(resetDoc.id).delete();
 
         delete req.session.token;
 

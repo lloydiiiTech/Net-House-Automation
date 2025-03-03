@@ -287,8 +287,8 @@
                         <div class="ibox bg-success color-white widget-stat">
                             <div class="ibox-body">
                                 <h2 class="m-b-5 font-strong">Temperature</h2>
-                                <div class="m-b-5 widget-stat-icon">28°C</div><i class="fas fa-thermometer-half "></i>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 25-30°C)</small></div>
+                                <div class="m-b-5 widget-stat-icon"id="temperature"><%= sensorData.temperature.value %>°C</div><i class="fas fa-thermometer-half "></i>
+                                <div><small id="temperature-status"><%= sensorData.temperature.status %></small></div>
                             </div>
                         </div>
                     </div>
@@ -296,8 +296,8 @@
                         <div class="ibox bg-info color-white widget-stat">
                             <div class="ibox-body">
                                 <h2 class="m-b-5 font-strong">Humidity</h2><i class=" fas fa-tint"></i>
-                                <div class="m-b-5 widget-stat-icon">65%</div>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 50-70%)</small></div>
+                                <div class="m-b-5 widget-stat-icon" id="humidity"><%= sensorData.humidity.value %>%</div>
+                                <div><small id="humidity-status"><%= sensorData.humidity.status %></small></div>
                             </div>
                         </div>
                     </div>
@@ -305,8 +305,8 @@
                         <div class="ibox bg-warning color-white widget-stat">
                             <div class="ibox-body">
                                 <h2 class="m-b-5 font-strong">Moisture</h2><i class="fas fa-water"></i>
-                                <div class="m-b-5 widget-stat-icon">45%</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Low (Ideal: 50-80%)</small></div>
+                                <div class="m-b-5 widget-stat-icon" id="moisture"><%= sensorData.moisture.value %></div>
+                                <div><small id="moisture-status"><%= sensorData.moisture.status %></small></div>
                             </div>
                         </div>
                     </div>
@@ -314,12 +314,15 @@
                         <div class="ibox bg-danger color-white widget-stat">
                             <div class="ibox-body">
                             
-                                <h2 class="m-b-5 font-strong">PH Level</h2><i class="fas fa-flask"></i>
-                                <div class="m-b-5 widget-stat-icon">	6.5</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Slightly Acidic (Ideal: 6.0-7.0)</small></div>
+                                <h2 class="m-b-5 font-strong">Light Condition</h2><i class="fas fa-flask"></i>
+                                <div class="m-b-5 widget-stat-icon" id="light"> <%= sensorData.light.value %></div>
+                                <i class="fas fa-lightbulb"></i>
+                                <div><small id="light-status"><%= sensorData.light.status %></small></div>
+                                
                             </div>
                         </div>
                     </div>
+    
                 </div>
 
 
@@ -876,6 +879,35 @@
 
     <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
 
+    <script>
+        function fetchSensorData() {
+            fetch('/api/sensor-data') // Make an AJAX request to the new API
+                .then(response => response.json())
+                .then(data => {
+                    // Update each sensor value and status
+                    document.getElementById("temperature").innerHTML = `${data.temperature.value}°C`;
+                    document.getElementById("temperature-status").innerText = data.temperature.status;
+    
+                    document.getElementById("humidity").innerHTML = `${data.humidity.value}%`;
+                    document.getElementById("humidity-status").innerText = data.humidity.status;
+    
+                    document.getElementById("moisture").innerHTML = data.moisture.value;
+                    document.getElementById("moisture-status").innerText = data.moisture.status;
+    
+                    document.getElementById("light").innerHTML = data.light.value;
+                    document.getElementById("light-status").innerText = data.light.status;
+                })
+                .catch(error => console.error("Error fetching sensor data:", error));
+        }
+    
+        // Refresh every 5 seconds
+        setInterval(fetchSensorData, 10000);
+    
+        // Initial data load when the page first loads
+        window.onload = fetchSensorData;
+    </script>
+    
+   
 </body>
 
 </html>

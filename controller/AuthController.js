@@ -13,10 +13,6 @@ const AuthController = {
         res.redirect('/home');
     },
     
-    registerUser: (req, res) => {
-        const { name, email, password } = req.body;
-        res.redirect('/login');
-    },
     
     home: (req, res) => {
         res.render('home'); 

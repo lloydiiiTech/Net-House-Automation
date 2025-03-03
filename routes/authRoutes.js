@@ -6,7 +6,6 @@ const adminController = require('../controller/adminController.js');
 const userController = require('../controller/userController.js');
 
 router.get('/', aController.login);
-router.get('/home', authController.home);
 router.get('/login', aController.login);
 router.get('/register', aController.register);
 router.get('/forgotpassword', aController.forgotpassword);
@@ -14,7 +13,7 @@ router.get('/forgotpassword', aController.forgotpassword);
 
 router.post('/login', aController.loginUser);
 router.get("/admin-dashboard", aController.isAuthenticated, aController.isAdmin, adminController.Dashboard);
-router.get("/admin/home", aController.isAuthenticated, aController.isAdmin, adminController.Dashboard);
+router.get("/api/sensor-data", adminController.getSensorData); // New API route
 
 router.get("/user-dashboard", aController.isAuthenticated, userController.Dashboard);
 router.get("/logout", (req, res) => {
