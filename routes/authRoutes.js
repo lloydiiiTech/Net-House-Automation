@@ -55,4 +55,23 @@ router.get('/profile', aController.isAuthenticated, userController.profile);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+const cropController = require('../controller/cropController');
+
+// Add these routes
+router.get('/crops/recommend', cropController.getRecommendations);
+router.post('/crops', cropController.addCrop);
+
 module.exports = router;
