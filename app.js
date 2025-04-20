@@ -6,7 +6,7 @@ const session = require("express-session");
 const flash = require('express-flash');
 const { firestore } = require('./config/firebase'); // Import from your existing file
 const CropPredictionService = require('./services/cropPredictionService');
-
+const { initScheduledJobs } = require('./controller/sensorController.js');
 // Session configuration (keep your existing setup)
 app.use(session({
     secret: "your_secret_key",
@@ -29,6 +29,9 @@ const initializeServices = async () => {
     if (firestore) {
       console.log('✅ Firebase already initialized from config');
     }
+
+    initScheduledJobs();
+    console.log('✅ Sensor data summarization scheduled');
 
     await CropPredictionService.initialize();
     predictionServiceReady = true;

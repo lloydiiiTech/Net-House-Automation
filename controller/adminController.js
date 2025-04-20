@@ -5,36 +5,75 @@ exports.Dashboard = async (req, res) => {
     sensorRef.once("value", (snapshot) => {
         const data = snapshot.val();
         
-        // Compute statuses
         const sensorData = {
             temperature: { value: data.temperature, status: getTemperatureStatus(data.temperature) },
             humidity: { value: data.humidity, status: getHumidityStatus(data.humidity) },
             moisture: { value: data.moistureAve, status: getMoistureStatus(data.moistureAve) },
             light: { value: data.light, status: getLightCondition(data.light) },
+            npk_N: { value: data.npk_N, status: getNitrogenStatus(data.npk_N) },
+            npk_P: { value: data.npk_P, status: getPhosphorusStatus(data.npk_P) },
+            npk_K: { value: data.npk_K, status: getPotassiumStatus(data.npk_K) },
+            ph: { value: data.ph, status: getPHStatus(data.ph) }
         };
 
         res.render("admin/home", { sensorData }); 
     });
 };
 
-// API Route for AJAX requests (returns JSON)
 exports.getSensorData = async (req, res) => {
     const sensorRef = realtimeDB.ref("sensors");
 
     sensorRef.once("value", (snapshot) => {
         const data = snapshot.val();
         
-        // Compute statuses
         const sensorData = {
             temperature: { value: data.temperature, status: getTemperatureStatus(data.temperature) },
             humidity: { value: data.humidity, status: getHumidityStatus(data.humidity) },
             moisture: { value: data.moistureAve, status: getMoistureStatus(data.moistureAve) },
             light: { value: data.light, status: getLightCondition(data.light) },
+            npk_N: { value: data.npk_N, status: getNitrogenStatus(data.npk_N) },
+            npk_P: { value: data.npk_P, status: getPhosphorusStatus(data.npk_P) },
+            npk_K: { value: data.npk_K, status: getPotassiumStatus(data.npk_K) },
+            ph: { value: data.ph, status: getPHStatus(data.ph) }
         };
 
-        res.json(sensorData); // Send JSON response
+        res.json(sensorData);
     });
 };
+
+function getNitrogenStatus(n) {
+    if (n < 20) return "Very Low (Deficient)";
+    if (n >= 20 && n < 40) return "Low (Marginal)";
+    if (n >= 40 && n <= 60) return "Normal (Adequate)";
+    if (n > 60 && n <= 80) return "High (Sufficient)";
+    return "Very High (Excessive)";
+}
+
+function getPhosphorusStatus(p) {
+    if (p < 10) return "Very Low (Deficient)";
+    if (p >= 10 && p < 20) return "Low (Marginal)";
+    if (p >= 20 && p <= 40) return "Normal (Adequate)";
+    if (p > 40 && p <= 60) return "High (Sufficient)";
+    return "Very High (Excessive)";
+}
+
+function getPotassiumStatus(k) {
+    if (k < 100) return "Very Low (Deficient)";
+    if (k >= 100 && k < 200) return "Low (Marginal)";
+    if (k >= 200 && k <= 300) return "Normal (Adequate)";
+    if (k > 300 && k <= 400) return "High (Sufficient)";
+    return "Very High (Excessive)";
+}
+
+function getPHStatus(ph) {
+    if (ph < 4.5) return "Extremely Acidic";
+    if (ph >= 4.5 && ph < 5.5) return "Strongly Acidic";
+    if (ph >= 5.5 && ph < 6.5) return "Moderately Acidic";
+    if (ph >= 6.5 && ph <= 7.3) return "Neutral (Ideal)";
+    if (ph > 7.3 && ph <= 8.4) return "Alkaline";
+    return "Strongly Alkaline";
+}
+
 function getTemperatureStatus(temp) {
     if (temp < 10) return "Very Low (Cold Stress)";
     if (temp >= 10 && temp < 18) return "Low (Suboptimal)";
