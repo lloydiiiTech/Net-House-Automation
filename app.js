@@ -1,13 +1,16 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const routes = require('./routes/authRoutes');
+const mainRoutes = require('./routes/authRoutes');
+const trainingRoutes = require('./routes/trainingRoutes');
 const app = express();
 const session = require("express-session");
 const flash = require('express-flash');
-const { firestore } = require('./config/firebase'); // Import from your existing file
+const { firestore } = require('./config/firebase');
 const CropPredictionService = require('./services/cropPredictionService');
 const { initScheduledJobs } = require('./controller/sensorController.js');
-// Session configuration (keep your existing setup)
+const path = require('path');
+
+// Session configuration
 app.use(session({
     secret: "your_secret_key",
     resave: false,
@@ -30,23 +33,27 @@ const initializeServices = async () => {
       console.log('✅ Firebase already initialized from config');
     }
 
+    // Initialize sensor data collection
     initScheduledJobs();
     console.log('✅ Sensor data summarization scheduled');
 
+    // Initialize prediction service
     await CropPredictionService.initialize();
     predictionServiceReady = true;
     console.log('✅ All services initialized');
     
-    // Start periodic predictions (every 10 minutes)
+    // Start periodic predictions (every 6 hours)
     setInterval(async () => {
       try {
+        console.log('⏳ Running periodic prediction...');
         const results = await CropPredictionService.predict();
-        console.log('Periodic prediction completed at', new Date().toISOString());
-        console.log('Top crop:', results[0].name, '(', results[0].suitability, '%)');
+        console.log('✅ Periodic prediction completed');
+        console.log('Top registered crop:', results.topRegistered?.name, 
+          `(${results.topRegistered?.score}%)`);
       } catch (err) {
-        console.error('Periodic prediction failed:', err);
+        console.error('❌ Periodic prediction failed:', err);
       }
-    }, 600000); // 10 minutes in milliseconds
+    }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
     
   } catch (err) {
     console.error('❌ Service initialization failed:', err);
@@ -54,18 +61,27 @@ const initializeServices = async () => {
   }
 };
 
-// Routes (keep your existing routes)
-app.use('/', routes);
+// Routes
+app.use('/', mainRoutes);
+app.use('/api', trainingRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
-    predictionService: predictionServiceReady ? 'Ready' : 'Initializing',
-    firebase: firestore ? 'Connected' : 'Not connected',
-    timestamp: new Date().toISOString()
+    services: {
+      prediction: predictionServiceReady ? 'Ready' : 'Initializing',
+      firebase: firestore ? 'Connected' : 'Not connected',
+      lastChecked: new Date().toISOString()
+    }
   });
 });
+
+// Serve training chart
+app.get('/training-chart', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'training_chart.html'));
+});
+
 
 // Prediction endpoint
 app.get('/predict', async (req, res) => {
@@ -92,7 +108,6 @@ app.get('/predict', async (req, res) => {
     });
   }
 });
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('⚠️ Error:', err.stack);
@@ -105,6 +120,6 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 9999;
 app.listen(PORT, async () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`🚀 Server started on http://localhost:${PORT}`);
   await initializeServices();
 });

@@ -72,6 +72,8 @@ const cropController = require('../controller/cropController');
 
 // Add these routes
 router.get('/crops/recommend', cropController.getRecommendations);
+router.get('/crops/train', cropController.trainModel);
+
 router.post('/crops', cropController.addCrop);
 
 module.exports = router;
