@@ -1,9 +1,9 @@
 const normalizeData = (sensorData) => {
     // Adjusted to match your Firestore sensor data structure
     const ranges = {
-      n: [0, 100],       // NPK Nitrogen (maps to npk_N)
-      p: [0, 100],       // NPK Phosphorus (maps to npk_P)
-      k: [0, 100],       // NPK Potassium (maps to npk_K)
+      n: [0, 100],       // NPK Nitrogen (maps to nitrogen)
+      p: [0, 100],       // NPK Phosphorus (maps to phosphorus)
+      k: [0, 100],       // NPK Potassium (maps to potassium)
       temperature: [0, 50],
       humidity: [0, 100],
       moisture: [0, 100],
@@ -13,15 +13,15 @@ const normalizeData = (sensorData) => {
   
     // Map sensor data fields to normalized names
     const fieldMapping = {
-      npk_N: 'n',
-      npk_P: 'p',
-      npk_K: 'k'
+      nitrogen: 'n',
+      phosphorus: 'p',
+      potassium: 'k'
     };
   
     const normalized = {};
     
     for (const [key, value] of Object.entries(sensorData)) {
-      // Handle mapped fields (like npk_N -> n)
+      // Handle mapped fields (like nitrogen -> n)
       const normKey = fieldMapping[key] || key;
       
       if (ranges[normKey]) {

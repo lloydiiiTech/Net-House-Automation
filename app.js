@@ -8,7 +8,28 @@ const flash = require('express-flash');
 const { firestore } = require('./config/firebase');
 const CropPredictionService = require('./services/cropPredictionService');
 const { initScheduledJobs } = require('./controller/sensorController.js');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
+
+// Create HTTP server
+const httpServer = createServer(app);
+
+// Configure Socket.IO with CORS
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*", // Adjust this to your specific domain in production
+    methods: ["GET", "POST"]
+  },
+  // Enable compatibility mode for older clients
+  allowEIO3: true
+});
+
+// Remove this line - it's not needed
+// app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist'));
+
+const adminController = require('./controller/adminController');
+adminController.initFirebaseListener(io);
 
 // Session configuration
 app.use(session({
@@ -28,21 +49,17 @@ app.use(bodyParser.json());
 let predictionServiceReady = false;
 const initializeServices = async () => {
   try {
-    // First check if Firebase is already initialized
     if (firestore) {
       console.log('✅ Firebase already initialized from config');
     }
 
-    // Initialize sensor data collection
     initScheduledJobs();
     console.log('✅ Sensor data summarization scheduled');
 
-    // Initialize prediction service
     await CropPredictionService.initialize();
     predictionServiceReady = true;
     console.log('✅ All services initialized');
     
-    // Start periodic predictions (every 6 hours)
     setInterval(async () => {
       try {
         console.log('⏳ Running periodic prediction...');
@@ -53,7 +70,7 @@ const initializeServices = async () => {
       } catch (err) {
         console.error('❌ Periodic prediction failed:', err);
       }
-    }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+    }, 6 * 60 * 60 * 1000);
     
   } catch (err) {
     console.error('❌ Service initialization failed:', err);
@@ -82,7 +99,6 @@ app.get('/training-chart', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'training_chart.html'));
 });
 
-
 // Prediction endpoint
 app.get('/predict', async (req, res) => {
   try {
@@ -108,6 +124,7 @@ app.get('/predict', async (req, res) => {
     });
   }
 });
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('⚠️ Error:', err.stack);
@@ -117,9 +134,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// Start server with Socket.IO
 const PORT = process.env.PORT || 9999;
-app.listen(PORT, async () => {
+httpServer.listen(PORT, async () => {
   console.log(`🚀 Server started on http://localhost:${PORT}`);
   await initializeServices();
 });

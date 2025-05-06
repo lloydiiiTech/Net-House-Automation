@@ -110,9 +110,9 @@ class CropPredictionService {
       
       trainingData.push({
         features: [
-          data.sensorData.npk_N || 0,
-          data.sensorData.npk_P || 0,
-          data.sensorData.npk_K || 0,
+          data.sensorData.nitrogen || 0,
+          data.sensorData.phosphorus || 0,
+          data.sensorData.potassium || 0,
           data.sensorData.temperature || 0,
           data.sensorData.humidity || 0,
           data.sensorData.moisture || 0,
@@ -146,9 +146,9 @@ class CropPredictionService {
     return snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        npk_N: data.nitrogen?.average || 0,
-        npk_P: data.phosphorus?.average || 0,
-        npk_K: data.potassium?.average || 0,
+        nitrogen: data.nitrogen?.average || 0,
+        phosphorus: data.phosphorus?.average || 0,
+        potassium: data.potassium?.average || 0,
         temperature: data.temperature?.average || 0,
         humidity: data.humidity?.average || 0,
         moisture: data.moistureAve?.average || 0,
@@ -240,7 +240,7 @@ class CropPredictionService {
 
   calculateWeightedAverages(sensorData) {
     const sums = {
-      npk_N: 0, npk_P: 0, npk_K: 0,
+      nitrogen: 0, phosphorus: 0, potassium: 0,
       temperature: 0, humidity: 0,
       moisture: 0, ph: 0, light: 0
     };
@@ -250,9 +250,9 @@ class CropPredictionService {
       const weight = data.data_points || 1;
       totalWeight += weight;
 
-      sums.npk_N += (data.npk_N || 0) * weight;
-      sums.npk_P += (data.npk_P || 0) * weight;
-      sums.npk_K += (data.npk_K || 0) * weight;
+      sums.nitrogen += (data.nitrogen || 0) * weight;
+      sums.phosphorus += (data.phosphorus || 0) * weight;
+      sums.potassium += (data.potassium || 0) * weight;
       sums.temperature += (data.temperature || 0) * weight;
       sums.humidity += (data.humidity || 0) * weight;
       sums.moisture += (data.moisture || 0) * weight;
@@ -261,9 +261,9 @@ class CropPredictionService {
     });
 
     return {
-      npk_N: totalWeight ? sums.npk_N / totalWeight : 0,
-      npk_P: totalWeight ? sums.npk_P / totalWeight : 0,
-      npk_K: totalWeight ? sums.npk_K / totalWeight : 0,
+      nitrogen: totalWeight ? sums.nitrogen / totalWeight : 0,
+      phosphorus: totalWeight ? sums.phosphorus / totalWeight : 0,
+      potassium: totalWeight ? sums.potassium / totalWeight : 0,
       temperature: totalWeight ? sums.temperature / totalWeight : 0,
       humidity: totalWeight ? sums.humidity / totalWeight : 0,
       moisture: totalWeight ? sums.moisture / totalWeight : 0,
@@ -276,9 +276,9 @@ class CropPredictionService {
 
   createInputTensor(sensorData) {
     const normalized = normalizeData({
-      n: sensorData.npk_N,
-      p: sensorData.npk_P,
-      k: sensorData.npk_K,
+      n: sensorData.nitrogen,
+      p: sensorData.phosphorus,
+      k: sensorData.potassium,
       temperature: sensorData.temperature,
       humidity: sensorData.humidity,
       moisture: sensorData.moisture,
@@ -299,9 +299,9 @@ class CropPredictionService {
   }
   calculateScore(sensorData, crop) {
     const parameterMatches = {
-      npk_N: this.calculateMatch(crop.optimal_n, sensorData.npk_N, 'npk_N'),
-      npk_P: this.calculateMatch(crop.optimal_p, sensorData.npk_P, 'npk_P'),
-      npk_K: this.calculateMatch(crop.optimal_k, sensorData.npk_K, 'npk_K'),
+      nitrogen: this.calculateMatch(crop.optimal_n, sensorData.nitrogen, 'nitrogen'),
+      phosphorus: this.calculateMatch(crop.optimal_p, sensorData.phosphorus, 'phosphorus'),
+      potassium: this.calculateMatch(crop.optimal_k, sensorData.potassium, 'potassium'),
       temperature: this.calculateMatch(crop.optimal_temperature, sensorData.temperature, 'temperature'),
       humidity: this.calculateMatch(crop.optimal_humidity, sensorData.humidity, 'humidity'),
       moisture: this.calculateMatch(crop.optimal_moisture, sensorData.moisture, 'moisture'),
@@ -316,7 +316,7 @@ class CropPredictionService {
       parameterMatches
     };
   }
-  
+
   calculateMatch(optimal, actual, paramName = '') {
     // Handle cases where parameter isn't applicable
     if (optimal === 0 || optimal === undefined || actual === undefined) {
@@ -324,11 +324,10 @@ class CropPredictionService {
     }
     
     // Special handling for pH (logarithmic scale)
-    if (paramName === 'ph') {
+    if (key === 'light') {
       const difference = Math.abs(optimal - actual);
-      return Math.max(0, 100 - (difference * 20)); // More sensitive to pH changes
+      return Math.max(0, 100 - (difference / optimal * 50)); // 50% tolerance
     }
-  
     // Normal parameters
     const difference = Math.abs(optimal - actual);
     const tolerance = optimal * 0.3; // Increased from 0.2 to 0.3 for more flexibility
@@ -337,15 +336,16 @@ class CropPredictionService {
 
   calculateWeightedSuitability(parameterMatches, crop) {
     const weights = {
-      npk_N: 0.15,
-      npk_P: 0.15,
-      npk_K: 0.15,
-      temperature: 0.20,
-      humidity: 0.10,
-      moisture: 0.10,
-      ph: 0.10,
-      light: 0.05
-    };
+    nitrogen: 0.12,  // Reduced from 0.15
+    phosphorus: 0.12,  // Reduced from 0.15
+    potassium: 0.12,  // Reduced from 0.15
+    temperature: 0.18,
+    humidity: 0.10, 
+    moisture: 0.15,  // Increased from 0.10
+    ph: 0.13,       // Increased from 0.10
+    light: 0.08     // Increased from 0.05
+  };
+
 
     let totalScore = 0;
     let totalWeight = 0;
@@ -424,9 +424,9 @@ class CropPredictionService {
       score: prediction.score,
       isRegistered: prediction.isRegistered,
       optimalConditions: {
-        npk_N: prediction.optimal_n,
-        npk_P: prediction.optimal_p,
-        npk_K: prediction.optimal_k,
+        nitrogen: prediction.optimal_n,
+        phosphorus: prediction.optimal_p,
+        potassium: prediction.optimal_k,
         temperature: prediction.optimal_temperature,
         humidity: prediction.optimal_humidity,
         moisture: prediction.optimal_moisture,
@@ -442,9 +442,9 @@ class CropPredictionService {
 
   formatSensorSummary(sensorData) {
     return {
-      npk_N: sensorData.npk_N,
-      npk_P: sensorData.npk_P,
-      npk_K: sensorData.npk_K,
+      nitrogen: sensorData.nitrogen,
+      phosphorus: sensorData.phosphorus,
+      potassium: sensorData.potassium,
       temperature: sensorData.temperature,
       humidity: sensorData.humidity,
       moisture: sensorData.moisture,

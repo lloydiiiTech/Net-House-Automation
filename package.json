@@ -31,6 +31,7 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "nodeplotlib": "^1.1.2",
+    "redis": "^4.7.0",
     "socket.io": "^4.8.1"
   }
 }

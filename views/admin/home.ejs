@@ -19,6 +19,7 @@
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
 
+    
 </head>
 
 <body class="fixed-navbar">
@@ -315,10 +316,10 @@
                         <div class="ibox bg-danger color-white widget-stat">
                             <div class="ibox-body">
                             
-                                <h2 class="m-b-5 font-strong">Light Condition</h2><i class="fas fa-flask"></i>
-                                <div class="m-b-5 widget-stat-icon" id="light"> <%= sensorData.light.value %></div>
-                                <i class="fas fa-lightbulb"></i>
-                                <div><small id="light-status"><%= sensorData.light.status %></small></div>
+                                <h2 class="m-b-5 font-strong">PH</h2>
+                                <div class="m-b-5 widget-stat-icon" id="light"> <%= sensorData.ph.value %></div>
+                                <i class="fas fa-flask"></i>
+                                <div><small id="light-status"><%= sensorData.ph.status %></small></div>
                                 
                             </div>
                         </div>
@@ -339,7 +340,7 @@
                                     
                                     <div class="d-inline-flex">
                                         <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
+                                            <div class="text-muted">DAILY AVERAGE</div>
                                             <div>
                                                 <span class="h2 m-0">(N)51.3</span>
                                                 <span class="text-success ml-2"><i class="fa fa-level-up"></i> +25%</span>
@@ -347,14 +348,14 @@
                                         </div>
                                         <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
                                         
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
+                                            <div class="text-muted">DAILY AVERAGE</div>
                                             <div>
                                                 <span class="h2 m-0">(P)31.0</span>
                                                 <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
                                             </div>
                                         </div>
                                         <div class="px-3">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
+                                            <div class="text-muted">DAILY AVERAGE</div>
                                             <div>
                                                 <span class="h2 m-0">(K)41.9</span>
                                                 <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
@@ -363,7 +364,122 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <canvas id="bar_chart" style="height:300px;"></canvas>
+                   
+                                    
+                                    <script src="/socket.io/socket.io.js"></script>
+                                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+                                    <div style="position: relative; height: 400px; width: 100%; padding: 20px;">
+                                        <canvas id="sensorChart"></canvas>
+                                    </div>
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            // If you're not using Socket.IO, remove the following line
+                                            const socket = io(); 
+                                        
+                                            // Get canvas context
+                                            const ctx = document.getElementById('sensorChart');
+                                            if (!ctx) {
+                                                console.error('Canvas element not found');
+                                                return;
+                                            }
+                                        
+                                            const sensorChart = new Chart(ctx.getContext('2d'), {
+                                                type: 'line',
+                                                data: {
+                                                    labels: [],
+                                                    datasets: [
+                                                        { 
+                                                            label: 'Nitrogen (N)', 
+                                                            data: [], 
+                                                            borderColor: '#4BC0C0',
+                                                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                                                            borderWidth: 2,
+                                                            pointRadius: 4,
+                                                            tension: 0.1
+                                                        },
+                                                        { 
+                                                            label: 'Phosphorus (P)', 
+                                                            data: [], 
+                                                            borderColor: '#FFCE56',
+                                                            backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                                                            borderWidth: 2,
+                                                            pointRadius: 4,
+                                                            tension: 0.1
+                                                        },
+                                                        { 
+                                                            label: 'Potassium (K)', 
+                                                            data: [], 
+                                                            borderColor: '#FF9F40',
+                                                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                                                            borderWidth: 2,
+                                                            pointRadius: 4,
+                                                            tension: 0.1
+                                                        }
+                                                    ]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: {
+                                                        x: {
+                                                            title: { display: true, text: 'Time' },
+                                                            ticks: {
+                                                                callback: function(value) {
+                                                                    return value; // Or format if needed
+                                                                }
+                                                            }
+                                                        },
+                                                        y: {
+                                                            title: { display: true, text: 'NPK Values (ppm)' },
+                                                            min: 0,
+                                                            max: 50 // <-- Fixed Y-axis range
+                                                        }
+                                                    },
+                                                    plugins: {
+                                                        legend: {
+                                                            position: 'top'
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        
+                                            // Load initial data
+                                            fetch('/sensors/history')
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                    data.forEach(reading => {
+                                                        updateChart(reading.timestamp, reading);
+                                                    });
+                                                })
+                                                .catch(err => {
+                                                    console.error('Error loading initial data:', err);
+                                                });
+                                        
+                                            // Real-time updates (enable only if Socket.IO is set up)
+                                            socket.on('sensor_update', (data) => {
+                                                updateChart(data.timestamp, data);
+                                            });
+                                        
+                                            function updateChart(timestamp, data) {
+                                                const timeLabel = new Date(timestamp).toLocaleTimeString();
+                                        
+                                                sensorChart.data.labels.push(timeLabel);
+                                                sensorChart.data.datasets[0].data.push(data.nitrogen);
+                                                sensorChart.data.datasets[1].data.push(data.phosphorus);
+                                                sensorChart.data.datasets[2].data.push(data.potassium);
+                                        
+                                                if (sensorChart.data.labels.length > 100) {
+                                                    sensorChart.data.labels.shift();
+                                                    sensorChart.data.datasets.forEach(dataset => dataset.data.shift());
+                                                }
+                                        
+                                                sensorChart.update();
+                                            }
+                                        });
+                                        </script>
+                                        
+
                                 </div>
                             </div>
                         </div>
@@ -403,8 +519,8 @@
                             </div>
                         </div>
                     </div>
-                </div><div class="row">
-                    
+                </div>
+                <div class="row">    
                     <div class="col-md-8">
                         <div class="ibox">
                             <div class="ibox-body">
@@ -882,7 +998,7 @@
 
     <script>
         function fetchSensorData() {
-            fetch('/api/sensor-data') // Make an AJAX request to the new API
+            fetch('/sensors_data') // Make an AJAX request to the new API
                 .then(response => response.json())
                 .then(data => {
                     // Update each sensor value and status
@@ -895,8 +1011,8 @@
                     document.getElementById("moisture").innerHTML = data.moisture.value;
                     document.getElementById("moisture-status").innerText = data.moisture.status;
     
-                    document.getElementById("light").innerHTML = data.light.value;
-                    document.getElementById("light-status").innerText = data.light.status;
+                    document.getElementById("ph").innerHTML = data.ph.value;
+                    document.getElementById("ph-status").innerText = data.ph.status;
                 })
                 .catch(error => console.error("Error fetching sensor data:", error));
         }

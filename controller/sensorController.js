@@ -8,26 +8,39 @@ exports.initScheduledJobs = () => {
     cron.schedule('0 0,6,12,18 * * *', async () => {
         try {
             await summarizeSensorData();
-            console.log('✅ Sensor data summarized successfully');
+            console.log('✅ 6-hour sensor data summarized successfully');
         } catch (error) {
-            console.error('❌ Error summarizing sensor data:', error);
+            console.error('❌ Error summarizing 6-hour sensor data:', error);
+        }
+    }, {
+        timezone: "Asia/Manila"
+    });
+
+    // Run daily at 11:59 PM to summarize the entire day's data
+    cron.schedule('41 16 * * *', async () => {
+        try {
+            await summarizeDailySensorData();
+            console.log('✅ Daily sensor data summarized successfully');
+        } catch (error) {
+            console.error('❌ Error summarizing daily sensor data:', error);
         }
     }, {
         timezone: "Asia/Manila"
     });
 
     // Test on specific hour 44 as minutes, 21 as 9PM
-    cron.schedule('15 22 * * *', async () => {
-        try {
-            await summarizeSensorData();
-            console.log('Sensor data summarized at 9:40 PM');
-        } catch (error) {
-            console.error('Error summarizing sensor data at 9:40 PM:', error);
-        }
-    }, {
-        timezone: "Asia/Manila" // or your local timezone
-    });
+    // cron.schedule('54 14 * * *', async () => {
+    //     try {
+    //         await summarizeSensorData();
+    //         console.log('Sensor data summarized at 9:40 PM');
+    //     } catch (error) {
+    //         console.error('Error summarizing sensor data at 9:40 PM:', error);
+    //     }
+    // }, {
+    //     timezone: "Asia/Manila" // or your local timezone
+    // });
 };
+
 async function summarizeSensorData() {
     const now = new Date();
     const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60 * 1000);
@@ -61,7 +74,8 @@ async function summarizeSensorData() {
         data_points: snapshot.size,
         period_start: sixHoursAgo,
         period_end: now,
-        timestamp: now
+        timestamp: now,
+        summary_type: '6-hour' // Add summary type
     };
 
     // Process each document
@@ -70,7 +84,7 @@ async function summarizeSensorData() {
         
         // Process all parameters consistently
         for (const param in summary) {
-            if (param in data && !['data_points', 'period_start', 'period_end', 'timestamp'].includes(param)) {
+            if (param in data && !['data_points', 'period_start', 'period_end', 'timestamp', 'summary_type'].includes(param)) {
                 const value = parseFloat(data[param]);
                 if (!isNaN(value)) {
                     updateParameterSummary(summary[param], value);
@@ -89,9 +103,79 @@ async function summarizeSensorData() {
     // Save summary to Firestore
     try {
         await firestore.collection('sensor_summaries').add(summary);
-        console.log(`💾 Saved ${summary.data_points} data points from ${formatTime(sixHoursAgo)} to ${formatTime(now)}`);
+        console.log(`💾 Saved 6-hour summary (${summary.data_points} data points) from ${formatTime(sixHoursAgo)} to ${formatTime(now)}`);
     } catch (e) {
-        console.error('❌ Error saving summary:', e);
+        console.error('❌ Error saving 6-hour summary:', e);
+        throw e;
+    }
+}
+
+async function summarizeDailySensorData() {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0); // Set to 12:00:00 AM today
+    
+    // Query Firestore for data from the entire day
+    const snapshot = await firestore.collection('sensors')
+        .where('timestamp', '>=', startOfDay)
+        .where('timestamp', '<=', now)
+        .get();
+    
+    if (snapshot.empty) {
+        console.log('⚠️ No sensor data found for today');
+        return;
+    }
+    
+    // Initialize summary with all required parameters
+    const summary = {
+        // Environmental Data
+        temperature: initParameterSummary(),
+        humidity: initParameterSummary(),
+        light: initParameterSummary(),
+        
+        // Soil Data
+        moistureAve: initParameterSummary(),
+        nitrogen: initParameterSummary(),
+        phosphorus: initParameterSummary(),
+        potassium: initParameterSummary(),
+        ph: initParameterSummary(),
+        
+        // Metadata
+        data_points: snapshot.size,
+        period_start: startOfDay,
+        period_end: now,
+        timestamp: now,
+        summary_type: 'daily' // Add summary type
+    };
+
+    // Process each document
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        
+        // Process all parameters consistently
+        for (const param in summary) {
+            if (param in data && !['data_points', 'period_start', 'period_end', 'timestamp', 'summary_type'].includes(param)) {
+                const value = parseFloat(data[param]);
+                if (!isNaN(value)) {
+                    updateParameterSummary(summary[param], value);
+                }
+            }
+        }
+    });
+
+    // Calculate final averages and handle null values
+    for (const param in summary) {
+        if (typeof summary[param] === 'object' && summary[param] !== null && 'values' in summary[param]) {
+            summary[param] = finalizeParameterSummary(summary[param]);
+        }
+    }
+
+    // Save summary to Firestore
+    try {
+        await firestore.collection('daily_sensor_summaries').add(summary);
+        console.log(`💾 Saved daily summary (${summary.data_points} data points) from ${formatDate(startOfDay)} to ${formatTime(now)}`);
+    } catch (e) {
+        console.error('❌ Error saving daily summary:', e);
         throw e;
     }
 }
@@ -125,30 +209,34 @@ function finalizeParameterSummary(summary) {
         };
     }
     
-    // Calculate median if we have values
-    let median = summary.sum / summary.count; // Default to mean if no values
-    
-    if (summary.values && summary.values.length > 0) {
-        // Create a copy to avoid modifying the original array
-        const sortedValues = [...summary.values].sort((a, b) => a - b);
-        const mid = Math.floor(sortedValues.length / 2);
-        median = sortedValues.length % 2 !== 0 ? 
-            sortedValues[mid] : 
-            (sortedValues[mid - 1] + sortedValues[mid]) / 2;
-    }
+    // Calculate traditional average (mean)
+    const average = summary.sum / summary.count;
     
     return {
-        average: median,
+        average: Number(average.toFixed(2)), // Rounds to 2 decimal places
         min: summary.min,
         max: summary.max,
         count: summary.count
     };
 }
+
 function formatTime(date) {
     return date.toLocaleString('en-US', { 
         timeZone: 'Asia/Manila',
         hour12: true,
         hour: '2-digit',
         minute: '2-digit'
+    });
+}
+
+function formatDate(date) {
+    return date.toLocaleString('en-US', { 
+        timeZone: 'Asia/Manila',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
     });
 }

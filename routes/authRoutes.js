@@ -53,6 +53,8 @@ router.get('/profile', aController.isAuthenticated, userController.profile);
 
 
 
+router.get('/sensors/history', adminController.getCachedData);
+router.get('/sensors_data', adminController.getSensorData);
 
 
 
@@ -67,13 +69,12 @@ router.get('/profile', aController.isAuthenticated, userController.profile);
 
 
 
+// const cropController = require('../controller/cropController');
 
-const cropController = require('../controller/cropController');
+// // Add these routes
+// router.get('/crops/recommend', cropController.getRecommendations);
+// router.get('/crops/train', cropController.trainModel);
 
-// Add these routes
-router.get('/crops/recommend', cropController.getRecommendations);
-router.get('/crops/train', cropController.trainModel);
-
-router.post('/crops', cropController.addCrop);
+// router.post('/crops', cropController.addCrop);
 
 module.exports = router;

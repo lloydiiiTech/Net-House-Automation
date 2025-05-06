@@ -1,24 +1,96 @@
-const { realtimeDB } = require("../config/firebase.js");
+
+const { realtimeDB } = require("../config/firebase");
+const redisClient = require("../config/redis");
+
+const MAX_HISTORY = 500; // Store last 500 readings
+const SENSOR_CACHE_KEY = "sensor_data";
+
+// Cache sensor data in Redis
+const cacheSensorData = async (data) => {
+    const timestamp = Date.now();
+    const sensorData = {
+        timestamp,
+        temperature: data.temperature,
+        humidity: data.humidity,
+        moisture: data.moistureAve,
+        light: data.light,
+        nitrogen: data.nitrogen,
+        phosphorus: data.phosphorus,
+        potassium: data.potassium,
+        ph: data.ph
+    };
+
+    try {
+        await redisClient.lPush(SENSOR_CACHE_KEY, JSON.stringify(sensorData));
+        await redisClient.lTrim(SENSOR_CACHE_KEY, 0, MAX_HISTORY - 1);
+        return sensorData;
+    } catch (err) {
+        console.error("Redis error:", err);
+        throw err;
+    }
+};
+
+// Initialize Firebase listener
+exports.initFirebaseListener = (io) => {
+    realtimeDB.ref("sensors").on("value", async (snapshot) => {
+        const data = snapshot.val();
+        
+        try {
+            const sensorData = await cacheSensorData(data);
+            
+            // Emit real-time update via WebSocket
+            io.emit("sensor_update", {
+                ...sensorData,
+                statuses: {
+                    temperature: getTemperatureStatus(data.temperature),
+                    humidity: getHumidityStatus(data.humidity),
+                    moisture: getMoistureStatus(data.moistureAve),
+                    light: getLightCondition(data.light),
+                    nitrogen: getNitrogenStatus(data.nitrogen),
+                    phosphorus: getPhosphorusStatus(data.phosphorus),
+                    potassium: getPotassiumStatus(data.potassium),
+                    ph: getPHStatus(data.ph)
+                }
+            });
+        } catch (err) {
+            console.error("Error processing sensor data:", err);
+        }
+    });
+};
+
+// Dashboard controller
 exports.Dashboard = async (req, res) => {
     const sensorRef = realtimeDB.ref("sensors");
 
-    sensorRef.once("value", (snapshot) => {
+    sensorRef.once("value", async (snapshot) => {
         const data = snapshot.val();
         
+        let history = [];
+        try {
+            const cachedData = await redisClient.lRange(SENSOR_CACHE_KEY, 0, -1);
+            history = cachedData.map(entry => JSON.parse(entry)).reverse();
+        } catch (err) {
+            console.error("Error fetching from Redis:", err);
+        }
+
         const sensorData = {
             temperature: { value: data.temperature, status: getTemperatureStatus(data.temperature) },
             humidity: { value: data.humidity, status: getHumidityStatus(data.humidity) },
             moisture: { value: data.moistureAve, status: getMoistureStatus(data.moistureAve) },
             light: { value: data.light, status: getLightCondition(data.light) },
-            npk_N: { value: data.npk_N, status: getNitrogenStatus(data.npk_N) },
-            npk_P: { value: data.npk_P, status: getPhosphorusStatus(data.npk_P) },
-            npk_K: { value: data.npk_K, status: getPotassiumStatus(data.npk_K) },
+            nitrogen: { value: data.nitrogen, status: getNitrogenStatus(data.nitrogen) },
+            phosphorus: { value: data.phosphorus, status: getPhosphorusStatus(data.phosphorus) },
+            potassium: { value: data.potassium, status: getPotassiumStatus(data.potassium) },
             ph: { value: data.ph, status: getPHStatus(data.ph) }
         };
 
-        res.render("admin/home", { sensorData }); 
+        res.render("admin/home", { 
+            sensorData,
+            sensorHistory: JSON.stringify(history)
+        }); 
     });
 };
+
 
 exports.getSensorData = async (req, res) => {
     const sensorRef = realtimeDB.ref("sensors");
@@ -31,14 +103,26 @@ exports.getSensorData = async (req, res) => {
             humidity: { value: data.humidity, status: getHumidityStatus(data.humidity) },
             moisture: { value: data.moistureAve, status: getMoistureStatus(data.moistureAve) },
             light: { value: data.light, status: getLightCondition(data.light) },
-            npk_N: { value: data.npk_N, status: getNitrogenStatus(data.npk_N) },
-            npk_P: { value: data.npk_P, status: getPhosphorusStatus(data.npk_P) },
-            npk_K: { value: data.npk_K, status: getPotassiumStatus(data.npk_K) },
+            nitrogen: { value: data.nitrogen, status: getNitrogenStatus(data.nitrogen) },
+            phosphorus: { value: data.phosphorus, status: getPhosphorusStatus(data.phosphorus) },
+            potassium: { value: data.potassium, status: getPotassiumStatus(data.potassium) },
             ph: { value: data.ph, status: getPHStatus(data.ph) }
         };
 
         res.json(sensorData);
     });
+};
+
+// Add this to your exports
+exports.getCachedData = async (req, res) => {
+    try {
+        const data = await redisClient.lRange(SENSOR_CACHE_KEY, 0, -1);
+        const parsedData = data.map(entry => JSON.parse(entry)).reverse();
+        res.json(parsedData);
+    } catch (err) {
+        console.error("Error fetching cached data:", err);
+        res.status(500).json({ error: "Failed to fetch cached data" });
+    }
 };
 
 function getNitrogenStatus(n) {
@@ -89,8 +173,8 @@ function getHumidityStatus(humidity) {
     return "Very High (High Risk of Diseases)";
 }
 function getMoistureStatus(moisture) {
-    if (moisture < 300) return "Dry (Needs Irrigation)";
-    if (moisture >= 300 && moisture <= 800) return "Normal (Adequate Moisture)";
+    if (moisture < 30) return "Dry (Needs Irrigation)";
+    if (moisture >= 30 && moisture <= 80) return "Normal (Adequate Moisture)";
     return "High (Waterlogged - Risk of Root Rot)";
 }
 function getLightCondition(light) {
