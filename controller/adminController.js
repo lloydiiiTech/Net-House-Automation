@@ -1,5 +1,5 @@
 
-const { realtimeDB } = require("../config/firebase");
+const { realtimeDB, admin, firestore } = require("../config/firebase");
 const redisClient = require("../config/redis");
 
 const MAX_HISTORY = 500; // Store last 500 readings
@@ -59,6 +59,7 @@ exports.initFirebaseListener = (io) => {
 };
 
 // Dashboard controller
+
 exports.Dashboard = async (req, res) => {
     const sensorRef = realtimeDB.ref("sensors");
 
@@ -73,6 +74,34 @@ exports.Dashboard = async (req, res) => {
             console.error("Error fetching from Redis:", err);
         }
 
+        // Get latest NPK averages from Firestore
+        let npkAverages = { nitrogen: 0, phosphorus: 0, potassium: 0 };
+try {
+    const snapshot = await admin.firestore()
+        .collection('daily_sensor_summaries')
+        .orderBy('date', 'desc')
+        .limit(1)
+        .get();
+
+    console.log('Firestore query executed'); // Debug log
+    console.log('Number of documents:', snapshot.size); // Debug log
+    
+    if (!snapshot.empty) {
+        const latestData = snapshot.docs[0].data();
+        console.log('Retrieved document data:', latestData); // Debug log
+        
+        npkAverages = {
+            nitrogen: latestData.nitrogen || latestData.N || 0,
+            phosphorus: latestData.phosphorus || latestData.P || 0,
+            potassium: latestData.potassium || latestData.K || 0
+        };
+    } else {
+        console.log('No documents found in daily_sensor_summaries'); // Debug log
+    }
+} catch (err) {
+    console.error("Error fetching Firestore NPK data:", err);
+}
+
         const sensorData = {
             temperature: { value: data.temperature, status: getTemperatureStatus(data.temperature) },
             humidity: { value: data.humidity, status: getHumidityStatus(data.humidity) },
@@ -81,21 +110,25 @@ exports.Dashboard = async (req, res) => {
             nitrogen: { value: data.nitrogen, status: getNitrogenStatus(data.nitrogen) },
             phosphorus: { value: data.phosphorus, status: getPhosphorusStatus(data.phosphorus) },
             potassium: { value: data.potassium, status: getPotassiumStatus(data.potassium) },
-            ph: { value: data.ph, status: getPHStatus(data.ph) }
+            ph: { value: data.ph, status: getPHStatus(data.ph) },
+            npkAverages: npkAverages
         };
 
         res.render("admin/home", { 
             sensorData,
-            sensorHistory: JSON.stringify(history)
+            sensorHistory: JSON.stringify(history),
+            firebaseConfig: {
+                apiKey: process.env.FIREBASE_API_KEY,
+                projectId: process.env.FIREBASE_PROJECT_ID
+            }
         }); 
     });
 };
 
-
 exports.getSensorData = async (req, res) => {
     const sensorRef = realtimeDB.ref("sensors");
 
-    sensorRef.once("value", (snapshot) => {
+    sensorRef.once("value", async (snapshot) => {
         const data = snapshot.val();
         
         const sensorData = {
@@ -123,6 +156,104 @@ exports.getCachedData = async (req, res) => {
         console.error("Error fetching cached data:", err);
         res.status(500).json({ error: "Failed to fetch cached data" });
     }
+};
+
+// Modified getNPKData endpoint to fetch last 2 records
+exports.getNPKData = async (req, res) => {
+    try {
+        const snapshot = await admin.firestore()
+            .collection('daily_sensor_summaries')
+            .orderBy('timestamp', 'desc')
+            .limit(2)  // Get last 2 records
+            .get();
+
+        const results = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            results.push({
+                nitrogen: data.nitrogen?.average || 0,
+                phosphorus: data.phosphorus?.average || 0,
+                potassium: data.potassium?.average || 0,
+                timestamp: data.timestamp?.toDate()?.toISOString()
+            });
+        });
+
+        res.json({
+            current: results[0] || { nitrogen: 0, phosphorus: 0, potassium: 0 },
+            previous: results[1] || results[0] || { nitrogen: 0, phosphorus: 0, potassium: 0 }
+        });
+    } catch (err) {
+        console.error("Error fetching NPK data:", err);
+        res.status(500).json({ error: "Failed to fetch NPK data" });
+    }
+};
+
+// SSE endpoint for real-time updates
+exports.npkUpdates = (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    console.log('New client connected to NPK stream');
+
+    const sendInitialData = async () => {
+        try {
+            const snapshot = await admin.firestore()
+                .collection('daily_sensor_summaries')
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+
+            if (!snapshot.empty) {
+                const data = snapshot.docs[0].data();
+                res.write(`data: ${JSON.stringify({
+                    nitrogen: data.nitrogen?.average || 0,
+                    phosphorus: data.phosphorus?.average || 0,
+                    potassium: data.potassium?.average || 0,
+                    lastUpdated: data.timestamp?.toDate()?.toISOString()
+                })}\n\n`);
+            }
+        } catch (err) {
+            console.error("Error sending initial NPK data:", err);
+        }
+    };
+
+    // Send initial data immediately
+    sendInitialData();
+
+    // Set up Firestore listener
+    const unsubscribe = admin.firestore()
+        .collection('daily_sensor_summaries')
+        .orderBy('timestamp', 'desc')
+        .limit(1)
+        .onSnapshot((snapshot) => {
+            if (!snapshot.empty) {
+                const data = snapshot.docs[0].data();
+                console.log('New NPK data detected:', {
+                    nitrogen: data.nitrogen?.average,
+                    phosphorus: data.phosphorus?.average,
+                    potassium: data.potassium?.average
+                });
+                
+                res.write(`data: ${JSON.stringify({
+                    nitrogen: data.nitrogen?.average || 0,
+                    phosphorus: data.phosphorus?.average || 0,
+                    potassium: data.potassium?.average || 0,
+                    lastUpdated: data.timestamp?.toDate()?.toISOString()
+                })}\n\n`);
+            }
+        }, (error) => {
+            console.error('Firestore listener error:', error);
+            res.end();
+        });
+
+    // Clean up on client disconnect
+    req.on('close', () => {
+        console.log('Client disconnected from NPK stream');
+        unsubscribe();
+        res.end();
+    });
 };
 
 function getNitrogenStatus(n) {

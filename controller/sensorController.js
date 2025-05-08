@@ -17,7 +17,7 @@ exports.initScheduledJobs = () => {
     });
 
     // Run daily at 11:59 PM to summarize the entire day's data
-    cron.schedule('41 16 * * *', async () => {
+    cron.schedule('08 2 * * *', async () => {
         try {
             await summarizeDailySensorData();
             console.log('✅ Daily sensor data summarized successfully');

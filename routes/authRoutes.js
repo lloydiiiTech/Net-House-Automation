@@ -55,7 +55,9 @@ router.get('/profile', aController.isAuthenticated, userController.profile);
 
 router.get('/sensors/history', adminController.getCachedData);
 router.get('/sensors_data', adminController.getSensorData);
-
+router.get('/npk-data', adminController.getNPKData);
+router.get('/npk-updates', adminController.npkUpdates);
+// router.get('/test-firestore-write', adminController.testFirestoreWrite);
 
 
 
