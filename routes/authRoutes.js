@@ -44,7 +44,7 @@ router.get('/admin-plant-overview', aController.isAuthenticated, aController.isA
 router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
 router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
 // router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
-// router.post('/harvestCurrentCrop',plantOverview.harvestCurrentCrop);
+router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCrop);
 
 
 

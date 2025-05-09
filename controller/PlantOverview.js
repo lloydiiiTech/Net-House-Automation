@@ -131,3 +131,36 @@ exports.confirmCropSelection = async (req, res) => {
       res.status(500).json({ error: "Failed to save crop selection" });
     }
   };
+
+  // ... existing code ...
+
+exports.harvestCrop = async (req, res) => {
+    try {
+        const { cropId, successRate } = req.body;
+
+        if (!cropId) {
+            return res.status(400).json({ error: "Invalid crop ID" });
+        }
+
+        if (successRate === undefined || successRate < 0 || successRate > 100) {
+            return res.status(400).json({ error: "Invalid success rate" });
+        }
+
+        const cropRef = firestore.collection('planted_crops').doc(cropId);
+        const endDate = admin.firestore.FieldValue.serverTimestamp();
+
+        await cropRef.update({
+            endDate,
+            status: successRate >= 70 ? 'successful' : 'unsuccessful',
+            successRate: parseInt(successRate, 10)
+        });
+
+        res.json({ 
+            success: true, 
+            message: "Crop harvested successfully" 
+        });
+    } catch (error) {
+        console.error("Error harvesting crop:", error);
+        res.status(500).json({ error: "Failed to harvest crop" });
+    }
+};

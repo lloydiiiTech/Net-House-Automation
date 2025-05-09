@@ -117,8 +117,8 @@
                     </div>
                 </div>
                 <button class="btn btn-primary harvest-btn mt-3" id="harvest-btn">
-                    <i class="fas fa-sickle"></i> Harvest
-                </button>
+                  <i class="fas fa-sickle"></i> Harvest
+              </button>
             </div>
             <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
 
@@ -973,12 +973,7 @@ function showToast(type, message) {
         
         // Harvest button functionality
         document.getElementById('harvest-btn').addEventListener('click', () => {
-            if(confirm('Are you sure you want to harvest the current crop?')) {
-                document.getElementById('current-crop').textContent = 'None';
-                document.querySelectorAll('.crop-item').forEach(i => {
-                    i.classList.remove('active');
-                });
-            }
+            $('#harvestModal').modal('show');
         });
         </script>
                 <style>
@@ -1160,6 +1155,155 @@ function showToast(type, message) {
     <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script>
 
     <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
+
+    <!-- Add this HTML for the harvest modal -->
+    <div class="modal fade" id="harvestModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Harvest Crop</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="successRate">Rate the crop success (0-100):</label>
+                        <input type="number" class="form-control" id="successRate" min="0" max="100" required>
+                        <small class="form-text text-muted">Enter a value between 0 and 100 to rate the crop's success</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmHarvest">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Harvest
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentCropId = null;
+
+    // Function to get active crop
+    async function getActiveCrop() {
+        try {
+            const response = await fetch('/getActiveCrop');
+            const data = await response.json();
+            
+            if (data.hasActiveCrop) {
+                currentCropId = data.cropId;
+                document.getElementById('current-crop').textContent = data.cropData.name;
+                document.getElementById('harvest-btn').disabled = false;
+            } else {
+                currentCropId = null;
+                document.getElementById('current-crop').textContent = 'None';
+                document.getElementById('harvest-btn').disabled = true;
+            }
+        } catch (error) {
+            console.error('Error getting active crop:', error);
+        }
+    }
+
+    // Call this when page loads
+    document.addEventListener('DOMContentLoaded', getActiveCrop);
+
+    // Update the harvest modal and functionality
+    document.getElementById('confirmHarvest').addEventListener('click', async () => {
+        const successRate = document.getElementById('successRate').value;
+        
+        if (!successRate || successRate < 0 || successRate > 100) {
+            alert('Please enter a valid success rate between 0 and 100');
+            return;
+        }
+
+        if (!currentCropId) {
+            alert('No active crop to harvest');
+            return;
+        }
+
+        try {
+            const response = await fetch('/harvestCrop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cropId: currentCropId,
+                    successRate: parseInt(successRate)
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Close modal
+                $('#harvestModal').modal('hide');
+                
+                // Show success message
+                alert(data.message);
+                
+                // Reset form
+                document.getElementById('successRate').value = '';
+                
+                // Update UI
+                await getActiveCrop();
+            } else {
+                alert(data.error || 'Failed to harvest crop');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to harvest crop');
+        }
+    });
+
+    // Add loading state to harvest button
+    document.getElementById('harvest-btn').addEventListener('click', () => {
+        if (!currentCropId) {
+            alert('No active crop to harvest');
+            return;
+        }
+        $('#harvestModal').modal('show');
+    });
+    </script>
+
+    <style>
+    /* Add these styles to your existing CSS */
+    .harvest-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    #harvestModal .modal-content {
+        border-radius: 8px;
+    }
+
+    #harvestModal .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    #harvestModal .form-control:focus {
+        border-color: #2a7f62;
+        box-shadow: 0 0 0 0.2rem rgba(42, 127, 98, 0.25);
+    }
+
+    #harvestModal .btn-primary {
+        background-color: #2a7f62;
+        border-color: #2a7f62;
+    }
+
+    #harvestModal .btn-primary:hover {
+        background-color: #236b53;
+        border-color: #236b53;
+    }
+
+    .spinner-border {
+        margin-right: 5px;
+    }
+    </style>
 
 </body>
 
