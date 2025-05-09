@@ -108,19 +108,38 @@
             </div>
         </nav>
         <div class="content-wrapper">
-            <div class="flexbox mb-4" style="justify-content: space-between; align-items: center;">
-                <h1>Plant Overview</h1>
-                <div class="flexbox" style="align-items: center; gap: 20px;">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1 class="mb-1">Plant Overview</h1>
                     <div class="current-crop-display">
-                        <span class="label">Current Crop:</span>
+                        <span class="label">Current Crop: </span>
                         <span class="value" id="current-crop">Tomato</span>
                     </div>
-                    <button class="btn btn-primary harvest-btn" id="harvest-btn">
-                        <i class="fas fa-sickle"></i> Harvest
-                    </button>
                 </div>
+                <button class="btn btn-primary harvest-btn mt-3" id="harvest-btn">
+                    <i class="fas fa-sickle"></i> Harvest
+                </button>
             </div>
-            
+            <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+            <style>
+            .current-crop-display {
+                font-size: 1.1rem;
+                color: #555;
+            }
+            .current-crop-display .value {
+                font-weight: 600;
+                color: #2a7f62;
+            }
+            .harvest-btn {
+                padding: 8px 20px;
+                border-radius: 6px;
+                background-color: #2a7f62;
+                border: none;
+                white-space: nowrap;
+                align-self: flex-end; /* Aligns button to bottom */
+            }
+            </style>
             <div class="page-content fade-in-up">
                 <div class="row">
                     <!-- Left side - 3x3 sensor grid -->
@@ -233,82 +252,520 @@
                     <!-- Right side - Top 5 crops prediction -->
                     <div class="col-lg-4">
                         <div class="recommendation-box">
-                            <div class="recommendation-header">
-                                <h3><i class="fas fa-seedling"></i> Top 5 Recommended Crops</h3>
-                            </div>
-                            <div class="recommendation-list">
-                                <div class="crop-item active" data-crop="Lettuce">
-                                    <div class="crop-rank">1</div>
-                                    <div class="crop-info">
-                                        <div class="crop-name">Lettuce</div>
-                                        <div class="crop-match">
-                                            <div class="match-bar" style="width: 85%;"></div>
-                                            <span>85% Match</span>
-                                        </div>
+                          <div class="recommendation-header">
+                            <h3><i class="fas fa-seedling"></i> Top 5 Recommended Crops</h3>
+                          </div>
+                          <div class="recommendation-list" id="recommended-crops-list">
+                            <% if (recommendations.length > 0) { %>
+                              <% recommendations.forEach((crop, index) => { %>
+                                <div class="crop-item" 
+                                     onclick="showCropDetails(<%= JSON.stringify(crop) %>, <%= JSON.stringify(sensorData) %>)">
+                                  <div class="crop-rank"><%= index + 1 %></div>
+                                  <div class="crop-info">
+                                    <div class="crop-name">
+                                      <%= crop.name %>
+                                      <span class="crop-status <%= crop.isRegistered ? 'registered' : 'new' %>">
+                                        <%= crop.isRegistered ? 'Registered' : 'New' %>
+                                      </span>
                                     </div>
-                                    <div class="crop-select">
-                                        <i class="fas fa-chevron-right"></i>
+                                    <div class="crop-match">
+                                      <div class="match-bar" style="width: <%= crop.score || crop.ruleBasedScore %>%"></div>
+                                      <span><%= Math.round(crop.score || crop.ruleBasedScore) %>% Match</span>
                                     </div>
+                                  </div>
+                                  <div class="crop-select">
+                                    <i class="fas fa-chevron-right"></i>
+                                  </div>
                                 </div>
-                                
-                                <div class="crop-item" data-crop="Tomato">
-                                    <div class="crop-rank">2</div>
-                                    <div class="crop-info">
-                                        <div class="crop-name">Tomato</div>
-                                        <div class="crop-match">
-                                            <div class="match-bar" style="width: 78%;"></div>
-                                            <span>78% Match</span>
-                                        </div>
-                                    </div>
-                                    <div class="crop-select">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="crop-item" data-crop="Bell Pepper">
-                                    <div class="crop-rank">3</div>
-                                    <div class="crop-info">
-                                        <div class="crop-name">Bell Pepper</div>
-                                        <div class="crop-match">
-                                            <div class="match-bar" style="width: 72%;"></div>
-                                            <span>72% Match</span>
-                                        </div>
-                                    </div>
-                                    <div class="crop-select">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="crop-item" data-crop="Cucumber">
-                                    <div class="crop-rank">4</div>
-                                    <div class="crop-info">
-                                        <div class="crop-name">Cucumber</div>
-                                        <div class="crop-match">
-                                            <div class="match-bar" style="width: 68%;"></div>
-                                            <span>68% Match</span>
-                                        </div>
-                                    </div>
-                                    <div class="crop-select">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="crop-item" data-crop="Strawberry">
-                                    <div class="crop-rank">5</div>
-                                    <div class="crop-info">
-                                        <div class="crop-name">Strawberry</div>
-                                        <div class="crop-match">
-                                            <div class="match-bar" style="width: 62%;"></div>
-                                            <span>62% Match</span>
-                                        </div>
-                                    </div>
-                                    <div class="crop-select">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </div>
-                                </div>
-                            </div>
+                              <% }); %>
+                            <% } else { %>
+                              <div class="text-center py-3">No crop recommendations available</div>
+                            <% } %>
+                          </div>
                         </div>
+                      </div>
+                      
+
+                      <!-- Modal -->
+<div class="modal fade" id="cropDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title font-weight-bold" id="cropModalTitle"></h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <div class="container-fluid">
+            <!-- First Row: Basic Info -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-info-circle text-primary mr-2"></i>
+                  <h6 class="mb-0 font-weight-bold">Crop Information</h6>
+                </div>
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Status:</span>
+                      <span id="cropStatus" class="badge"></span>
                     </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Overall Match:</span>
+                      <span id="overallMatch" class="font-weight-bold"></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Last Updated:</span>
+                      <span id="lastUpdated"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-star text-warning mr-2"></i>
+                  <h6 class="mb-0 font-weight-bold">Quick Stats</h6>
+                </div>
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <div class="row text-center">
+                      <div class="col-4 border-right">
+                        <div class="text-muted small">Best Match</div>
+                        <div id="bestMatchParam" class="font-weight-bold"></div>
+                      </div>
+                      <div class="col-4 border-right">
+                        <div class="text-muted small">Needs Attention</div>
+                        <div id="worstMatchParam" class="font-weight-bold"></div>
+                      </div>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Second Row: Comparison Data -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-bullseye text-success mr-2"></i>
+                  <h6 class="mb-0 font-weight-bold">Optimal Conditions</h6>
+                </div>
+                <div class="card shadow-sm h-100">
+                  <div class="card-body" id="optimalConditions"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-tachometer-alt text-info mr-2"></i>
+                  <h6 class="mb-0 font-weight-bold">Environment Data</h6>
+                </div>
+                <div class="card shadow-sm h-100">
+                  <div class="card-body" id="currentSensorData"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Third Row: Parameter Matches -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-percentage text-danger mr-2"></i>
+                  <h6 class="mb-0 font-weight-bold">Parameter Matching Analysis</h6>
+                </div>
+                <div class="card shadow-sm">
+                  <div class="card-body" id="parameterMatches"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+         
+          <button type="button" class="btn btn-primary" id="confirmCropBtn">
+            <i class="fas fa-check mr-2"></i>Confirm Selection
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    .toast {
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Modal loading state */
+  .btn-loading {
+    position: relative;
+  }
+  
+  .btn-loading .spinner-border {
+    position: relative;
+    top: -1px;
+  }
+  
+  /* Current crop highlight */
+  #current-crop {
+    font-weight: 600;
+    color: #2a7f62;
+    background-color: #f0f7f4;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  /* Modal Enhancements */
+  #cropDetailsModal .modal-header {
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+  }
+  
+  #cropDetailsModal .modal-content {
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  #cropDetailsModal .card {
+    border: none;
+    border-radius: 0.5rem;
+  }
+  
+  .param-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+  }
+  
+  .param-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .match-indicator {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f8f9fa 0%, #f8f9fa 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .match-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 4px;
+  }
+  
+  /* Status Badges */
+  .badge-registered {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .badge-new {
+    background-color: #17a2b8;
+    color: white;
+  }
+  
+  /* Parameter Quality Colors */
+  .excellent-match { border-left-color: #28a745; }
+  .good-match { border-left-color: #5cb85c; }
+  .fair-match { border-left-color: #f0ad4e; }
+  .poor-match { border-left-color: #d9534f; }
+  
+
+
+
+  /* Alert positioning */
+.fixed-top {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  right: 0;
+}
+
+/* Modal transition */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out, opacity 0.3s ease;
+}
+
+/* Button loading state */
+.btn-loading {
+  position: relative;
+}
+
+.btn-loading .spinner-border {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+  </style>
+  
+  <script>
+    
+  function showCropDetails(crop, sensorData) {
+    // Set modal title and basic info
+    document.getElementById('cropModalTitle').textContent = crop.name;
+    document.getElementById('cropStatus').className = `badge ${crop.isRegistered ? 'badge-registered' : 'badge-new'}`;
+    document.getElementById('cropStatus').textContent = crop.isRegistered ? 'Registered Crop' : 'New Crop';
+    document.getElementById('overallMatch').textContent = `${Math.round(crop.score || crop.ruleBasedScore)}%`;
+    document.getElementById('lastUpdated').textContent = crop.lastUpdated ? 
+      new Date(crop.lastUpdated.seconds * 1000).toLocaleString() : 'N/A';
+  
+    // Find best and worst matches
+    const matches = crop.parameterMatches || {};
+    const matchEntries = Object.entries(matches);
+    const bestMatch = matchEntries.reduce((a, b) => a[1] > b[1] ? a : b, ['', 0]);
+    const worstMatch = matchEntries.reduce((a, b) => a[1] < b[1] ? a : b, ['', 100]);
+    
+    document.getElementById('bestMatchParam').textContent = `${bestMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(bestMatch[1])}%)`;
+    document.getElementById('worstMatchParam').textContent = `${worstMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(worstMatch[1])}%)`;
+  
+    // Display optimal conditions
+    const optimalHtml = `
+      <table class="table table-sm table-borderless">
+        <tbody>
+          <tr>
+            <td class="text-muted" width="40%">Temperature</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.temperature || 'N/A'}°C</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Humidity</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.humidity || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Soil Moisture</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.moisture || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="text-muted">pH Level</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.ph || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Light Intensity</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.light || 'N/A'} lux</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Nitrogen (N)</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.npk_N || 'N/A'} ppm</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Phosphorus (P)</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.npk_P || 'N/A'} ppm</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Potassium (K)</td>
+            <td class="font-weight-bold">${crop.optimalConditions?.npk_K || 'N/A'} ppm</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    document.getElementById('optimalConditions').innerHTML = optimalHtml;
+  
+    // Display current sensor data
+    const sensorHtml = `
+      <table class="table table-sm table-borderless">
+        <tbody>
+          <tr>
+            <td class="text-muted" width="40%">Temperature</td>
+            <td class="font-weight-bold">${sensorData.temperature || 'N/A'}°C</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Humidity</td>
+            <td class="font-weight-bold">${sensorData.humidity || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Soil Moisture</td>
+            <td class="font-weight-bold">${sensorData.moisture || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="text-muted">pH Level</td>
+            <td class="font-weight-bold">${sensorData.ph || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Light Intensity</td>
+            <td class="font-weight-bold">${sensorData.light || 'N/A'} lux</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Nitrogen (N)</td>
+            <td class="font-weight-bold">${sensorData.npk_N || sensorData.nitrogen || 'N/A'} ppm</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Phosphorus (P)</td>
+            <td class="font-weight-bold">${sensorData.npk_P || sensorData.phosphorus || 'N/A'} ppm</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Potassium (K)</td>
+            <td class="font-weight-bold">${sensorData.npk_K || sensorData.potassium || 'N/A'} ppm</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    document.getElementById('currentSensorData').innerHTML = sensorHtml;
+  
+    // Display parameter matches with quality indicators
+    const matchesHtml = Object.entries(matches).map(([key, value]) => {
+      const paramName = key.replace('npk_', '').toUpperCase();
+      const matchClass = value >= 80 ? 'excellent-match' : 
+                        value >= 60 ? 'good-match' :
+                        value >= 40 ? 'fair-match' : 'poor-match';
+      
+      return `
+        <div class="param-card ${matchClass} p-3 mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="font-weight-bold">${paramName}</span>
+            <span class="badge badge-light">${Math.round(value)}%</span>
+          </div>
+          <div class="match-indicator">
+            <div class="match-progress" style="width: ${value}%; background-color: ${getProgressColor(value)};"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-1">
+            <small class="text-muted">Optimal: ${crop.optimalConditions?.[key] || 'N/A'}</small>
+            <small class="text-muted">Current: ${sensorData[key] || sensorData[key.toLowerCase()] || 'N/A'}</small>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('parameterMatches').innerHTML = matchesHtml;
+  
+    // Show modal
+    $('#cropDetailsModal').modal('show');
+    
+    // Store selected crop for confirmation
+    window.selectedCrop = crop;
+  }
+  
+  function getProgressColor(value) {
+    if (value >= 80) return '#28a745';
+    if (value >= 60) return '#5cb85c';
+    if (value >= 40) return '#f0ad4e';
+    return '#d9534f';
+  }
+  
+  document.getElementById('confirmCropBtn').addEventListener('click', function() {
+    if (window.selectedCrop) {
+      // Here you would typically send this to your server
+      console.log('Confirmed crop:', window.selectedCrop);
+      // Update current crop display
+      document.getElementById('current-crop').textContent = window.selectedCrop.name;
+      // Close modal
+      $('#cropDetailsModal').modal('hide');
+    }
+  });
+  </script>
+
+  <script>
+    document.getElementById('confirmCropBtn').addEventListener('click', async function() {
+  if (window.selectedCrop) {
+    try {
+      // Show loading state
+      const confirmBtn = document.getElementById('confirmCropBtn');
+      const originalText = confirmBtn.innerHTML;
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = `
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Planting...
+      `;
+      
+      // Prepare crop data for saving
+      const cropData = {
+        ...window.selectedCrop,
+        // Include only necessary data
+        name: window.selectedCrop.name,
+        isRegistered: window.selectedCrop.isRegistered,
+        optimalConditions: window.selectedCrop.optimalConditions,
+        parameterMatches: window.selectedCrop.parameterMatches,
+        score: window.selectedCrop.score || window.selectedCrop.ruleBasedScore
+      };
+
+      // Save to Firestore
+      const response = await fetch('/confirmCropSelection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cropData }),
+        credentials: 'include' // Important for session cookies
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save crop');
+      }
+
+      // Update UI
+      document.getElementById('current-crop').textContent = window.selectedCrop.name;
+      
+      // Show success toast
+      showToast('success', result.message || 'Crop planted successfully!');
+      
+      // Close modal after delay
+      setTimeout(() => {
+        $('#cropDetailsModal').modal('hide');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error confirming crop:', error);
+      showToast('danger', error.message || 'Failed to plant crop');
+    } finally {
+      // Reset button state
+      const confirmBtn = document.getElementById('confirmCropBtn');
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = originalText;
+    }
+  }
+});
+
+// Toast notification function
+function showToast(type, message) {
+  const toastContainer = document.getElementById('toastContainer');
+  if (!toastContainer) {
+    console.error('Toast container not found');
+    return;
+  }
+  
+  const toastId = `toast-${Date.now()}`;
+  const toast = document.createElement('div');
+  toast.id = toastId;
+  toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+  toast.role = 'alert';
+  toast.setAttribute('aria-live', 'assertive');
+  toast.setAttribute('aria-atomic', 'true');
+  toast.style.position = 'fixed';
+  toast.style.top = '20px';
+  toast.style.right = '20px';
+  toast.style.zIndex = '9999';
+  toast.style.minWidth = '250px';
+  
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+        ${message}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+  
+  toastContainer.appendChild(toast);
+  
+  // Auto-remove toast after 5 seconds
+  setTimeout(() => {
+    const bootstrapToast = bootstrap.Toast.getOrCreateInstance(toast);
+    bootstrapToast.hide();
+    toast.addEventListener('hidden.bs.toast', () => {
+      toast.remove();
+    });
+  }, 5000);
+}
+  </script>
                 </div>
             </div>
         </div>

@@ -203,6 +203,10 @@ const loginSuccess = async (req, res, userData, userId, email) => {
         return res.redirect("/login");
     }
 
+    // Configure session to not expire
+    req.session.cookie.expires = false; // Session won't expire when browser is closed
+    req.session.cookie.maxAge = null; // No maximum age (session won't expire automatically)
+
     req.session.user = {
         uid: userId,
         name: userData.name,

@@ -4,6 +4,7 @@ const authController = require('../controller/AuthController.js');
 const aController = require('../controller/AController.js');
 const adminController = require('../controller/adminController.js');
 const userController = require('../controller/userController.js');
+const plantOverview = require('../controller/PlantOverview.js');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -38,8 +39,15 @@ router.post('/newpassword', aController.handleNewPassword);
 
 
 
+// aController.isAuthenticated, aController.isAdmin,
+router.get('/admin-plant-overview', aController.isAuthenticated, aController.isAdmin, plantOverview.plantOverview);
+router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
+router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
+// router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
+// router.post('/harvestCurrentCrop',plantOverview.harvestCurrentCrop);
 
-router.get('/admin-plant-overview',aController.isAuthenticated, aController.isAdmin, adminController.plantOverview);
+
+
 router.get('/admin-irrigation-controll', aController.isAuthenticated, aController.isAdmin, adminController.irrigationControll);
 router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, adminController.reportsAnalytics);
 router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
