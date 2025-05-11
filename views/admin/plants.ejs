@@ -1190,7 +1190,7 @@ function showToast(type, message) {
     // Function to get active crop
     async function getActiveCrop() {
         try {
-            const response = await fetch('/getActiveCrop');
+            const response = await fetch('/checkActiveCrop');
             const data = await response.json();
             
             if (data.hasActiveCrop) {

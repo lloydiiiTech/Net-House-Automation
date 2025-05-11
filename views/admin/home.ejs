@@ -4,60 +4,200 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetHouseAutomation Dashboard</title>
-    <!-- GLOBAL MAINLY STYLES-->
+    <!-- Core CSS -->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- PLUGINS STYLES-->
-    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
-    <!-- THEME STYLES-->
     <link href="assets/css/main.min.css" rel="stylesheet" />
-    <!-- PAGE LEVEL STYLES-->
+    <!-- Additional CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --warning-color: #FFC107;
+            --danger-color: #F44336;
+            --success-color: #4CAF50;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sensor-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .sensor-status {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-normal { background-color: var(--success-color); color: white; }
+        .status-warning { background-color: var(--warning-color); color: black; }
+        .status-danger { background-color: var(--danger-color); color: white; }
+
+        .crop-info-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .crop-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .health-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        .weather-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .weather-temp {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .weather-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .weather-stat {
+            text-align: center;
+        }
+
+        .weather-stat i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sensor-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 
 <body class="fixed-navbar">
     <div class="page-wrapper">
-        <!-- START HEADER-->
+        <!-- Header -->
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/admin-home">
-                    <span class="brand">Demo
-                        <span class="brand-tip">FARM</span>
+                    <span class="brand">NetHouse
+                        <span class="brand-tip">AUTOMATION</span>
                     </span>
-                    <span class="brand-mini">DF</span>
+                    <span class="brand-mini">NHA</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
-                <!-- START TOP-LEFT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
                     <li>
                         <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
                     </li>
-                    <!--<li>
-                        <form class="navbar-search" action="javascript:;">
-                            <div class="rel">
-                                <span class="search-icon"><i class="ti-search"></i></span>
-                                <input class="form-control" placeholder="Search here...">
-                            </div>
-                        </form>
-                    </li>-->
                 </ul>
-                <!-- END TOP-LEFT TOOLBAR-->
-                <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
-                    
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
                             <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i></a>
+                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i>
+                        </a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/admin-profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
@@ -65,11 +205,10 @@
                         </ul>
                     </li>
                 </ul>
-                <!-- END TOP-RIGHT TOOLBAR-->
             </div>
         </header>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
+
+        <!-- Sidebar -->
         <nav class="page-sidebar" id="sidebar">
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
@@ -77,89 +216,127 @@
                         <img src="./assets/img/admin-avatar.png" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div><small>Administrator</small></div>
+                        <div class="font-strong">Dan Lloyd</div>
+                        <small>Administrator</small>
+                    </div>
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="active" href="/admin-home"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a class="active" href="/admin-home">
+                            <i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
-                    
                     <li>
-                        <a class="active" href="/admin-plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a href="/admin-plant-overview">
+                            <i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/admin-irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
-                            <span class="nav-label">Irrigation Controll</span>
+                        <a href="/admin-irrigation-controll">
+                            <i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/admin-reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="/admin-reports&analytics">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/admin-user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                        <a href="/admin-user-management">
+                            <i class="sidebar-item-icon fas fa-users-cog"></i>
                             <span class="nav-label">User Management</span>
                         </a>
                     </li>
-                    
                 </ul>
             </div>
         </nav>
-        <!-- END SIDEBAR-->
+
+        <!-- Main Content -->
         <div class="content-wrapper">
-            <!-- START PAGE CONTENT-->
             <div class="page-content fade-in-up">
+                <!-- Sensor Cards -->
                 <div class="row">
                     <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Temperature</h2>
-                                <div class="m-b-5 widget-stat-icon"id="temperature"><%= sensorData.temperature.value %>°C</div>
-                                <i class="fas fa-thermometer-half "></i>
-                                <div><small id="temperature-status"><%= sensorData.temperature.status %></small></div>
+                        <div class="dashboard-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-thermometer-half fa-2x text-danger mb-3"></i>
+                                <h3 class="sensor-value" id="temperature"><%= sensorData.temperature.value %>°C</h3>
+                                <span class="sensor-status" id="temperature-status"><%= sensorData.temperature.status %></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Humidity</h2><i class=" fas fa-tint"></i>
-                                <div class="m-b-5 widget-stat-icon" id="humidity"><%= sensorData.humidity.value %>%</div>
-                                <div><small id="humidity-status"><%= sensorData.humidity.status %></small></div>
+                        <div class="dashboard-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tint fa-2x text-info mb-3"></i>
+                                <h3 class="sensor-value" id="humidity"><%= sensorData.humidity.value %>%</h3>
+                                <span class="sensor-status" id="humidity-status"><%= sensorData.humidity.status %></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Moisture</h2><i class="fas fa-water"></i>
-                                <div class="m-b-5 widget-stat-icon" id="moisture"><%= sensorData.moisture.value %></div>
-                                <div><small id="moisture-status"><%= sensorData.moisture.status %></small></div>
+                        <div class="dashboard-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-water fa-2x text-warning mb-3"></i>
+                                <h3 class="sensor-value" id="moisture"><%= sensorData.moisture.value %></h3>
+                                <span class="sensor-status" id="moisture-status"><%= sensorData.moisture.status %></span>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
-                            
-                                <h2 class="m-b-5 font-strong">PH</h2>
-                                <div class="m-b-5 widget-stat-icon" id="light"> <%= sensorData.ph.value %></div>
-                                <i class="fas fa-flask"></i>
-                                <div><small id="light-status"><%= sensorData.ph.status %></small></div>
-                                
+                        <div class="dashboard-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-flask fa-2x text-success mb-3"></i>
+                                <h3 class="sensor-value" id="ph"><%= sensorData.ph.value %></h3>
+                                <span class="sensor-status" id="ph-status"><%= sensorData.ph.status %></span>
+                            </div>
                             </div>
                         </div>
                     </div>
     
+                <!-- Current Crop Section -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="crop-info-card">
+                            <div class="crop-header">
+                                <h2 class="crop-name" id="crop-name"><%= cropData ? cropData.name : 'No Crop Planted' %></h2>
+                                <span class="health-badge" id="health-badge">
+                                                        <%= cropData ? cropData.healthStatus : 'No Crop' %>
+                                                    </span>
+                                                </div>
+                            <div class="stat-grid">
+                                                        <div class="stat-item">
+                                    <i class="fas fa-calendar-alt stat-icon"></i>
+                                    <div class="stat-label">Planting Date</div>
+                                    <div class="stat-value" id="planting-date">
+                                        <%= cropData ? new Date(cropData.plantingDate).toLocaleDateString() : '-' %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="stat-item">
+                                    <i class="fas fa-clock stat-icon"></i>
+                                    <div class="stat-label">Growth Stage</div>
+                                    <div class="stat-value" id="growth-stage"><%= cropData ? cropData.growthStage : '-' %></div>
+                                                            </div>
+                                                        <div class="stat-item">
+                                    <i class="fas fa-leaf stat-icon"></i>
+                                    <div class="stat-label">Health Status</div>
+                                    <div class="stat-value" id="health-status"><%= cropData ? cropData.healthStatus : '-' %></div>
+                                                            </div>
+                                                        <div class="stat-item">
+                                    <i class="fas fa-chart-line stat-icon"></i>
+                                    <div class="stat-label">Health Score</div>
+                                    <div class="stat-value" id="health-score"><%= cropData ? cropData.score + '%' : '-' %></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-
-
+                <!-- NPK Chart and Weather -->
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="ibox">
@@ -167,14 +344,11 @@
                                 <div class="flexbox mb-4">
                                     <div>
                                         <h3 class="m-0">Daily NPK Data</h3>
-                                        
                                     </div>
-                                    
                                     <div class="d-inline-flex">
                                         <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
                                             <div class="text-muted">DAILY AVERAGE</div>
                                             <small id="npk-last-update">Last updated: Loading...</small>
-                                            
                                         </div>
                                         <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
                                             <div class="text-muted">NITROGEN (N)</div>
@@ -200,8 +374,6 @@
                                     </div>
                                 </div>
                                 <div>
-                   
-                                    
                                     <script src="/socket.io/socket.io.js"></script>
                                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -210,7 +382,6 @@
                                     </div>
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function() {
-                                            // If you're not using Socket.IO, remove the following line
                                             const socket = io(); 
                                         
                                             // Get canvas context
@@ -218,6 +389,14 @@
                                             if (!ctx) {
                                                 console.error('Canvas element not found');
                                                 return;
+                                            }
+
+                                            // Function to update NPK averages display
+                                            function updateNPKAverages(data) {
+                                                document.getElementById('npk-nitrogen').textContent = data.nitrogen.toFixed(1);
+                                                document.getElementById('npk-phosphorus').textContent = data.phosphorus.toFixed(1);
+                                                document.getElementById('npk-potassium').textContent = data.potassium.toFixed(1);
+                                                document.getElementById('npk-last-update').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
                                             }
                                         
                                             const sensorChart = new Chart(ctx.getContext('2d'), {
@@ -262,14 +441,14 @@
                                                             title: { display: true, text: 'Time' },
                                                             ticks: {
                                                                 callback: function(value) {
-                                                                    return value; // Or format if needed
+                                                                    return value;
                                                                 }
                                                             }
                                                         },
                                                         y: {
                                                             title: { display: true, text: 'NPK Values (ppm)' },
                                                             min: 0,
-                                                            max: 50 // <-- Fixed Y-axis range
+                                                            max: 50
                                                         }
                                                     },
                                                     plugins: {
@@ -279,6 +458,40 @@
                                                     }
                                                 }
                                             });
+
+                                            // Function to fetch NPK data
+                                            async function fetchNPKData() {
+                                                try {
+                                                    const response = await fetch('/npk-data');
+                                                    const data = await response.json();
+                                                    
+                                                    if (data.current) {
+                                                        updateNPKAverages(data.current);
+                                                        
+                                                        // Update trends if we have previous data
+                                                        if (data.previous) {
+                                                            updateTrend('nitrogen', data.current.nitrogen, data.previous.nitrogen);
+                                                            updateTrend('phosphorus', data.current.phosphorus, data.previous.phosphorus);
+                                                            updateTrend('potassium', data.current.potassium, data.previous.potassium);
+                                                        }
+                                                    }
+                                                } catch (error) {
+                                                    console.error('Error fetching NPK data:', error);
+                                                }
+                                            }
+
+                                            // Function to update trend indicators
+                                            function updateTrend(element, current, previous) {
+                                                const trendElement = document.getElementById(`${element}-trend`);
+                                                if (!trendElement) return;
+
+                                                const change = ((current - previous) / previous) * 100;
+                                                const trendIcon = change > 0 ? 'fa-arrow-up' : change < 0 ? 'fa-arrow-down' : 'fa-minus';
+                                                const trendColor = change > 0 ? 'text-success' : change < 0 ? 'text-danger' : 'text-info';
+                                                
+                                                trendElement.innerHTML = `<i class="fa ${trendIcon}"></i> ${Math.abs(change).toFixed(1)}%`;
+                                                trendElement.className = `ml-2 ${trendColor}`;
+                                            }
                                         
                                             // Load initial data
                                             fetch('/sensors/history')
@@ -292,10 +505,20 @@
                                                     console.error('Error loading initial data:', err);
                                                 });
                                         
-                                            // Real-time updates (enable only if Socket.IO is set up)
+                                            // Initial NPK data fetch
+                                            fetchNPKData();
+                                        
+                                            // Real-time updates
                                             socket.on('sensor_update', (data) => {
                                                 updateChart(data.timestamp, data);
                                             });
+
+                                            // Set up SSE for NPK updates
+                                            const npkEventSource = new EventSource('/npk-updates');
+                                            npkEventSource.onmessage = function(event) {
+                                                const data = JSON.parse(event.data);
+                                                updateNPKAverages(data);
+                                            };
                                         
                                             function updateChart(timestamp, data) {
                                                 const timeLabel = new Date(timestamp).toLocaleTimeString();
@@ -312,257 +535,60 @@
                                         
                                                 sensorChart.update();
                                             }
+
+                                            // Refresh NPK data every 5 minutes
+                                            setInterval(fetchNPKData, 300000);
                                         });
                                         </script>
-                                        
-
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Weather & Time</div>
-                            </div>
-                            <div class="ibox-body">
-                                <!-- Sun/Moon Position Arc -->
-                                <div class="sky-arc-container">
-                                    <svg class="sky-arc" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
-                                        <defs>
-                                            <!-- Day Gradient -->
-                                            <linearGradient id="dayGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#1e5799" />
-                                                <stop offset="50%" stop-color="#2989d8" />
-                                                <stop offset="100%" stop-color="#1e5799" />
-                                            </linearGradient>
-                                            <!-- Night Gradient -->
-                                            <linearGradient id="nightGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#0c1445" />
-                                                <stop offset="50%" stop-color="#1a237e" />
-                                                <stop offset="100%" stop-color="#0c1445" />
-                                            </linearGradient>
-                                            <!-- Sun Glow -->
-                                            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                                                <stop offset="0%" stop-color="#ffee00" stop-opacity="0.8" />
-                                                <stop offset="100%" stop-color="#ff9800" stop-opacity="0" />
-                                            </radialGradient>
-                                            <!-- Moon Glow -->
-                                            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                                                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6" />
-                                                <stop offset="100%" stop-color="#bbbbbb" stop-opacity="0" />
-                                            </radialGradient>
-                                        </defs>
-                                        <!-- Arc Path -->
-                                        <path class="arc-path" d="M 0,100 Q 150,0 300,100" fill="none" stroke-width="6" stroke="url(#dayGradient)" />
-                                        
-                                        
-                                        <!-- Celestial Body -->
-                                        <g id="celestial-container" transform="translate(150, 50)">
-                                            <circle id="celestial-glow" r="20" fill="url(#sunGlow)" opacity="0.7" />
-                                            <circle id="celestial-body" r="10" fill="#f9d71c" />
-                                        </g>
-                                        <h2 class="m-b-5 font-strong">Light</h2>
-                                <div class="m-b-5" id="light"><%= sensorData.light.value %></div>
-                                <div><small id="light-status"><%= sensorData.light.status %></small></div>
-                                    </svg>
-                                    
-                            
-                                </div>
-                                
-                                <!-- Current Date and Time -->
-                                <div class="datetime-container text-center mb-3">
-                                    <h2 id="current-date" class="mb-1"></h2>
-                                    <h1 id="current-time" class="font-strong"></h1>
-                                </div>
-                                
-                                <!-- Weather Display -->
                                 <div class="weather-card">
-                                    <div class="weather-icon-container">
-                                        <i id="weather-icon" class="wi"></i>
-                                    </div>
-                                    <div class="weather-details">
+                            <div class="text-center">
+                                <i class="wi wi-day-sunny weather-icon"></i>
                                         <div class="weather-temp" id="weather-temp">--°C</div>
                                         <div class="weather-desc" id="weather-desc">Loading weather...</div>
-                                        <div class="weather-stats">
+                            </div>
+                            <div class="weather-details">
                                             <div class="weather-stat">
                                                 <i class="wi wi-humidity"></i>
-                                                <span id="weather-humidity">--%</span>
+                                    <div id="weather-humidity">--%</div>
                                             </div>
                                             <div class="weather-stat">
                                                 <i class="wi wi-strong-wind"></i>
-                                                <span id="weather-wind">-- km/h</span>
+                                    <div id="weather-wind">-- km/h</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
                         </div>
                     </div>
                     
-                    <!-- Weather Icons CSS -->
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
-                    
-                    <style>
-                    /* Sky Arc Styles */
-                    .sky-arc-container {
-                        margin: 0 auto 20px;
-                        width: 100%;
-                        max-width: 350px;
-                        position: relative;
-                        height: 80px;
-                    }
-                    
-                    .sky-arc {
-                        width: 100%;
-                        height: 100%;
-                        display: block;
-                    }
-                    
-                    .arc-path {
-                        stroke-linecap: round;
-                        transition: stroke 0.5s ease;
-                    }
-                    
-                    /* Celestial Body Styles */
-                    #celestial-container {
-                        transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
-                    }
-                    
-                    #celestial-glow {
-                        transition: all 0.5s ease;
-                    }
-                    
-                    #celestial-body {
-                        transition: all 0.5s ease;
-                    }
-                    
-                    /* Weather Card Styles */
-                    .weather-card {
-                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                        border-radius: 15px;
-                        padding: 15px;
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                        display: flex;
-                        align-items: center;
-                        transition: all 0.5s ease;
-                    }
-                    
-                    .weather-icon-container {
-                        font-size: 3rem;
-                        margin-right: 15px;
-                        min-width: 60px;
-                        text-align: center;
-                        color: #4a6fa5;
-                    }
-                    
-                    .weather-details {
-                        flex-grow: 1;
-                    }
-                    
-                    .weather-temp {
-                        font-size: 2rem;
-                        font-weight: bold;
-                        margin-bottom: 5px;
-                        color: #2c3e50;
-                    }
-                    
-                    .weather-desc {
-                        color: #4a5568;
-                        margin-bottom: 10px;
-                        text-transform: capitalize;
-                    }
-                    
-                    .weather-stats {
-                        display: flex;
-                        gap: 15px;
-                    }
-                    
-                    .weather-stat {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        font-size: 0.9rem;
-                        color: #4a5568;
-                    }
-                    
-                    /* Animations */
-                    @keyframes sunPulse {
-                        0% { transform: scale(1); opacity: 0.8; }
-                        50% { transform: scale(1.1); opacity: 1; }
-                        100% { transform: scale(1); opacity: 0.8; }
-                    }
-                    
-                    .sun-animation {
-                        animation: sunPulse 3s infinite ease-in-out;
-                    }
-                    
-                    .moon-animation {
-                        animation: sunPulse 4s infinite ease-in-out;
-                    }
-                    </style>
+    <!-- Core Scripts -->
+    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="./assets/vendors/chart.js/dist/Chart.min.js"></script>
+    <script src="assets/js/app.min.js"></script>
                     
                     <script>
                     // Calapan City Coordinates
                     const CALAPAN_LAT = 13.4125;
                     const CALAPAN_LON = 121.1803;
                     
-                    // 1. Date & Time Functions
-                    function updateDateTime() {
-                        const now = new Date();
-                        
-                        // Format date (e.g., "Monday, May 15, 2023")
-                        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                        document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, dateOptions);
-                        
-                        // Format time (e.g., "14:30")
-                        const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
-                        document.getElementById('current-time').textContent = now.toLocaleTimeString(undefined, timeOptions);
-                        
-                        // Update sun/moon position
-                        updateSunMoonPosition(now);
-                    }
-                    
-                    // Calculate celestial body position
-                    function updateSunMoonPosition(now) {
-                        const hours = now.getHours();
-                        const minutes = now.getMinutes();
-                        const totalMinutes = hours * 60 + minutes;
-                        const isDaytime = hours >= 6 && hours < 18;
-                        const container = document.getElementById('celestial-container');
-                        const body = document.getElementById('celestial-body');
-                        const glow = document.getElementById('celestial-glow');
-                        const arc = document.querySelector('.arc-path');
-                        
-                        // Set day/night mode
-                        if (isDaytime) {
-                            // Sun configuration
-                            arc.setAttribute('stroke', 'url(#dayGradient)');
-                            body.setAttribute('fill', '#f9d71c');
-                            glow.setAttribute('fill', 'url(#sunGlow)');
-                            glow.style.opacity = '0.7';
-                            body.classList.add('sun-animation');
-                            body.classList.remove('moon-animation');
-                        } else {
-                            // Moon configuration
-                            arc.setAttribute('stroke', 'url(#nightGradient)');
-                            body.setAttribute('fill', '#e6e6e6');
-                            glow.setAttribute('fill', 'url(#moonGlow)');
-                            glow.style.opacity = '0.5';
-                            body.classList.remove('sun-animation');
-                            body.classList.add('moon-animation');
-                        }
-                        
-                        // Calculate position along arc (6am = left, 12pm = top, 6pm = right)
-                        const progress = Math.min(Math.max((totalMinutes - 360) / 720, 0), 1); // 6am-6pm = 0-1
-                        const angle = progress * Math.PI; // 0-π radians
-                        const x = 150 * (1 - Math.cos(angle)); // Calculate x position
-                        const y = 100 * Math.sin(angle) + 50; // Calculate y position
-                        
-                        container.setAttribute('transform', `translate(${x}, ${y})`);
-                    }
-                    
-                    // 2. Weather Functions (Using Open-Meteo)
+        // Weather Functions
                     async function fetchWeather() {
                         try {
                             const response = await fetch(
@@ -575,7 +601,7 @@
                                 
                                 document.getElementById('weather-temp').textContent = `${Math.round(data.current.temperature_2m)}°C`;
                                 document.getElementById('weather-desc').textContent = weather.description;
-                                document.getElementById('weather-icon').className = `wi ${weather.icon}`;
+                    document.querySelector('.weather-icon').className = `wi ${weather.icon} weather-icon`;
                                 document.getElementById('weather-humidity').textContent = `${data.current.relative_humidity_2m}%`;
                                 document.getElementById('weather-wind').textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
                                 
@@ -591,28 +617,21 @@
                     // Update weather card style based on conditions
                     function updateWeatherCardStyle(weatherCode) {
                         const card = document.querySelector('.weather-card');
-                        const icon = document.getElementById('weather-icon');
-                        let gradient, iconColor;
+            let gradient;
                         
                         if (weatherCode >= 200 && weatherCode < 300) {
                             gradient = 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)';
-                            iconColor = '#f1c40f';
                         } else if (weatherCode >= 300 && weatherCode < 600) {
                             gradient = 'linear-gradient(135deg, #757f9a 0%, #d7dde8 100%)';
-                            iconColor = '#3498db';
                         } else if (weatherCode >= 600 && weatherCode < 700) {
                             gradient = 'linear-gradient(135deg, #83a4d4 0%, #b6fbff 100%)';
-                            iconColor = '#ecf0f1';
                         } else if (weatherCode === 800) {
                             gradient = 'linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%)';
-                            iconColor = '#f39c12';
                         } else {
-                            gradient = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
-                            iconColor = '#7f8c8d';
+                gradient = 'linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)';
                         }
                         
                         card.style.background = gradient;
-                        icon.style.color = iconColor;
                     }
                     
                     // Weather code mapping (WMO codes)
@@ -641,207 +660,18 @@
                         return weatherMap[code] || { description: "Unknown", icon: "wi-cloud" };
                     }
                     
-                    // Initialize everything when page loads
+        // Initialize weather when page loads
                     window.addEventListener('DOMContentLoaded', () => {
-                        updateDateTime();
                         fetchWeather();
-                        
-                        // Update time (and sun position) every minute
-                        setInterval(updateDateTime, 60000);
-                        
                         // Update weather every 30 minutes
                         setInterval(fetchWeather, 1800000);
                     });
-                    </script>
-                    
-                </div>
-                
-                <style>
-                    .visitors-table tbody tr td:last-child {
-                        display: flex;
-                        align-items: center;
-                    }
 
-                    .visitors-table .progress {
-                        flex: 1;
-                    }
-
-                    .visitors-table .progress-parcent {
-                        text-align: right;
-                        margin-left: 10px;
-                    }
-                </style>
-            <!-- END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
-        </div>
-    </div>
-    <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
-            </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-            </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- END THEME CONFIG PANEL-->
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
-    </div>
-    <!-- END PAGA BACKDROPS-->
-    <!-- CORE PLUGINS-->
-    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL PLUGINS-->
-    <script src="./assets/vendors/chart.js/dist/Chart.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-us-aea-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/moment/min/moment.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/fullcalendar/dist/fullcalendar.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    
-    <!-- CORE SCRIPTS-->
-    <script src="assets/js/app.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-    <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script>
-
-    <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
-
-    <script>
+        // Existing sensor data fetch function
         function fetchSensorData() {
-            fetch('/sensors_data') // Make an AJAX request to the new API
+            fetch('/sensors_data')
                 .then(response => response.json())
                 .then(data => {
-                    // Update each sensor value and status
                     document.getElementById("temperature").innerHTML = `${data.temperature.value}°C`;
                     document.getElementById("temperature-status").innerText = data.temperature.status;
     
@@ -857,133 +687,12 @@
                 .catch(error => console.error("Error fetching sensor data:", error));
         }
     
-        // Refresh every 5 seconds
+        // Refresh sensor data every 10 seconds
         setInterval(fetchSensorData, 10000);
     
-        // Initial data load when the page first loads
+        // Initial data load
         window.onload = fetchSensorData;
     </script>
-    <script>
-    // Store previous values for trend calculation
-    let previousNPK = {
-        nitrogen: 0,
-        phosphorus: 0,
-        potassium: 0
-    };
-
-    function formatDate(dateString) {
-        if (!dateString) return 'Never';
-        const options = { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric'
-        };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-    }
-
-    function calculateTrend(current, previous) {
-        if (!previous || previous === 0) return { change: 0, direction: 'neutral' };
-        
-        const change = ((current - previous) / previous) * 100;
-        const absChange = Math.abs(change).toFixed(0);
-        
-        return {
-            value: absChange,
-            direction: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral'
-        };
-    }
-
-    function updateNPKUI(type, currentValue, previousValue, lastUpdated) {
-        const element = document.getElementById(`npk-${type}`);
-        const trendElement = document.getElementById(`${type}-trend`);
-        
-        // Update the value
-        element.textContent = currentValue.toFixed(1);
-        
-        // Calculate trend
-        const trend = calculateTrend(currentValue, previousValue);
-        
-        // Update trend indicator
-        if (trend.direction === 'up') {
-            trendElement.innerHTML = `<i class="fa fa-level-up"></i> +${trend.value}%`;
-            trendElement.className = "text-success ml-2";
-        } else if (trend.direction === 'down') {
-            trendElement.innerHTML = `<i class="fa fa-level-down"></i> -${trend.value}%`;
-            trendElement.className = "text-warning ml-2";
-        } else {
-            trendElement.innerHTML = `<i class="fa fa-minus"></i> 0%`;
-            trendElement.className = "text-info ml-2";
-        }
-        
-        // Update timestamp (only once)
-        if (type === 'nitrogen' && lastUpdated) {
-            document.getElementById('npk-last-update').textContent = `Last updated: ${formatDate(lastUpdated)}`;
-        }
-    }
-
-    // Initialize when page loads
-    window.addEventListener('DOMContentLoaded', () => {
-        // Fetch last 2 records to calculate initial trends
-        fetch('/npk-data')
-            .then(response => response.json())
-            .then(data => {
-                // Store previous values
-                previousNPK = {
-                    nitrogen: data.previous.nitrogen,
-                    phosphorus: data.previous.phosphorus,
-                    potassium: data.previous.potassium
-                };
-                
-                // Update UI with current values and trends
-                updateNPKUI('nitrogen', data.current.nitrogen, data.previous.nitrogen, data.current.timestamp);
-                updateNPKUI('phosphorus', data.current.phosphorus, data.previous.phosphorus);
-                updateNPKUI('potassium', data.current.potassium, data.previous.potassium);
-            })
-            .catch(err => console.error('Error fetching initial NPK data:', err));
-        
-        // Set up real-time listener (keep your existing SSE implementation)
-        setupNPKListener();
-    });
-
-    // Modified SSE handler to maintain trends
-    function setupNPKListener() {
-        const eventSource = new EventSource('/npk-updates');
-        
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                // Update previous values with current values before updating
-                const currentValues = {
-                    nitrogen: previousNPK.nitrogen,
-                    phosphorus: previousNPK.phosphorus,
-                    potassium: previousNPK.potassium
-                };
-                
-                // Update UI with new values compared to previous values
-                updateNPKUI('nitrogen', data.nitrogen, currentValues.nitrogen, data.lastUpdated);
-                updateNPKUI('phosphorus', data.phosphorus, currentValues.phosphorus);
-                updateNPKUI('potassium', data.potassium, currentValues.potassium);
-                
-                // Store current values as previous for next update
-                previousNPK = {
-                    nitrogen: data.nitrogen,
-                    phosphorus: data.phosphorus,
-                    potassium: data.potassium
-                };
-            } catch (e) {
-                console.error('Error processing NPK update:', e);
-            }
-        };
-        
-        eventSource.onerror = () => {
-            console.log('SSE connection error. Attempting to reconnect...');
-            eventSource.close();
-            setTimeout(setupNPKListener, 5000);
-        };
-    }
-</script>
-   
 </body>
 
 </html>

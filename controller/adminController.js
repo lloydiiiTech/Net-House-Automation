@@ -1,4 +1,3 @@
-
 const { realtimeDB, admin, firestore } = require("../config/firebase");
 const redisClient = require("../config/redis");
 
@@ -61,46 +60,104 @@ exports.initFirebaseListener = (io) => {
 // Dashboard controller
 
 exports.Dashboard = async (req, res) => {
-    const sensorRef = realtimeDB.ref("sensors");
+    try {
+        console.log('Loading dashboard data...');
+        const sensorRef = realtimeDB.ref("sensors");
 
-    sensorRef.once("value", async (snapshot) => {
-        const data = snapshot.val();
+        // Get sensor data
+        console.log('Fetching sensor data...');
+        const sensorSnapshot = await sensorRef.once("value");
+        const data = sensorSnapshot.val();
+        console.log('Sensor data received:', data);
         
+        // Get crop data
+        console.log('Fetching crop data...');
+        const cropRef = admin.firestore().collection('planted_crops');
+        const cropSnapshot = await cropRef.where('endDate', '==', null).limit(1).get();
+        console.log('Crop query executed, documents found:', cropSnapshot.size);
+        
+        let cropData = null;
+        if (!cropSnapshot.empty) {
+            const cropDoc = cropSnapshot.docs[0];
+            const cropInfo = cropDoc.data();
+            console.log('Raw crop data:', cropInfo);
+            
+            // Calculate growth stage
+            const startDate = cropInfo.startDate.toDate();
+            const now = new Date();
+            const daysSincePlanting = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+            console.log('Days since planting:', daysSincePlanting);
+            
+            let growthStage = "Seedling";
+            if (daysSincePlanting > 60) {
+                growthStage = "Mature";
+            } else if (daysSincePlanting > 40) {
+                growthStage = "Flowering";
+            } else if (daysSincePlanting > 20) {
+                growthStage = "Vegetative";
+            }
+
+            // Calculate health score and status based on sensor data
+            const healthScore = calculateHealthScore(data, cropInfo.optimalConditions);
+            const healthStatus = getHealthStatus(healthScore);
+            console.log('Health score:', healthScore, 'Status:', healthStatus);
+
+            cropData = {
+                name: cropInfo.name,
+                plantingDate: cropInfo.startDate.toDate().toISOString(),
+                growthStage: growthStage,
+                healthStatus: healthStatus,
+                score: healthScore,
+                optimalConditions: {
+                    temperature: `${cropInfo.optimalConditions.temperature}°C`,
+                    humidity: `${cropInfo.optimalConditions.humidity}%`,
+                    moisture: `${cropInfo.optimalConditions.moisture}%`,
+                    ph: cropInfo.optimalConditions.ph,
+                    npk: {
+                        nitrogen: `${cropInfo.optimalConditions.npk_N} ppm`,
+                        phosphorus: `${cropInfo.optimalConditions.npk_P} ppm`,
+                        potassium: `${cropInfo.optimalConditions.npk_K} ppm`
+                    }
+                }
+            };
+            console.log('Processed crop data:', cropData);
+        } else {
+            console.log('No active crop found');
+        }
+
+        // Get sensor history
         let history = [];
         try {
             const cachedData = await redisClient.lRange(SENSOR_CACHE_KEY, 0, -1);
             history = cachedData.map(entry => JSON.parse(entry)).reverse();
+            console.log('Sensor history loaded, entries:', history.length);
         } catch (err) {
             console.error("Error fetching from Redis:", err);
         }
 
-        // Get latest NPK averages from Firestore
+        // Get latest NPK averages
         let npkAverages = { nitrogen: 0, phosphorus: 0, potassium: 0 };
-try {
-    const snapshot = await admin.firestore()
-        .collection('daily_sensor_summaries')
-        .orderBy('date', 'desc')
-        .limit(1)
-        .get();
-
-    console.log('Firestore query executed'); // Debug log
-    console.log('Number of documents:', snapshot.size); // Debug log
-    
-    if (!snapshot.empty) {
-        const latestData = snapshot.docs[0].data();
-        console.log('Retrieved document data:', latestData); // Debug log
-        
-        npkAverages = {
-            nitrogen: latestData.nitrogen || latestData.N || 0,
-            phosphorus: latestData.phosphorus || latestData.P || 0,
-            potassium: latestData.potassium || latestData.K || 0
-        };
-    } else {
-        console.log('No documents found in daily_sensor_summaries'); // Debug log
-    }
-} catch (err) {
-    console.error("Error fetching Firestore NPK data:", err);
-}
+        try {
+            const snapshot = await admin.firestore()
+                .collection('daily_sensor_summaries')
+                .orderBy('date', 'desc')
+                .limit(1)
+                .get();
+            
+            if (!snapshot.empty) {
+                const latestData = snapshot.docs[0].data();
+                console.log('Latest NPK data:', latestData);
+                npkAverages = {
+                    nitrogen: latestData.nitrogen || latestData.N || 0,
+                    phosphorus: latestData.phosphorus || latestData.P || 0,
+                    potassium: latestData.potassium || latestData.K || 0
+                };
+            } else {
+                console.log('No NPK data found');
+            }
+        } catch (err) {
+            console.error("Error fetching Firestore NPK data:", err);
+        }
 
         const sensorData = {
             temperature: { value: data.temperature, status: getTemperatureStatus(data.temperature) },
@@ -113,16 +170,27 @@ try {
             ph: { value: data.ph, status: getPHStatus(data.ph) },
             npkAverages: npkAverages
         };
+        console.log('Processed sensor data:', sensorData);
 
+        console.log('Rendering dashboard with data:', { 
+            hasSensorData: !!sensorData, 
+            hasCropData: !!cropData,
+            hasHistory: history.length > 0
+        });
+        
         res.render("admin/home", { 
             sensorData,
             sensorHistory: JSON.stringify(history),
+            cropData: cropData,
             firebaseConfig: {
                 apiKey: process.env.FIREBASE_API_KEY,
                 projectId: process.env.FIREBASE_PROJECT_ID
             }
         }); 
-    });
+    } catch (error) {
+        console.error("Error in Dashboard:", error);
+        res.status(500).send("Error loading dashboard");
+    }
 };
 
 exports.getSensorData = async (req, res) => {
@@ -345,3 +413,130 @@ exports.reportsAnalytics = async (req, res) => {
 
     res.render("admin/reports");  
 };
+
+exports.getCurrentCrop = async (req, res) => {
+    try {
+        console.log('Fetching current crop data...');
+        const cropRef = admin.firestore().collection('planted_crops');
+        const cropSnapshot = await cropRef.where('endDate', '==', null).limit(1).get();
+
+        console.log('Query executed, documents found:', cropSnapshot.size);
+
+        if (cropSnapshot.empty) {
+            console.log('No active crops found');
+            return res.json({ crop: null });
+        }
+
+        // Get current sensor data
+        const sensorRef = realtimeDB.ref("sensors");
+        const sensorSnapshot = await sensorRef.once("value");
+        const sensorData = sensorSnapshot.val();
+        console.log('Current sensor data:', sensorData);
+
+        const cropDoc = cropSnapshot.docs[0];
+        const cropData = cropDoc.data();
+        console.log('Crop data retrieved:', cropData);
+        
+        // Calculate growth stage based on start date
+        const startDate = cropData.startDate.toDate();
+        const now = new Date();
+        const daysSincePlanting = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+        
+        let growthStage = "Seedling";
+        if (daysSincePlanting > 60) {
+            growthStage = "Mature";
+        } else if (daysSincePlanting > 40) {
+            growthStage = "Flowering";
+        } else if (daysSincePlanting > 20) {
+            growthStage = "Vegetative";
+        }
+
+        // Calculate health score and status based on sensor data
+        const healthScore = calculateHealthScore(sensorData, cropData.optimalConditions);
+        const healthStatus = getHealthStatus(healthScore);
+        console.log('Health score:', healthScore, 'Status:', healthStatus);
+
+        const cropInfo = {
+            name: cropData.name,
+            plantingDate: cropData.startDate.toDate().toISOString(),
+            growthStage: growthStage,
+            healthStatus: healthStatus,
+            score: healthScore,
+            optimalConditions: {
+                temperature: `${cropData.optimalConditions.temperature}°C`,
+                humidity: `${cropData.optimalConditions.humidity}%`,
+                moisture: `${cropData.optimalConditions.moisture}%`,
+                ph: cropData.optimalConditions.ph,
+                npk: {
+                    nitrogen: `${cropData.optimalConditions.npk_N} ppm`,
+                    phosphorus: `${cropData.optimalConditions.npk_P} ppm`,
+                    potassium: `${cropData.optimalConditions.npk_K} ppm`
+                }
+            }
+        };
+
+        console.log('Sending crop info:', cropInfo);
+        res.json({ crop: cropInfo });
+    } catch (error) {
+        console.error("Error fetching current crop:", error);
+        res.status(500).json({ error: "Failed to fetch crop information" });
+    }
+};
+
+function calculateHealthScore(sensorData, optimalConditions) {
+    let totalScore = 0;
+    let factors = 0;
+
+    // Temperature score (0-100)
+    const tempDiff = Math.abs(sensorData.temperature - parseFloat(optimalConditions.temperature));
+    const tempScore = Math.max(0, 100 - (tempDiff * 5)); // 5 points deduction per degree difference
+    totalScore += tempScore;
+    factors++;
+
+    // Humidity score (0-100)
+    const humidityDiff = Math.abs(sensorData.humidity - parseFloat(optimalConditions.humidity));
+    const humidityScore = Math.max(0, 100 - (humidityDiff * 2)); // 2 points deduction per percentage difference
+    totalScore += humidityScore;
+    factors++;
+
+    // Moisture score (0-100)
+    const moistureDiff = Math.abs(sensorData.moistureAve - parseFloat(optimalConditions.moisture));
+    const moistureScore = Math.max(0, 100 - (moistureDiff * 2)); // 2 points deduction per percentage difference
+    totalScore += moistureScore;
+    factors++;
+
+    // pH score (0-100)
+    const phDiff = Math.abs(sensorData.ph - parseFloat(optimalConditions.ph));
+    const phScore = Math.max(0, 100 - (phDiff * 20)); // 20 points deduction per pH unit difference
+    totalScore += phScore;
+    factors++;
+
+    // NPK scores (0-100 each)
+    const npkScore = calculateNPKScore(sensorData, optimalConditions);
+    totalScore += npkScore;
+    factors++;
+
+    return Math.round(totalScore / factors);
+}
+
+function calculateNPKScore(sensorData, optimalConditions) {
+    // Nitrogen score
+    const nDiff = Math.abs(sensorData.nitrogen - parseFloat(optimalConditions.npk_N));
+    const nScore = Math.max(0, 100 - (nDiff * 2));
+
+    // Phosphorus score
+    const pDiff = Math.abs(sensorData.phosphorus - parseFloat(optimalConditions.npk_P));
+    const pScore = Math.max(0, 100 - (pDiff * 2));
+
+    // Potassium score
+    const kDiff = Math.abs(sensorData.potassium - parseFloat(optimalConditions.npk_K));
+    const kScore = Math.max(0, 100 - (kDiff * 2));
+
+    return (nScore + pScore + kScore) / 3;
+}
+
+function getHealthStatus(score) {
+    if (score >= 80) return "Healthy";
+    if (score >= 60) return "Moderate";
+    return "At Risk";
+}

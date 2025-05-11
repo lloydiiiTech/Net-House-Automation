@@ -5,6 +5,7 @@ const aController = require('../controller/AController.js');
 const adminController = require('../controller/adminController.js');
 const userController = require('../controller/userController.js');
 const plantOverview = require('../controller/PlantOverview.js');
+const reportsController = require('../controller/reportsController.js');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -14,7 +15,6 @@ router.get('/forgotpassword', aController.forgotpassword);
 
 router.post('/login', aController.loginUser);
 router.get("/admin-dashboard", aController.isAuthenticated, aController.isAdmin, adminController.Dashboard);
-router.get("/api/sensor-data", adminController.getSensorData); // New API route
 
 router.get("/user-dashboard", aController.isAuthenticated, userController.Dashboard);
 router.get("/logout", (req, res) => {
@@ -43,19 +43,19 @@ router.post('/newpassword', aController.handleNewPassword);
 router.get('/admin-plant-overview', aController.isAuthenticated, aController.isAdmin, plantOverview.plantOverview);
 router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
 router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
-// router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
+router.get('/checkActiveCrop', plantOverview.getActiveCrop);  
 router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCrop);
 
 
 
 router.get('/admin-irrigation-controll', aController.isAuthenticated, aController.isAdmin, adminController.irrigationControll);
-router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, adminController.reportsAnalytics);
+router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
 router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
 
 
 router.get('/plant-overview', aController.isAuthenticated, userController.plantOverview);
 router.get('/irrigation', aController.isAuthenticated, userController.irrigationControll);
-router.get('/reports', aController.isAuthenticated, userController.reportsAnalytics);
+router.get('/reports', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
 router.get('/profile', aController.isAuthenticated, userController.profile);
 
 
@@ -65,7 +65,16 @@ router.get('/sensors/history', adminController.getCachedData);
 router.get('/sensors_data', adminController.getSensorData);
 router.get('/npk-data', adminController.getNPKData);
 router.get('/npk-updates', adminController.npkUpdates);
+router.get('/current-crop', aController.isAuthenticated, adminController.getCurrentCrop);
 // router.get('/test-firestore-write', adminController.testFirestoreWrite);
+
+// Reports & Analytics Routes
+router.get('/api/sensor-data', aController.isAuthenticated, aController.isAdmin, reportsController.getSensorData);
+router.get('/api/download-data', aController.isAuthenticated, aController.isAdmin, reportsController.downloadSensorData);
+router.get('/api/crop-data', aController.isAuthenticated, aController.isAdmin, reportsController.getCropData);
+router.get('/api/planted-crops', aController.isAuthenticated, aController.isAdmin, reportsController.getPlantedCrops);
+router.get('/api/historical-sensor-data', aController.isAuthenticated, aController.isAdmin, reportsController.getHistoricalSensorData);
+router.get('/api/crop-performance', aController.isAuthenticated, aController.isAdmin, reportsController.getCropPerformance);
 
 
 

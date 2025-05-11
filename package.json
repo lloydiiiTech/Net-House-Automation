@@ -18,7 +18,9 @@
     "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "datatables.net-bs4": "^2.3.0",
     "date-fns": "^4.1.0",
+    "docx": "^9.5.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
@@ -27,11 +29,14 @@
     "firebase": "^11.3.1",
     "firebase-admin": "^13.1.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "nodeplotlib": "^1.1.2",
     "redis": "^4.7.0",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "xlsx": "^0.18.5"
   }
 }

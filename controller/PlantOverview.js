@@ -134,6 +134,32 @@ exports.confirmCropSelection = async (req, res) => {
 
   // ... existing code ...
 
+  exports.getActiveCrop = async (req, res) => {
+    try {
+        if (!req.session.user?.uid) {
+            return res.status(401).json({ error: "Not authenticated" });
+        }
+
+        const activeCropsSnapshot = await firestore.collection('planted_crops')
+            .where('endDate', '==', null)
+            .limit(1)
+            .get();
+
+        if (activeCropsSnapshot.empty) {
+            return res.json({ hasActiveCrop: false });
+        }
+
+        const activeCrop = activeCropsSnapshot.docs[0];
+        return res.json({
+            hasActiveCrop: true,
+            cropId: activeCrop.id,
+            cropData: activeCrop.data()
+        });
+    } catch (error) {
+        console.error("Error getting active crop:", error);
+        res.status(500).json({ error: "Failed to get active crop" });
+    }
+};
 exports.harvestCrop = async (req, res) => {
     try {
         const { cropId, successRate } = req.body;
