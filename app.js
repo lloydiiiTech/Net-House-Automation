@@ -11,6 +11,7 @@ const { initScheduledJobs } = require('./controller/sensorController.js');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const irrigationController = require('./controller/irrigationController');
 
 // Create HTTP server
 const httpServer = createServer(app);
@@ -129,6 +130,9 @@ app.get('/predict', async (req, res) => {
     });
   }
 });
+
+// Initialize Socket.IO for irrigation controller
+irrigationController.initializeSocket(io);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -6,6 +6,7 @@ const adminController = require('../controller/adminController.js');
 const userController = require('../controller/userController.js');
 const plantOverview = require('../controller/PlantOverview.js');
 const reportsController = require('../controller/reportsController.js');
+const irrigationController = require('../controller/irrigationController.js');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -49,6 +50,13 @@ router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCr
 
 
 router.get('/admin-irrigation-controll', aController.isAuthenticated, aController.isAdmin, adminController.irrigationControll);
+router.get('/api/soil-status', aController.isAuthenticated, irrigationController.getSoilStatus);
+router.post('/api/toggle-automation', irrigationController.toggleAutomation);
+router.get('/api/automation-state', irrigationController.getAutomationState);
+router.post('/api/automation-trigger', irrigationController.handleAutomationTrigger);
+router.post('/api/manual-trigger', irrigationController.handleManualTrigger);
+router.post('/api/stop-trigger', irrigationController.handleStopTrigger);
+router.post('/api/irrigation-records', irrigationController.createIrrigationRecord);
 router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
 router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
 
