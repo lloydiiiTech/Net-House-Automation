@@ -65,6 +65,9 @@ router.post('/api/irrigation-schedules/:id/toggle', aController.isAuthenticated,
 router.put('/api/irrigation-schedules/:id', aController.isAuthenticated, irrigationController.updateIrrigationSchedule);
 router.delete('/api/irrigation-schedules/:id', aController.isAuthenticated, irrigationController.deleteIrrigationSchedule);
 
+// Add new route for paginated irrigation history
+router.get('/api/irrigation-history', aController.isAuthenticated, irrigationController.getIrrigationHistory);
+
 router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
 router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
 

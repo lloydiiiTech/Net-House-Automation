@@ -424,7 +424,7 @@ function initializeSensorListener(io) {
     const sensorRef = realtimeDB.ref("/sensors");
     
     // Set up listener for automation state changes
-    realtimeDB.ref('/automation/enabled').on('value', handleAutomationStateChange);
+    realtimeDB.ref('/automation').on('value', handleAutomationStateChange);
     
     // Set up listener for automation trigger changes
     realtimeDB.ref('/automation').on('value', handleAutomationTriggerChange);
@@ -488,6 +488,7 @@ exports.initializeSocket = (socketIO) => {
     io = socketIO;
     initializeSensorListener(io);
     initializeScheduleChecker();
+    initializeIrrigationListener();
 };
 
 // Add function to handle manual irrigation trigger
@@ -533,10 +534,19 @@ exports.handleStopTrigger = async (req, res) => {
             if (!irrigationSnapshot.empty) {
                 const batch = firestore.batch();
                 irrigationSnapshot.docs.forEach(doc => {
+                    const record = doc.data();
+                    // Get the start time from the record
+                    const startTime = record.startTime.toDate();
+                    const endTime = new Date();
+                    
+                    // Calculate duration in minutes
+                    const durationMs = endTime.getTime() - startTime.getTime();
+                    const durationMinutes = Math.round(durationMs / (1000 * 60));
+
                     batch.update(doc.ref, {
                         endTime: admin.firestore.FieldValue.serverTimestamp(),
                         moistureAfter: currentMoisture,
-                        status: 'completed'
+                        status: 'stopped',
                     });
                 });
                 await batch.commit();
@@ -563,7 +573,7 @@ exports.createIrrigationRecord = async (req, res) => {
             endTime: null,
             moistureBefore: moistureBefore,
             moistureAfter: null,
-            duration: 0,
+            duration: duration || 0, // Use the provided duration or default to 0
             date: admin.firestore.FieldValue.serverTimestamp(),
             note: note,
             status: 'in_progress'
@@ -675,6 +685,23 @@ async function updateNextScheduleInRedis() {
                 scheduleTime.setDate(scheduleTime.getDate() + 1);
             }
 
+            // Find the next scheduled day
+            let daysToAdd = 0;
+            const currentDay = scheduleTime.getDay();
+            
+            // If today is not a scheduled day, find the next scheduled day
+            if (!schedule.days.includes(currentDay)) {
+                // Look for the next scheduled day within the next 7 days
+                for (let i = 1; i <= 7; i++) {
+                    const nextDay = (currentDay + i) % 7;
+                    if (schedule.days.includes(nextDay)) {
+                        daysToAdd = i;
+                        break;
+                    }
+                }
+                scheduleTime.setDate(scheduleTime.getDate() + daysToAdd);
+            }
+
             const timeDiff = scheduleTime - now;
             if (timeDiff < minTimeDiff) {
                 minTimeDiff = timeDiff;
@@ -682,6 +709,7 @@ async function updateNextScheduleInRedis() {
                     id: doc.id,
                     time: schedule.time,
                     duration: schedule.duration,
+                    days: schedule.days,
                     nextOccurrence: scheduleTime
                 };
             }
@@ -721,6 +749,16 @@ async function checkScheduledIrrigation() {
             
             if (!scheduleDoc.exists || !scheduleDoc.data().isActive) {
                 // If schedule is no longer active, update Redis and return
+                await updateNextScheduleInRedis();
+                return;
+            }
+
+            const scheduleData = scheduleDoc.data();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+            // Check if today is one of the scheduled days
+            if (!scheduleData.days.includes(currentDay)) {
+                // If today is not a scheduled day, update Redis and return
                 await updateNextScheduleInRedis();
                 return;
             }
@@ -868,4 +906,111 @@ exports.updateIrrigationSchedule = async (req, res) => {
             error: 'Failed to update irrigation schedule' 
         });
     }
-}; 
+};
+
+// Function to get paginated irrigation history
+exports.getIrrigationHistory = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        
+        const irrigationRef = firestore.collection('irrigation_records');
+        
+        // Get total count for pagination
+        const totalSnapshot = await irrigationRef.count().get();
+        const total = totalSnapshot.data().count;
+        
+        let query = irrigationRef.orderBy('startTime', 'desc').limit(limit);
+        
+        // If not first page, get the last document from previous page
+        if (page > 1) {
+            // Calculate how many documents to skip
+            const skipCount = (page - 1) * limit;
+            
+            // Get the last document from the previous page
+            const lastDocSnapshot = await irrigationRef
+                .orderBy('startTime', 'desc')
+                .limit(skipCount)
+                .get();
+            
+            if (!lastDocSnapshot.empty) {
+                const lastDoc = lastDocSnapshot.docs[lastDocSnapshot.docs.length - 1];
+                query = query.startAfter(lastDoc);
+            }
+        }
+        
+        // Get the records for current page
+        const snapshot = await query.get();
+        
+        const records = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            records.push({
+                id: doc.id,
+                startTime: data.startTime?.toDate() || null,
+                duration: data.duration || 0,
+                moistureBefore: data.moistureBefore || 0,
+                moistureAfter: data.moistureAfter || 0,
+                note: data.note || 'unknown',
+                status: data.status || 'unknown'
+            });
+        });
+
+        res.json({
+            success: true,
+            records: records,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+                totalRecords: total
+            }
+        });
+    } catch (error) {
+        console.error('Error getting irrigation history:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to get irrigation history' 
+        });
+    }
+};
+
+// Function to handle irrigation record updates
+function handleIrrigationRecordUpdate(change) {
+    if (!io) return;
+
+    try {
+        // Get the document data and ID
+        const doc = change.doc;
+        const data = doc.data();
+        const recordId = doc.id;
+
+        // Emit the updated record to all connected clients
+        io.emit('irrigationRecordUpdate', {
+            id: recordId,
+            startTime: data.startTime?.toDate() || null,
+            duration: data.duration || 0,
+            moistureBefore: data.moistureBefore || 0,
+            moistureAfter: data.moistureAfter || 0,
+            status: data.status || 'unknown',
+            note: data.note || ''
+        });
+    } catch (error) {
+        console.error('Error handling irrigation record update:', error);
+    }
+}
+
+// Initialize Firestore listener for irrigation records
+function initializeIrrigationListener() {
+    const irrigationRef = firestore.collection('irrigation_records');
+    
+    // Listen for changes in irrigation records
+    irrigationRef.onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'modified' || change.type === 'added') {
+                handleIrrigationRecordUpdate(change);
+            }
+        });
+    }, (error) => {
+        console.error('Error listening to irrigation records:', error);
+    });
+} 
