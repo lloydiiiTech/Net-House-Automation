@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
 
 </head>
 
@@ -290,14 +291,14 @@
                                 <div class="ibox-title">Next Irrigation</div>
                             </div>
                             <div class="ibox-body">
-                                <div class="text-center">
-                                    <div class="time-value">2:00 PM</div>
-                                    <div class="time-label">Today</div>
+                                <div class="text-center" id="nextIrrigationInfo">
+                                    <div class="time-value" id="nextIrrigationTime">--:--</div>
+                                    <div class="time-label" id="nextIrrigationDate">Loading...</div>
                                     <div class="progress mt-3">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                        <div class="progress-bar bg-primary" role="progressbar" id="nextIrrigationProgress" style="width: 0%"></div>
                                     </div>
                                     <div class="mt-2">
-                                        <small class="text-muted">75% of time until next irrigation</small>
+                                        <small class="text-muted" id="nextIrrigationStatus">Calculating next irrigation...</small>
                                     </div>
                                 </div>
                             </div>
@@ -330,7 +331,7 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button class="btn btn-primary btn-block" id="startButton" onclick="checkAndStartManualIrrigation()">
+                                    <button class="btn btn-primary btn-block" id="startButton" onclick="startManualIrrigation()">
                                         <i class="fa fa-play"></i> Start Irrigation
                                     </button>
                                     <button class="btn btn-danger btn-block mt-2" id="stopButton" onclick="stopIrrigation()">
@@ -357,42 +358,18 @@
                             </div>
                             <div class="ibox-body">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover" id="scheduleTable">
                                         <thead>
                                             <tr>
                                                 <th>Time</th>
                                                 <th>Duration</th>
+                                                <th>Days</th>
                                                 <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td><i class="fa fa-clock-o"></i> 6:00 AM</td>
-                                                <td>15 min</td>
-                                                <td><span class="badge badge-success">Completed</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="toggleIrrigation(1, true)">
-                                                        <i class="fa fa-power-off"></i> On
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger" onclick="toggleIrrigation(1, false)">
-                                                        <i class="fa fa-power-off"></i> Off
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><i class="fa fa-clock-o"></i> 2:00 PM</td>
-                                                <td>20 min</td>
-                                                <td><span class="badge badge-warning">Scheduled</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="toggleIrrigation(2, true)">
-                                                        <i class="fa fa-power-off"></i> On
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger" onclick="toggleIrrigation(2, false)">
-                                                        <i class="fa fa-power-off"></i> Off
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <!-- Schedule rows will be dynamically added here -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -669,6 +646,32 @@
                     position: relative;
                     cursor: help;
                 }
+
+                .checkbox-wrapper {
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                .checkbox-wrapper input[type="checkbox"] {
+                    margin-right: 5px;
+                    cursor: pointer;
+                }
+
+                .checkbox-wrapper label {
+                    margin-bottom: 0;
+                    cursor: pointer;
+                }
+
+                .form-check-input {
+                    width: 18px;
+                    height: 18px;
+                    margin-top: 0;
+                }
+
+                .form-check-label {
+                    padding-left: 5px;
+                }
             </style>
 
             <script>
@@ -676,29 +679,10 @@
                     console.log(`Setting irrigation ${id} to ${status ? 'on' : 'off'}`);
                 }
 
-                // Add new function to check automation status before starting manual irrigation
-                async function checkAndStartManualIrrigation() {
-                    try {
-                        // First check if automation is running
-                        const automationSnapshot = await realtimeDB.ref('/automation').once('value');
-                        const automationData = automationSnapshot.val();
-                        
-                        if (automationData?.enabled) {
-                            // If automation is running, just return without doing anything
-                            return;
-                        }
-
-                        // If automation is not running, proceed with manual irrigation
-                        await startManualIrrigation();
-                    } catch (error) {
-                        console.error('Error checking automation status:', error);
-                    }
-                }
-
                 // Modify startManualIrrigation function
                 async function startManualIrrigation() {
                     try {
-                        const duration = document.getElementById('durationInput').value;
+                    const duration = document.getElementById('durationInput').value;
                         
                         // Get current moisture value
                         const response = await fetch('/api/soil-status');
@@ -958,6 +942,105 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     loadInitialSoilStatus();
                 });
+
+                // Function to format time remaining
+                function formatTimeRemaining(milliseconds) {
+                    const seconds = Math.floor(milliseconds / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const hours = Math.floor(minutes / 60);
+                    
+                    if (hours > 0) {
+                        return `${hours}h ${minutes % 60}m remaining`;
+                    } else if (minutes > 0) {
+                        return `${minutes}m ${seconds % 60}s remaining`;
+                    } else {
+                        return `${seconds}s remaining`;
+                    }
+                }
+
+                // Function to update next irrigation display
+                async function updateNextIrrigation() {
+                    try {
+                        const response = await fetch('/api/irrigation-schedules');
+                        const data = await response.json();
+                        
+                        if (data.success && data.schedules.length > 0) {
+                            const now = new Date();
+                            let nextSchedule = null;
+                            let minTimeDiff = Infinity;
+
+                            // Find the next active schedule
+                            data.schedules.forEach(schedule => {
+                                if (schedule.isActive) {
+                                    const [hours, minutes] = schedule.time.split(':').map(Number);
+                                    const scheduleTime = new Date(now);
+                                    scheduleTime.setHours(hours, minutes, 0, 0);
+
+                                    // If the time has passed today, check for next occurrence
+                                    if (scheduleTime <= now) {
+                                        scheduleTime.setDate(scheduleTime.getDate() + 1);
+                                    }
+
+                                    const timeDiff = scheduleTime - now;
+                                    if (timeDiff < minTimeDiff) {
+                                        minTimeDiff = timeDiff;
+                                        nextSchedule = {
+                                            time: schedule.time,
+                                            nextOccurrence: scheduleTime
+                                        };
+                                    }
+                                }
+                            });
+
+                            if (nextSchedule) {
+                                // Update the display
+                                document.getElementById('nextIrrigationTime').textContent = nextSchedule.time;
+                                document.getElementById('nextIrrigationDate').textContent = 
+                                    nextSchedule.nextOccurrence.toLocaleDateString('en-US', { 
+                                        weekday: 'long', 
+                                        month: 'short', 
+                                        day: 'numeric' 
+                                    });
+
+                                // Calculate progress (assuming 24-hour cycle)
+                                const totalTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                                const timeUntilNext = nextSchedule.nextOccurrence - now;
+                                const progress = ((totalTime - timeUntilNext) / totalTime) * 100;
+                                
+                                document.getElementById('nextIrrigationProgress').style.width = `${progress}%`;
+                                document.getElementById('nextIrrigationStatus').textContent = formatTimeRemaining(timeUntilNext);
+                            } else {
+                                // No active schedules
+                                document.getElementById('nextIrrigationTime').textContent = '--:--';
+                                document.getElementById('nextIrrigationDate').textContent = 'No active schedules';
+                                document.getElementById('nextIrrigationProgress').style.width = '0%';
+                                document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                            }
+                        } else {
+                            // No schedules found
+                            document.getElementById('nextIrrigationTime').textContent = '--:--';
+                            document.getElementById('nextIrrigationDate').textContent = 'No schedules';
+                            document.getElementById('nextIrrigationProgress').style.width = '0%';
+                            document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                        }
+                    } catch (error) {
+                        console.error('Error updating next irrigation:', error);
+                        document.getElementById('nextIrrigationTime').textContent = '--:--';
+                        document.getElementById('nextIrrigationDate').textContent = 'Error';
+                        document.getElementById('nextIrrigationProgress').style.width = '0%';
+                        document.getElementById('nextIrrigationStatus').textContent = 'Failed to load schedule';
+                    }
+                }
+
+                // Initialize the page
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadSchedules();
+                    updateNextIrrigation();
+                    // Update next irrigation every minute
+                    setInterval(updateNextIrrigation, 60000);
+                    // Reload schedules every minute
+                    setInterval(loadSchedules, 60000);
+                });
             </script>
         </div>
     </div>
@@ -1200,6 +1283,360 @@
             loadInitialSoilStatus();
         });
     </script>
+
+    <!-- Add this modal HTML before the closing body tag -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleModalLabel">Add Irrigation Schedule</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="scheduleForm">
+                        <div class="form-group">
+                            <label for="scheduleTime">Time</label>
+                            <input type="time" class="form-control" id="scheduleTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleDuration">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="scheduleDuration" min="1" max="60" value="15" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Days</label>
+                            <div class="d-flex flex-wrap">
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day0" value="0" class="form-check-input">
+                                    <label for="day0" class="form-check-label">Sun</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day1" value="1" class="form-check-input">
+                                    <label for="day1" class="form-check-label">Mon</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day2" value="2" class="form-check-input">
+                                    <label for="day2" class="form-check-label">Tue</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day3" value="3" class="form-check-input">
+                                    <label for="day3" class="form-check-label">Wed</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day4" value="4" class="form-check-input">
+                                    <label for="day4" class="form-check-label">Thu</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day5" value="5" class="form-check-input">
+                                    <label for="day5" class="form-check-label">Fri</label>
+                                </div>
+                                <div class="checkbox-wrapper mr-3 mb-2">
+                                    <input type="checkbox" id="day6" value="6" class="form-check-input">
+                                    <label for="day6" class="form-check-label">Sat</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">Save Schedule</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this JavaScript code before the closing body tag -->
+    <script>
+    // Function to format days array into readable string
+    function formatDays(days) {
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return days.map(day => dayNames[day]).join(', ');
+    }
+
+    // Function to load schedules
+    async function loadSchedules() {
+        try {
+            const response = await fetch('/api/irrigation-schedules');
+            const data = await response.json();
+            
+            if (data.success) {
+                const tbody = document.querySelector('#scheduleTable tbody');
+                tbody.innerHTML = '';
+                
+                data.schedules.forEach(schedule => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><i class="fa fa-clock-o"></i> ${schedule.time}</td>
+                        <td>${schedule.duration} min</td>
+                        <td>${formatDays(schedule.days)}</td>
+                        <td>
+                            <span class="badge badge-${schedule.isActive ? 'success' : 'danger'}">
+                                ${schedule.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            ${schedule.isActive ? 
+                                `<button class="btn btn-sm btn-danger" onclick="toggleScheduleStatus('${schedule.id}', false)">
+                                    <i class="fa fa-power-off"></i> Disable
+                                </button>` :
+                                `<button class="btn btn-sm btn-success" onclick="toggleScheduleStatus('${schedule.id}', true)">
+                                    <i class="fa fa-power-off"></i> Activate
+                                </button>`
+                            }
+                            <button class="btn btn-sm btn-primary ml-2" onclick="editSchedule('${schedule.id}', '${schedule.time}', ${schedule.duration}, ${JSON.stringify(schedule.days)})">
+                                <i class="fa fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger ml-2" onclick="confirmDeleteSchedule('${schedule.id}')">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading schedules:', error);
+        }
+    }
+
+    // Function to save new schedule
+    async function saveSchedule() {
+        const time = document.getElementById('scheduleTime').value;
+        const duration = parseInt(document.getElementById('scheduleDuration').value);
+        const days = [];
+        
+        // Get selected days
+        for (let i = 0; i < 7; i++) {
+            if (document.getElementById(`day${i}`).checked) {
+                days.push(i);
+            }
+        }
+        
+        if (!time || !duration || days.length === 0) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/irrigation-schedules', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ time, duration, days })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                $('#scheduleModal').modal('hide');
+                loadSchedules();
+                // Reset form
+                document.getElementById('scheduleForm').reset();
+            } else {
+                alert('Failed to save schedule');
+            }
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+            alert('Error saving schedule');
+        }
+    }
+
+    // Function to toggle schedule status
+    async function toggleScheduleStatus(scheduleId, newStatus) {
+        try {
+            const response = await fetch(`/api/irrigation-schedules/${scheduleId}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isActive: newStatus })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: newStatus ? 'Schedule Activated' : 'Schedule Disabled',
+                    text: `The schedule has been ${newStatus ? 'activated' : 'disabled'}.`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                loadSchedules();
+            } else {
+                Swal.fire(
+                    'Error!',
+                    'Failed to update schedule status.',
+                    'error'
+                );
+            }
+        } catch (error) {
+            console.error('Error toggling schedule status:', error);
+            Swal.fire(
+                'Error!',
+                'An error occurred while updating the schedule status.',
+                'error'
+            );
+        }
+    }
+
+    // Function to confirm schedule deletion
+    function confirmDeleteSchedule(scheduleId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This schedule will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteSchedule(scheduleId);
+            }
+        });
+    }
+
+    // Function to delete schedule
+    async function deleteSchedule(scheduleId) {
+        try {
+            const response = await fetch(`/api/irrigation-schedules/${scheduleId}`, {
+                method: 'DELETE'
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                Swal.fire(
+                    'Deleted!',
+                    'The schedule has been deleted.',
+                    'success'
+                );
+                loadSchedules();
+            } else {
+                Swal.fire(
+                    'Error!',
+                    'Failed to delete schedule.',
+                    'error'
+                );
+            }
+        } catch (error) {
+            console.error('Error deleting schedule:', error);
+            Swal.fire(
+                'Error!',
+                'An error occurred while deleting the schedule.',
+                'error'
+            );
+        }
+    }
+
+    // Load schedules when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSchedules();
+        // Reload schedules every minute
+        setInterval(loadSchedules, 60000);
+    });
+
+    // Function to open edit modal with schedule data
+    function editSchedule(id, time, duration, days) {
+        console.log('Opening edit modal for schedule:', { id, time, duration, days });
+        
+        // Set the values in the form
+        document.getElementById('editScheduleId').value = id;
+        document.getElementById('editScheduleTime').value = time;
+        document.getElementById('editScheduleDuration').value = duration;
+        
+        // Show the modal
+        $('#editScheduleModal').modal('show');
+    }
+
+    // Function to update schedule
+    async function updateSchedule() {
+        const id = document.getElementById('editScheduleId').value;
+        const time = document.getElementById('editScheduleTime').value;
+        const duration = parseInt(document.getElementById('editScheduleDuration').value);
+        
+        if (!time || !duration) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Please fill in all required fields'
+            });
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/irrigation-schedules/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ time, duration })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                $('#editScheduleModal').modal('hide');
+                loadSchedules();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Schedule Updated',
+                    text: 'The irrigation schedule has been updated successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.error || 'Failed to update schedule'
+                });
+            }
+        } catch (error) {
+            console.error('Error updating schedule:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'An error occurred while updating the schedule'
+            });
+        }
+    }
+    </script>
+
+    <!-- Add SweetAlert2 JS in the head section -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+
+    <!-- Add this right before the closing body tag -->
+    <div class="modal fade" id="editScheduleModal" tabindex="-1" role="dialog" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editScheduleModalLabel">Edit Irrigation Schedule</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editScheduleForm">
+                        <input type="hidden" id="editScheduleId">
+                        <div class="form-group">
+                            <label for="editScheduleTime">Time</label>
+                            <input type="time" class="form-control" id="editScheduleTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editScheduleDuration">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="editScheduleDuration" min="1" max="60" value="15" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="updateSchedule()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

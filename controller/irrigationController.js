@@ -1,6 +1,7 @@
 const { realtimeDB, firestore } = require('../config/firebase');
 const redis = require('../config/redis');
 const admin = require('firebase-admin');
+const cron = require('node-cron');
 
 // Cache for sensor data
 let sensorDataCache = {
@@ -63,6 +64,7 @@ async function checkAndStartAutomatedIrrigation(moisture, optimalMoisture) {
             await irrigationRef.add({
                 startTime: admin.firestore.FieldValue.serverTimestamp(),
                 endTime: null,
+                duration: 0,
                 moistureBefore: moisture,
                 moistureAfter: null,
                 date: admin.firestore.FieldValue.serverTimestamp(),
@@ -85,7 +87,7 @@ async function checkAndStartAutomatedIrrigation(moisture, optimalMoisture) {
 
 // Add function to handle automation state changes
 async function handleAutomationStateChange(snapshot) {
-            const data = snapshot.val();
+    const data = snapshot.val();
     if (data === null) return;
 
     // If automation is disabled, check if there's an ongoing irrigation
@@ -106,15 +108,33 @@ async function handleAutomationStateChange(snapshot) {
                 if (currentMoisture !== null) {
                     // Update all records that don't have an end time
                     const batch = firestore.batch();
+                    const endTime = new Date();
+                    
                     irrigationSnapshot.docs.forEach(doc => {
+                        const record = doc.data();
+                        // Get the start time from the record
+                        const startTime = record.startTime.toDate();
+                        
+                        // Calculate duration in minutes
+                        const durationMs = endTime.getTime() - startTime.getTime();
+                        const durationMinutes = Math.round(durationMs / (1000 * 60));
+                        
+                        console.log('Duration calculation:', {
+                            startTime: startTime.toISOString(),
+                            endTime: endTime.toISOString(),
+                            durationMs,
+                            durationMinutes
+                        });
+
                         batch.update(doc.ref, {
                             endTime: admin.firestore.FieldValue.serverTimestamp(),
                             moistureAfter: currentMoisture,
-                            status: 'completed'
+                            status: 'completed',
+                            duration: durationMinutes
                         });
                     });
                     await batch.commit();
-                    console.log('Updated irrigation records after automation state changed');
+                    console.log('Updated irrigation records with duration after automation state changed');
                 }
             }
         } catch (error) {
@@ -217,15 +237,22 @@ exports.getSoilStatus = async (req, res) => {
             const snapshot = await sensorRef.once("value");
             const data = snapshot.val();
             
+            console.log("Raw sensor data from Firebase:", data);
+            
             if (!data) {
+                console.log("No sensor data available in Firebase");
                 return res.status(404).json({ error: "No sensor data available" });
             }
             
+            console.log("Moisture value from Firebase:", data.moistureAve);
+            
             sensorDataCache = {
-                moisture: data.moistureAve || null,
-                temperature: data.temperature || null,
+                moisture: data.moistureAve || 0,
+                temperature: data.temperature || 0,
                 lastUpdate: new Date()
             };
+            
+            console.log("Updated sensor cache:", sensorDataCache);
         }
 
         // Get current crop information
@@ -261,7 +288,6 @@ exports.toggleAutomation = async (req, res) => {
         // Update automation state directly
         await realtimeDB.ref('/automationState').set({
             enabled: enabled,
-            lastUpdated: admin.database.ServerValue.TIMESTAMP
         });
 
         res.json({ success: true });
@@ -291,7 +317,6 @@ exports.handleAutomationTrigger = async (req, res) => {
         // Update automation trigger state
         await realtimeDB.ref('/automation').set({
             enabled: enabled,
-            lastUpdated: admin.database.ServerValue.TIMESTAMP
         });
 
         // If automation is being disabled, update the irrigation record
@@ -322,15 +347,90 @@ exports.handleAutomationTrigger = async (req, res) => {
     }
 };
 
-// Modify the initializeSensorListener function to run independently
+// Add function to handle irrigation end state
+async function handleIrrigationEnd(snapshot) {
+    const data = snapshot.val();
+    if (data === null || data.enable === true) return;
+
+    try {
+        // Get current moisture value
+        const sensorSnapshot = await realtimeDB.ref('/sensors').once('value');
+        const sensorData = sensorSnapshot.val();
+        const currentMoisture = sensorData?.moistureAve || null;
+
+        if (currentMoisture !== null) {
+            // Update irrigation record in Firestore
+            const irrigationRef = firestore.collection('irrigation_records');
+            const irrigationSnapshot = await irrigationRef
+                .where('endTime', '==', null)
+                .get();
+
+            if (!irrigationSnapshot.empty) {
+                const batch = firestore.batch();
+                irrigationSnapshot.docs.forEach(doc => {
+                    batch.update(doc.ref, {
+                        endTime: admin.firestore.FieldValue.serverTimestamp(),
+                        moistureAfter: currentMoisture,
+                        status: 'completed'
+                    });
+                });
+                await batch.commit();
+                console.log('Updated irrigation records after irrigation ended');
+            }
+        }
+    } catch (error) {
+        console.error('Error handling irrigation end:', error);
+    }
+}
+
+// Add function to handle irrigation enable state changes
+async function handleIrrigationEnableChange(snapshot) {
+    const data = snapshot.val();
+    if (data === null || data === true) return; // Only proceed if enable is false
+
+    try {
+        // Get current moisture value
+        const sensorSnapshot = await realtimeDB.ref('/sensors').once('value');
+        const sensorData = sensorSnapshot.val();
+        const currentMoisture = sensorData?.moistureAve || null;
+
+        if (currentMoisture !== null) {
+            // Update irrigation record in Firestore
+            const irrigationRef = firestore.collection('irrigation_records');
+            const irrigationSnapshot = await irrigationRef
+                .where('endTime', '==', null)
+                .get();
+
+            if (!irrigationSnapshot.empty) {
+                const batch = firestore.batch();
+                irrigationSnapshot.docs.forEach(doc => {
+                    batch.update(doc.ref, {
+                        endTime: admin.firestore.FieldValue.serverTimestamp(),
+                        moistureAfter: currentMoisture,
+                        status: 'completed'
+                    });
+                });
+                await batch.commit();
+                console.log('Updated irrigation records after irrigation disabled');
+            }
+        }
+    } catch (error) {
+        console.error('Error handling irrigation enable change:', error);
+    }
+}
+
+// Modify the initializeSensorListener function to include the new listener
 function initializeSensorListener(io) {
     const sensorRef = realtimeDB.ref("/sensors");
     
     // Set up listener for automation state changes
-    realtimeDB.ref('/automationState').on('value', handleAutomationStateChange);
+    realtimeDB.ref('/automation/enabled').on('value', handleAutomationStateChange);
     
     // Set up listener for automation trigger changes
     realtimeDB.ref('/automation').on('value', handleAutomationTriggerChange);
+
+    // Add listener for irrigation enable state
+    realtimeDB.ref('/irrigation/enabled').on('value', handleIrrigationEnableChange);
     
     sensorRef.on("value", async (snapshot) => {
         if (snapshot.exists()) {
@@ -386,8 +486,8 @@ function initializeSensorListener(io) {
 let io;
 exports.initializeSocket = (socketIO) => {
     io = socketIO;
-    // Start the sensor listener immediately
     initializeSensorListener(io);
+    initializeScheduleChecker();
 };
 
 // Add function to handle manual irrigation trigger
@@ -399,7 +499,6 @@ exports.handleManualTrigger = async (req, res) => {
         await realtimeDB.ref('/irrigation').set({
             enabled: enabled,
             duration: duration,
-            lastUpdated: admin.database.ServerValue.TIMESTAMP
         });
 
         res.json({ success: true });
@@ -417,7 +516,6 @@ exports.handleStopTrigger = async (req, res) => {
         // Update stop trigger in Realtime DB
         await realtimeDB.ref('/stop').set({
             enabled: enabled,
-            lastUpdated: admin.database.ServerValue.TIMESTAMP
         });
 
         // Get current moisture value
@@ -458,14 +556,14 @@ exports.createIrrigationRecord = async (req, res) => {
     try {
         const { startTime, moistureBefore, duration, note } = req.body;
         
-        // Create new irrigation record
+        // Create new irrigation record with null/0 values for end metrics
         const irrigationRef = firestore.collection('irrigation_records');
         await irrigationRef.add({
             startTime: admin.firestore.FieldValue.serverTimestamp(),
             endTime: null,
             moistureBefore: moistureBefore,
             moistureAfter: null,
-            duration: duration,
+            duration: 0,
             date: admin.firestore.FieldValue.serverTimestamp(),
             note: note,
             status: 'in_progress'
@@ -475,5 +573,299 @@ exports.createIrrigationRecord = async (req, res) => {
     } catch (error) {
         console.error('Error creating irrigation record:', error);
         res.status(500).json({ success: false, error: 'Failed to create irrigation record' });
+    }
+};
+
+// Function to save irrigation schedule
+exports.saveIrrigationSchedule = async (req, res) => {
+    try {
+        const { time, duration, days } = req.body;
+        
+        // Validate time format (HH:mm)
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!timeRegex.test(time)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid time format. Use HH:mm format' 
+            });
+        }
+
+        // Validate duration is a positive integer
+        const durationInt = parseInt(duration);
+        if (isNaN(durationInt) || durationInt <= 0 || durationInt > 60) {
+            return res.status(400).json({
+                success: false,
+                error: 'Duration must be a positive integer between 1 and 60 minutes'
+            });
+        }
+
+        // Create schedule record in Firestore
+        const scheduleRef = firestore.collection('irrigation_schedules');
+        const scheduleDoc = await scheduleRef.add({
+            time: time,
+            duration: durationInt, // Store as integer
+            days: days || [], // Array of days (0-6, where 0 is Sunday)
+            isActive: true,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update Redis with the next schedule
+        await updateNextScheduleInRedis();
+
+        res.json({ 
+            success: true, 
+            scheduleId: scheduleDoc.id 
+        });
+    } catch (error) {
+        console.error('Error saving irrigation schedule:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to save irrigation schedule' 
+        });
+    }
+};
+
+// Function to get all irrigation schedules
+exports.getIrrigationSchedules = async (req, res) => {
+    try {
+        const scheduleRef = firestore.collection('irrigation_schedules');
+        const snapshot = await scheduleRef.get(); // Remove the where clause to get all schedules
+        
+        const schedules = [];
+        snapshot.forEach(doc => {
+            schedules.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        res.json({ 
+            success: true, 
+            schedules: schedules 
+        });
+    } catch (error) {
+        console.error('Error getting irrigation schedules:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to get irrigation schedules' 
+        });
+    }
+};
+
+// Function to update next schedule in Redis
+async function updateNextScheduleInRedis() {
+    try {
+        const scheduleRef = firestore.collection('irrigation_schedules');
+        const snapshot = await scheduleRef.where('isActive', '==', true).get();
+        
+        const now = new Date();
+        let nextSchedule = null;
+        let minTimeDiff = Infinity;
+
+        snapshot.forEach(doc => {
+            const schedule = doc.data();
+            const [hours, minutes] = schedule.time.split(':').map(Number);
+            
+            // Create Date object for today with the schedule time
+            const scheduleTime = new Date(now);
+            scheduleTime.setHours(hours, minutes, 0, 0);
+
+            // If the time has passed today, check for next occurrence
+            if (scheduleTime <= now) {
+                scheduleTime.setDate(scheduleTime.getDate() + 1);
+            }
+
+            const timeDiff = scheduleTime - now;
+            if (timeDiff < minTimeDiff) {
+                minTimeDiff = timeDiff;
+                nextSchedule = {
+                    id: doc.id,
+                    time: schedule.time,
+                    duration: schedule.duration,
+                    nextOccurrence: scheduleTime
+                };
+            }
+        });
+
+        if (nextSchedule) {
+            await redis.set('next_irrigation_schedule', JSON.stringify(nextSchedule));
+            console.log('Updated next irrigation schedule in Redis:', nextSchedule);
+        } else {
+            // If no active schedules, remove the next schedule from Redis
+            await redis.del('next_irrigation_schedule');
+            console.log('No active schedules found, removed next schedule from Redis');
+        }
+    } catch (error) {
+        console.error('Error updating next schedule in Redis:', error);
+    }
+}
+
+// Function to check and trigger scheduled irrigation
+async function checkScheduledIrrigation() {
+    try {
+        const scheduleData = await redis.get('next_irrigation_schedule');
+        if (!scheduleData) {
+            await updateNextScheduleInRedis();
+            return;
+        }
+
+        const schedule = JSON.parse(scheduleData);
+        const now = new Date();
+        const nextOccurrence = new Date(schedule.nextOccurrence);
+
+        // If it's time for irrigation
+        if (now >= nextOccurrence) {
+            // Verify the schedule is still active
+            const scheduleRef = firestore.collection('irrigation_schedules').doc(schedule.id);
+            const scheduleDoc = await scheduleRef.get();
+            
+            if (!scheduleDoc.exists || !scheduleDoc.data().isActive) {
+                // If schedule is no longer active, update Redis and return
+                await updateNextScheduleInRedis();
+                return;
+            }
+
+            // Update Realtime Database to start irrigation
+            await realtimeDB.ref('/irrigation').set({
+                enabled: true,
+                duration: schedule.duration
+            });
+
+            // Create irrigation record
+            const sensorSnapshot = await realtimeDB.ref('/sensors').once('value');
+            const sensorData = sensorSnapshot.val();
+            const currentMoisture = sensorData?.moistureAve || null;
+
+            if (currentMoisture !== null) {
+                const irrigationRef = firestore.collection('irrigation_records');
+                await irrigationRef.add({
+                    startTime: admin.firestore.FieldValue.serverTimestamp(),
+                    endTime: null,
+                    moistureBefore: currentMoisture,
+                    moistureAfter: null,
+                    duration: schedule.duration,
+                    date: admin.firestore.FieldValue.serverTimestamp(),
+                    note: 'Scheduled irrigation',
+                    status: 'in_progress'
+                });
+            }
+
+            // Update Redis with next schedule
+            await updateNextScheduleInRedis();
+        }
+    } catch (error) {
+        console.error('Error checking scheduled irrigation:', error);
+    }
+}
+
+// Initialize schedule checker
+function initializeScheduleChecker() {
+    // Check every minute
+    cron.schedule('* * * * *', checkScheduledIrrigation);
+    
+    // Initial check
+    checkScheduledIrrigation();
+}
+
+// Function to toggle irrigation schedule status
+exports.toggleIrrigationSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+
+        const scheduleRef = firestore.collection('irrigation_schedules').doc(id);
+        await scheduleRef.update({
+            isActive: isActive
+        });
+
+        // Update Redis cache
+        await updateNextScheduleInRedis();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error toggling irrigation schedule:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to toggle irrigation schedule' 
+        });
+    }
+};
+
+// Function to delete irrigation schedule
+exports.deleteIrrigationSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const scheduleRef = firestore.collection('irrigation_schedules').doc(id);
+        await scheduleRef.delete();
+
+        // Update Redis cache
+        await updateNextScheduleInRedis();
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting irrigation schedule:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to delete irrigation schedule' 
+        });
+    }
+};
+
+// Function to update irrigation schedule
+exports.updateIrrigationSchedule = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { time, duration } = req.body;
+        
+        // Validate time format (HH:mm)
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!timeRegex.test(time)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid time format. Use HH:mm format' 
+            });
+        }
+
+        // Validate duration is a positive integer
+        const durationInt = parseInt(duration);
+        if (isNaN(durationInt) || durationInt <= 0 || durationInt > 60) {
+            return res.status(400).json({
+                success: false,
+                error: 'Duration must be a positive integer between 1 and 60 minutes'
+            });
+        }
+
+        // Get the current schedule to preserve other fields
+        const scheduleRef = firestore.collection('irrigation_schedules').doc(id);
+        const scheduleDoc = await scheduleRef.get();
+        
+        if (!scheduleDoc.exists) {
+            return res.status(404).json({
+                success: false,
+                error: 'Schedule not found'
+            });
+        }
+
+        // Update schedule in Firestore
+        await scheduleRef.update({
+            time: time,
+            duration: durationInt,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update Redis with the next schedule
+        await updateNextScheduleInRedis();
+
+        res.json({ 
+            success: true, 
+            message: 'Schedule updated successfully' 
+        });
+    } catch (error) {
+        console.error('Error updating irrigation schedule:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to update irrigation schedule' 
+        });
     }
 }; 

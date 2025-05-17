@@ -44,8 +44,8 @@ router.post('/newpassword', aController.handleNewPassword);
 router.get('/admin-plant-overview', aController.isAuthenticated, aController.isAdmin, plantOverview.plantOverview);
 router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
 router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
-router.get('/checkActiveCrop', plantOverview.getActiveCrop);  
-router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCrop);
+router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
+router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCurrentCrop);
 
 
 
@@ -57,6 +57,14 @@ router.post('/api/automation-trigger', irrigationController.handleAutomationTrig
 router.post('/api/manual-trigger', irrigationController.handleManualTrigger);
 router.post('/api/stop-trigger', irrigationController.handleStopTrigger);
 router.post('/api/irrigation-records', irrigationController.createIrrigationRecord);
+
+// Add new routes for irrigation scheduling
+router.post('/api/irrigation-schedules', aController.isAuthenticated, irrigationController.saveIrrigationSchedule);
+router.get('/api/irrigation-schedules', aController.isAuthenticated, irrigationController.getIrrigationSchedules);
+router.post('/api/irrigation-schedules/:id/toggle', aController.isAuthenticated, irrigationController.toggleIrrigationSchedule);
+router.put('/api/irrigation-schedules/:id', aController.isAuthenticated, irrigationController.updateIrrigationSchedule);
+router.delete('/api/irrigation-schedules/:id', aController.isAuthenticated, irrigationController.deleteIrrigationSchedule);
+
 router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
 router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
 

@@ -80,113 +80,112 @@ exports.getRecommendedCrops = async (req, res) => {
   }
 };
 
-
-exports.confirmCropSelection = async (req, res) => {
-    try {
-      const { cropData } = req.body;
-      
-      if (!cropData || !cropData.name) {
-        return res.status(400).json({ error: "Invalid crop data" });
-      }
-  
-      if (!req.session.user?.uid) {
-        return res.status(401).json({ error: "Not authenticated" });
-      }
-  
-      // Check for existing active crop
-      const activeCropsSnapshot = await firestore.collection('planted_crops')
-        .where('userId', '==', req.session.user.uid)
-        .where('endDate', '==', null)
-        .limit(1)
-        .get();
-  
-      if (!activeCropsSnapshot.empty) {
-        const existingCrop = activeCropsSnapshot.docs[0].data();
-        return res.status(400).json({ 
-          error: `You already have an active crop (${existingCrop.name}). Harvest it first before planting a new one.`
-        });
-      }
-  
-      // Proceed with planting new crop
-      const plantedCropRef = firestore.collection('planted_crops').doc();
-      const startDate = admin.firestore.FieldValue.serverTimestamp();
-      
-      await plantedCropRef.set({
-        ...cropData,
-        startDate,
-        endDate: null,
-        status: 'active',
-        userId: req.session.user.uid,
-        userEmail: req.session.user.email,
-        userName: req.session.user.name
-      });
-  
-      res.json({ 
-        success: true, 
-        plantedCropId: plantedCropRef.id,
-        message: `${cropData.name} planted successfully`
-      });
-    } catch (error) {
-      console.error("Error saving planted crop:", error);
-      res.status(500).json({ error: "Failed to save crop selection" });
+// Check for active crop
+exports.checkActiveCrop = async (req, res) => {
+  try {
+    if (!req.session.user?.uid) {
+      return res.status(401).json({ error: "Not authenticated" });
     }
-  };
 
-  // ... existing code ...
+    const snapshot = await firestore.collection('planted_crops')
+      .where('userId', '==', req.session.user.uid)
+      .where('endDate', '==', null)
+      .limit(1)
+      .get();
 
-  exports.getActiveCrop = async (req, res) => {
-    try {
-        if (!req.session.user?.uid) {
-            return res.status(401).json({ error: "Not authenticated" });
-        }
+    const hasActiveCrop = !snapshot.empty;
+    const currentCrop = hasActiveCrop ? snapshot.docs[0].data() : null;
 
-        const activeCropsSnapshot = await firestore.collection('planted_crops')
-            .where('endDate', '==', null)
-            .limit(1)
-            .get();
-
-        if (activeCropsSnapshot.empty) {
-            return res.json({ hasActiveCrop: false });
-        }
-
-        const activeCrop = activeCropsSnapshot.docs[0];
-        return res.json({
-            hasActiveCrop: true,
-            cropId: activeCrop.id,
-            cropData: activeCrop.data()
-        });
-    } catch (error) {
-        console.error("Error getting active crop:", error);
-        res.status(500).json({ error: "Failed to get active crop" });
-    }
+    res.json({ 
+      hasActiveCrop,
+      currentCrop
+    });
+  } catch (error) {
+    console.error("Error checking active crop:", error);
+    res.status(500).json({ error: "Failed to check active crops" });
+  }
 };
-exports.harvestCrop = async (req, res) => {
-    try {
-        const { cropId, successRate } = req.body;
 
-        if (!cropId) {
-            return res.status(400).json({ error: "Invalid crop ID" });
-        }
-
-        if (successRate === undefined || successRate < 0 || successRate > 100) {
-            return res.status(400).json({ error: "Invalid success rate" });
-        }
-
-        const cropRef = firestore.collection('planted_crops').doc(cropId);
-        const endDate = admin.firestore.FieldValue.serverTimestamp();
-
-        await cropRef.update({
-            endDate,
-            status: successRate >= 70 ? 'successful' : 'unsuccessful',
-            successRate: parseInt(successRate, 10)
-        });
-
-        res.json({ 
-            success: true, 
-            message: "Crop harvested successfully" 
-        });
-    } catch (error) {
-        console.error("Error harvesting crop:", error);
-        res.status(500).json({ error: "Failed to harvest crop" });
+// Confirm new crop planting
+exports.confirmCropSelection = async (req, res) => {
+  try {
+    const { cropData } = req.body;
+    
+    if (!cropData?.name) {
+      return res.status(400).json({ error: "Invalid crop data" });
     }
+
+    if (!req.session.user?.uid) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    // Verify no active crop exists
+    const activeCheck = await firestore.collection('planted_crops')
+      .where('userId', '==', req.session.user.uid)
+      .where('endDate', '==', null)
+      .limit(1)
+      .get();
+
+    if (!activeCheck.empty) {
+      return res.status(400).json({ 
+        error: "You already have an active crop. Harvest it first."
+      });
+    }
+
+    // Create new planted crop
+    const plantedCropRef = firestore.collection('planted_crops').doc();
+    await plantedCropRef.set({
+      ...cropData,
+      startDate: admin.firestore.FieldValue.serverTimestamp(),
+      endDate: null,
+      status: 'active',
+      userId: req.session.user.uid,
+      userEmail: req.session.user.email,
+      userName: req.session.user.name
+    });
+
+    res.json({ 
+      success: true, 
+      plantedCropId: plantedCropRef.id,
+      message: `${cropData.name} planted successfully`
+    });
+  } catch (error) {
+    console.error("Error saving planted crop:", error);
+    res.status(500).json({ error: "Failed to save crop selection" });
+  }
+};
+
+// Harvest current crop
+exports.harvestCurrentCrop = async (req, res) => {
+  try {
+    if (!req.session.user?.uid) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    // Find active crop
+    const snapshot = await firestore.collection('planted_crops')
+      .where('userId', '==', req.session.user.uid)
+      .where('endDate', '==', null)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(400).json({ error: "No active crop found" });
+    }
+
+    // Update with harvest date
+    const cropDoc = snapshot.docs[0];
+    await cropDoc.ref.update({
+      endDate: admin.firestore.FieldValue.serverTimestamp(),
+      status: 'harvested'
+    });
+
+    res.json({ 
+      success: true,
+      message: `${cropDoc.data().name} harvested successfully` 
+    });
+  } catch (error) {
+    console.error("Error harvesting crop:", error);
+    res.status(500).json({ error: "Failed to harvest crop" });
+  }
 };
