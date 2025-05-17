@@ -171,6 +171,94 @@
                 font-size: 1.5rem;
             }
         }
+
+        #nextIrrigationInfo {
+            transition: all 0.3s ease;
+        }
+        
+        #nextIrrigationInfo[style*="display: none"] {
+            opacity: 0;
+        }
+        
+        #nextIrrigationInfo[style*="display: block"] {
+            opacity: 1;
+        }
+        
+        .time-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2196F3;
+            transition: all 0.3s ease;
+        }
+        
+        .time-label {
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .progress {
+            height: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+
+        #runningIrrigationStatus {
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+        
+        #runningIrrigationStatus.alert-primary {
+            background-color: #e3f2fd;
+            border-color: #2196F3;
+            color: #0d47a1;
+        }
+        
+        #runningIrrigationStatus.alert-success {
+            background-color: #e8f5e9;
+            border-color: #4CAF50;
+            color: #1b5e20;
+        }
+        
+        #runningIrrigationStatus.alert-info {
+            background-color: #e3f2fd;
+            border-color: #2196F3;
+            color: #0d47a1;
+        }
+        
+        #runningIrrigationStatus.alert-secondary {
+            background-color: #f5f5f5;
+            border-color: #9e9e9e;
+            color: #424242;
+        }
+        
+        #runningIrrigationStatus .fa-spin {
+            animation: fa-spin 2s infinite linear;
+        }
+        
+        @keyframes fa-spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        #runningIrrigationStatus .small {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        #runningIrrigationStatus strong {
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 
@@ -566,6 +654,39 @@
                             </div>
             </div>
 
+            <!-- Next Irrigation Section -->
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="ibox">
+                        <div class="ibox-head">
+                            <div class="ibox-title">Next Irrigation</div>
+                        </div>
+                        <div class="ibox-body">
+                            <!-- Add Running Irrigation Status -->
+                            <div id="runningIrrigationStatus" class="alert alert-info mb-3" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tint fa-spin mr-2"></i>
+                                    <div>
+                                        <strong id="runningIrrigationType"></strong>
+                                        <div id="runningIrrigationDetails" class="small"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center" id="nextIrrigationInfo">
+                                <div class="time-value" id="nextIrrigationTime">--:--</div>
+                                <div class="time-label" id="nextIrrigationDate">Loading...</div>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar bg-primary" role="progressbar" id="nextIrrigationProgress" style="width: 0%"></div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted" id="nextIrrigationStatus">Calculating next irrigation...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Footer -->
             <footer class="page-footer">
                 <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
@@ -692,6 +813,227 @@
     
         // Initial data load
         window.onload = fetchSensorData;
+    </script>
+
+    <!-- Add these scripts before the closing body tag -->
+    <script>
+        // Function to format time remaining
+        function formatTimeRemaining(milliseconds) {
+            const seconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes % 60}m remaining`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds % 60}s remaining`;
+            } else {
+                return `${seconds}s remaining`;
+            }
+        }
+
+        // Function to format date and time
+        function formatDateTime(date) {
+            if (!date) return 'N/A';
+            return new Date(date).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Function to update next irrigation display
+        async function updateNextIrrigation() {
+            try {
+                const response = await fetch('/api/irrigation-schedules');
+                const data = await response.json();
+                
+                if (data.success && data.schedules.length > 0) {
+                    const now = new Date();
+                    let nextSchedule = null;
+                    let minTimeDiff = Infinity;
+
+                    // Find the next active schedule
+                    data.schedules.forEach(schedule => {
+                        if (schedule.isActive) {
+                            const [hours, minutes] = schedule.time.split(':').map(Number);
+                            const scheduleTime = new Date(now);
+                            scheduleTime.setHours(hours, minutes, 0, 0);
+
+                            // If the time has passed today, check for next occurrence
+                            if (scheduleTime <= now) {
+                                scheduleTime.setDate(scheduleTime.getDate() + 1);
+                            }
+
+                            // Find the next scheduled day
+                            let daysToAdd = 0;
+                            const currentDay = scheduleTime.getDay();
+                            
+                            // If today is not a scheduled day, find the next scheduled day
+                            if (!schedule.days.includes(currentDay)) {
+                                // Look for the next scheduled day within the next 7 days
+                                for (let i = 1; i <= 7; i++) {
+                                    const nextDay = (currentDay + i) % 7;
+                                    if (schedule.days.includes(nextDay)) {
+                                        daysToAdd = i;
+                                        break;
+                                    }
+                                }
+                                scheduleTime.setDate(scheduleTime.getDate() + daysToAdd);
+                            }
+
+                            const timeDiff = scheduleTime - now;
+                            if (timeDiff < minTimeDiff) {
+                                minTimeDiff = timeDiff;
+                                nextSchedule = {
+                                    time: schedule.time,
+                                    nextOccurrence: scheduleTime,
+                                    days: schedule.days
+                                };
+                            }
+                        }
+                    });
+
+                    if (nextSchedule) {
+                        // Format the days
+                        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        const scheduledDays = nextSchedule.days.map(day => dayNames[day]).join(', ');
+
+                        // Update the display
+                        document.getElementById('nextIrrigationTime').textContent = nextSchedule.time;
+                        document.getElementById('nextIrrigationDate').textContent = 
+                            `${nextSchedule.nextOccurrence.toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                month: 'short', 
+                                day: 'numeric' 
+                            })} (${scheduledDays})`;
+
+                        // Calculate progress (assuming 24-hour cycle)
+                        const totalTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                        const timeUntilNext = nextSchedule.nextOccurrence - now;
+                        const progress = ((totalTime - timeUntilNext) / totalTime) * 100;
+                        
+                        document.getElementById('nextIrrigationProgress').style.width = `${progress}%`;
+                        document.getElementById('nextIrrigationStatus').textContent = formatTimeRemaining(timeUntilNext);
+                    } else {
+                        // No active schedules
+                        document.getElementById('nextIrrigationTime').textContent = '--:--';
+                        document.getElementById('nextIrrigationDate').textContent = 'No active schedules';
+                        document.getElementById('nextIrrigationProgress').style.width = '0%';
+                        document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                    }
+                } else {
+                    // No schedules found
+                    document.getElementById('nextIrrigationTime').textContent = '--:--';
+                    document.getElementById('nextIrrigationDate').textContent = 'No schedules';
+                    document.getElementById('nextIrrigationProgress').style.width = '0%';
+                    document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                }
+            } catch (error) {
+                console.error('Error updating next irrigation:', error);
+                document.getElementById('nextIrrigationTime').textContent = '--:--';
+                document.getElementById('nextIrrigationDate').textContent = 'Error';
+                document.getElementById('nextIrrigationProgress').style.width = '0%';
+                document.getElementById('nextIrrigationStatus').textContent = 'Failed to load schedule';
+            }
+        }
+
+        // Function to update running irrigation status
+        function updateRunningIrrigationStatus(record) {
+            const statusDiv = document.getElementById('runningIrrigationStatus');
+            const typeSpan = document.getElementById('runningIrrigationType');
+            const detailsDiv = document.getElementById('runningIrrigationDetails');
+            const nextIrrigationInfo = document.getElementById('nextIrrigationInfo');
+            
+            if (record && record.status === 'in_progress') {
+                // Show the status div
+                statusDiv.style.display = 'block';
+                
+                // Determine irrigation type and details based on the note field
+                let type = '';
+                let details = '';
+                
+                // Check the note field to determine the type of irrigation
+                if (record.note && record.note.toLowerCase().includes('automated')) {
+                    type = 'Automation Irrigation';
+                    details = `Started at ${formatDateTime(record.startTime)}`;
+                    statusDiv.className = 'alert alert-primary mb-3';
+                } else if (record.note && record.note.toLowerCase().includes('manual')) {
+                    type = 'Manual Irrigation';
+                    details = `Duration: ${record.duration} minutes | Started at ${formatDateTime(record.startTime)}`;
+                    statusDiv.className = 'alert alert-success mb-3';
+                } else if (record.note && record.note.toLowerCase().includes('scheduled')) {
+                    type = 'Schedule Irrigation';
+                    details = `Duration: ${record.duration} minutes | Started at ${formatDateTime(record.startTime)}`;
+                    statusDiv.className = 'alert alert-info mb-3';
+                } else {
+                    // Default case if note doesn't match any known type
+                    type = 'Irrigation Running';
+                    details = `Started at ${formatDateTime(record.startTime)}`;
+                    statusDiv.className = 'alert alert-secondary mb-3';
+                }
+                
+                typeSpan.textContent = type;
+                detailsDiv.textContent = details;
+                
+                // Hide next irrigation info and show running status
+                nextIrrigationInfo.style.display = 'none';
+                
+                // Update the time-value and time-label with running status
+                document.getElementById('nextIrrigationTime').textContent = type;
+                document.getElementById('nextIrrigationDate').textContent = details;
+                document.getElementById('nextIrrigationProgress').style.width = '100%';
+                document.getElementById('nextIrrigationStatus').textContent = 'Irrigation in Progress';
+            } else {
+                // Hide the status div if no irrigation is running
+                statusDiv.style.display = 'none';
+                
+                // Show next irrigation info
+                nextIrrigationInfo.style.display = 'block';
+                
+                // Update next irrigation information
+                updateNextIrrigation();
+            }
+        }
+
+        // Function to check for running irrigation
+        async function checkRunningIrrigation() {
+            try {
+                const response = await fetch('/api/irrigation-history?page=1');
+                const data = await response.json();
+                
+                if (data.success && data.records.length > 0) {
+                    // Check if the most recent record is still running
+                    const latestRecord = data.records[0];
+                    if (latestRecord.status === 'in_progress') {
+                        updateRunningIrrigationStatus(latestRecord);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking running irrigation:', error);
+            }
+        }
+
+        // Initialize Socket.IO connection and handle real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Socket.IO connection
+            const socket = io();
+            
+            // Listen for irrigation record updates
+            socket.on('irrigationRecordUpdate', (record) => {
+                // Update running irrigation status
+                updateRunningIrrigationStatus(record);
+            });
+            
+            // Initial check for running irrigation
+            checkRunningIrrigation();
+            
+            // Update next irrigation every minute
+            updateNextIrrigation();
+            setInterval(updateNextIrrigation, 60000);
+        });
     </script>
 </body>
 
