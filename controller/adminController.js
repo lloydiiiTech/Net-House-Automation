@@ -70,6 +70,27 @@ exports.Dashboard = async (req, res) => {
         const data = sensorSnapshot.val();
         console.log('Sensor data received:', data);
         
+        // Get crop recommendations
+        console.log('Fetching crop recommendations...');
+        const predictionSnapshot = await admin.firestore()
+            .collection('prediction_history')
+            .orderBy('timestamp', 'desc')
+            .limit(1)
+            .get();
+
+        let recommendations = [];
+        if (!predictionSnapshot.empty) {
+            const predictionData = predictionSnapshot.docs[0].data();
+            const predictions = predictionData.predictions || {};
+            recommendations = []
+                .concat(predictions.top5Registered || [])
+                .concat(predictions.top5Unregistered || [])
+                .filter(crop => crop && crop.name)
+                .sort((a, b) => (b.score || b.ruleBasedScore || 0) - (a.score || a.ruleBasedScore || 0))
+                .slice(0, 5);
+        }
+        console.log('Crop recommendations loaded:', recommendations.length);
+        
         // Get crop data
         console.log('Fetching crop data...');
         const cropRef = admin.firestore().collection('planted_crops');
@@ -182,6 +203,7 @@ exports.Dashboard = async (req, res) => {
             sensorData,
             sensorHistory: JSON.stringify(history),
             cropData: cropData,
+            recommendations: recommendations,
             firebaseConfig: {
                 apiKey: process.env.FIREBASE_API_KEY,
                 projectId: process.env.FIREBASE_PROJECT_ID
