@@ -20,133 +20,303 @@
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
         .report-section {
-            margin-bottom: 30px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
         }
-        .export-buttons {
-            margin-bottom: 15px;
+
+        .report-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        .search-box {
-            margin-bottom: 15px;
-        }
-        .chart-container {
-            height: 300px;
-            margin-bottom: 20px;
-        }
-        .table-responsive {
-            margin-top: 15px;
-        }
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .status-normal { background-color: #28a745; }
-        .status-warning { background-color: #ffc107; }
-        .status-danger { background-color: #dc3545; }
-        .table-hover tbody tr {
-            cursor: pointer;
-        }
-        .report-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .report-header {
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .report-footer {
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
-            margin-top: 20px;
-        }
-        .parameter-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .parameter-item {
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9em;
-        }
-        .status-successful { background-color: #d4edda; color: #155724; }
-        .status-active { background-color: #fff3cd; color: #856404; }
-        .status-failed { background-color: #f8d7da; color: #721c24; }
-        .text-muted {
-            color: #6c757d;
-            font-size: 0.85em;
-        }
-        .d-block {
-            display: block;
-        }
+
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-bg);
         }
+
+        .section-header h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
         .section-actions {
             display: flex;
-            gap: 10px;
+            gap: 0.5rem;
         }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table-responsive {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-normal {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .parameter-item {
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .parameter-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .parameter-item h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
         .pagination-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-top: 15px;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
         }
+
         .page-size-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.5rem;
         }
-        .download-options {
+
+        .page-size-selector select {
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ddd;
+        }
+
+        .pagination-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 0.5rem;
         }
-        .table-container {
-            position: relative;
-            margin-top: 20px;
+
+        .pagination-controls .btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
         }
-        .table-loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
+
+        .export-buttons {
             display: flex;
-            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .export-buttons .btn {
+            display: flex;
             align-items: center;
-            z-index: 1000;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
         }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            display: inline-block;
+
+        .export-buttons .btn i {
+            font-size: 1.1rem;
         }
-        .status-normal { background-color: #d4edda; color: #155724; }
-        .status-warning { background-color: #fff3cd; color: #856404; }
-        .status-danger { background-color: #f8d7da; color: #721c24; }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--box-shadow);
+        }
+
+        .modal-header {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--light-bg);
+        }
+
+        .form-group label {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        @media print {
+            .report-section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .section-actions,
+            .export-buttons {
+                display: none;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
     </style>
 </head>
 
@@ -172,10 +342,16 @@
                 <!-- END TOP-LEFT TOOLBAR-->
                 <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i></a>
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/admin-profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
@@ -192,10 +368,10 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
+                        <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div><small>User</small></div>
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
@@ -591,7 +767,24 @@
             </div>
         </div>
     </div>
-
+<!-- Pending Users Modal -->
+<div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pending Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="pendingUsersList">
+                    <!-- Pending users will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Download Modal -->
     <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -1732,6 +1925,163 @@
             
             console.log('Initialization complete');
         });
+    </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load pending users count
+        loadPendingUsersCount();
+    
+        // Handle pending users button click
+        document.getElementById('pendingUsersBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            loadPendingUsers();
+            $('#pendingUsersModal').modal('show');
+        });
+    
+        // Function to load pending users count
+        async function loadPendingUsersCount() {
+            try {
+                const response = await fetch('/api/users/pending/count');
+                const data = await response.json();
+                if (data.success) {
+                    const countBadge = document.getElementById('pendingUsersCount');
+                    if (data.count > 0) {
+                        countBadge.textContent = data.count;
+                        countBadge.style.display = 'inline';
+                    } else {
+                        countBadge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading pending users count:', error);
+            }
+        }
+    
+        // Function to load pending users
+        async function loadPendingUsers() {
+            try {
+                const response = await fetch('/api/users/pending');
+                const data = await response.json();
+    
+                if (data.success) {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = '';
+    
+                    if (!data.users || data.users.length === 0) {
+                        pendingUsersList.innerHTML = '<div class="alert alert-info">No pending users found.</div>';
+                        return;
+                    }
+    
+                    data.users.forEach(user => {
+                        const userCard = document.createElement('div');
+                        userCard.className = 'card mb-3';
+                        userCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                             class="img-fluid rounded-circle" 
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h5 class="card-title">${user.name}</h5>
+                                        <p class="card-text">
+                                            <strong>Email:</strong> ${user.email}<br>
+                                            <strong>Contact:</strong> ${user.contactNumber || 'N/A'}<br>
+                                            <strong>Role:</strong> ${user.role}<br>
+                                            <strong>Email Verification:</strong> ${user.isVerified ? 'Verified' : 'Not Verified'}<br>
+                                            <strong>Registered:</strong> ${user.createdAt}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-success btn-sm mb-2 approve-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-check"></i> Approve
+                                        </button>
+                                        <button class="btn btn-danger btn-sm reject-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        pendingUsersList.appendChild(userCard);
+                    });
+    
+                    // Add event listeners for approve/reject buttons
+                    document.querySelectorAll('.approve-user').forEach(button => {
+                        button.addEventListener('click', handleUserApproval);
+                    });
+                    document.querySelectorAll('.reject-user').forEach(button => {
+                        button.addEventListener('click', handleUserRejection);
+                    });
+                } else {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading pending users:', error);
+                const pendingUsersList = document.getElementById('pendingUsersList');
+                pendingUsersList.innerHTML = `<div class="alert alert-danger">Failed to load pending users: ${error.message}</div>`;
+            }
+        }
+    
+        // Handle user approval
+        async function handleUserApproval(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/approve`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User approved successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error approving user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error approving user');
+            }
+        }
+    
+        // Handle user rejection
+        async function handleUserRejection(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/reject`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User rejected successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error rejecting user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error rejecting user');
+            }
+        }
+    
+        // Show notification
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+    
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    });
     </script>
 </body>
 </html>

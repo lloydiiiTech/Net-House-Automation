@@ -158,6 +158,24 @@ async function ensureTestData() {
 
 exports.reportsAnalytics = async (req, res) => {
     try {
+        // Get user data from session
+        const userId = req.session.user?.uid;
+        let userData = null;
+        
+        if (userId) {
+            try {
+                const userDoc = await firestore.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    userData.id = userDoc.id;
+                    // Set default profile picture if none exists
+                    userData.profilePicture = userData.profilePicture || '/assets/img/default-avatar.png';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
         // Get latest sensor data
         const sensorSnapshot = await firestore.collection('daily_sensor_summaries')
             .orderBy('period_start', 'desc')
@@ -283,6 +301,11 @@ exports.reportsAnalytics = async (req, res) => {
         });
 
         res.render('admin/reports', {
+            user: userData || {
+                name: 'Admin',
+                role: 'Admin',
+                profilePicture: '/assets/img/default-avatar.png'
+            },
             sensorData,
             registeredCrops,
             plantedCrops
@@ -290,6 +313,11 @@ exports.reportsAnalytics = async (req, res) => {
     } catch (error) {
         console.error('Error rendering reports page:', error);
         res.render('admin/reports', {
+            user: {
+                name: 'Admin',
+                role: 'Admin',
+                profilePicture: '/assets/img/default-avatar.png'
+            },
             sensorData: {},
             registeredCrops: [],
             plantedCrops: []

@@ -7,6 +7,8 @@ const userController = require('../controller/userController.js');
 const plantOverview = require('../controller/PlantOverview.js');
 const reportsController = require('../controller/reportsController.js');
 const irrigationController = require('../controller/irrigationController.js');
+const userManagementController = require('../controller/userManagementController.js');
+const userProfileController = require('../controller/userProfileController.js');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -46,6 +48,8 @@ router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAd
 router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
 router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
 router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCurrentCrop);
+router.get('/realtime-sensor-data', aController.isAuthenticated, plantOverview.getRealtimeSensorData);
+router.get('/api/weather', aController.isAuthenticated, plantOverview.getWeatherData);
 
 
 
@@ -68,14 +72,16 @@ router.delete('/api/irrigation-schedules/:id', aController.isAuthenticated, irri
 // Add new route for paginated irrigation history
 router.get('/api/irrigation-history', aController.isAuthenticated, irrigationController.getIrrigationHistory);
 
+
+
 router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
-router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, adminController.userManagement);
+router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, userManagementController.userManagement);
 
 
 router.get('/plant-overview', aController.isAuthenticated, userController.plantOverview);
 router.get('/irrigation', aController.isAuthenticated, userController.irrigationControll);
 router.get('/reports', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
-router.get('/profile', aController.isAuthenticated, userController.profile);
+router.get('/admin-profile', aController.isAuthenticated, userProfileController.getUserProfile);
 
 
 
@@ -94,6 +100,26 @@ router.get('/api/crop-data', aController.isAuthenticated, aController.isAdmin, r
 router.get('/api/planted-crops', aController.isAuthenticated, aController.isAdmin, reportsController.getPlantedCrops);
 router.get('/api/historical-sensor-data', aController.isAuthenticated, aController.isAdmin, reportsController.getHistoricalSensorData);
 router.get('/api/crop-performance', aController.isAuthenticated, aController.isAdmin, reportsController.getCropPerformance);
+
+// Add new routes for user management actions
+// Add routes for pending users (must come before /api/users/:userId)
+router.get('/api/users/pending/count', aController.isAuthenticated, aController.isAdmin, userManagementController.getPendingUsersCount);
+router.get('/api/users/pending', aController.isAuthenticated, aController.isAdmin, userManagementController.getPendingUsers);
+router.get('/api/users/pending/test', aController.isAuthenticated, aController.isAdmin, userManagementController.testPendingUsers);
+router.put('/api/users/:userId/approve', aController.isAuthenticated, aController.isAdmin, userManagementController.approveUser);
+router.put('/api/users/:userId/reject', aController.isAuthenticated, aController.isAdmin, userManagementController.rejectUser);
+
+// User management routes (must come after specific routes)
+router.put('/api/users/:userId/role', aController.isAuthenticated, aController.isAdmin, userManagementController.updateUserRole);
+router.put('/api/users/:userId/status', aController.isAuthenticated, aController.isAdmin, userManagementController.toggleUserStatus);
+router.put('/api/users/:userId/update', aController.isAuthenticated, aController.isAdmin, userManagementController.updateUser);
+router.delete('/api/users/:userId', aController.isAuthenticated, aController.isAdmin, userManagementController.deleteUser);
+router.get('/api/users/:userId', aController.isAuthenticated, aController.isAdmin, userManagementController.getUserDetails);
+
+// User profile API routes
+router.put('/api/profile/update', aController.isAuthenticated, userProfileController.updateProfile);
+router.put('/api/profile/change-password', aController.isAuthenticated, userProfileController.changePassword);
+router.post('/api/profile/upload-picture', aController.isAuthenticated, userProfileController.uploadProfilePicture);
 
 
 

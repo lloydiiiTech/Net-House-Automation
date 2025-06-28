@@ -1,7 +1,28 @@
 const { firestore, admin } = require('../config/firebase');
+const { database } = require('../config/firebase');
+const { realtimeDB } = require('../config/firebase');
+const axios = require('axios');
 
 exports.plantOverview = async (req, res) => {
     try {
+      // Get user data from session
+      const userId = req.session.user?.uid;
+      let userData = null;
+      
+      if (userId) {
+        try {
+          const userDoc = await firestore.collection('users').doc(userId).get();
+          if (userDoc.exists) {
+            userData = userDoc.data();
+            userData.id = userDoc.id;
+            // Set default profile picture if none exists
+            userData.profilePicture = userData.profilePicture || '/assets/img/default-avatar.png';
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+
       const snapshot = await firestore.collection('prediction_history')
         .orderBy('timestamp', 'desc')
         .limit(1)
@@ -9,6 +30,11 @@ exports.plantOverview = async (req, res) => {
   
       if (snapshot.empty) {
         return res.render("admin/plants", { 
+          user: userData || {
+            name: 'Admin',
+            role: 'Admin',
+            profilePicture: '/assets/img/default-avatar.png'
+          },
           recommendations: [],
           sensorData: {} 
         });
@@ -30,6 +56,11 @@ exports.plantOverview = async (req, res) => {
         .slice(0, 5);
   
       res.render("admin/plants", { 
+        user: userData || {
+          name: 'Admin',
+          role: 'Admin',
+          profilePicture: '/assets/img/default-avatar.png'
+        },
         recommendations,
         sensorData 
       });
@@ -37,6 +68,11 @@ exports.plantOverview = async (req, res) => {
     } catch (error) {
       console.error("Error:", error);
       res.render("admin/plants", { 
+        user: {
+          name: 'Admin',
+          role: 'Admin',
+          profilePicture: '/assets/img/default-avatar.png'
+        },
         recommendations: [],
         sensorData: {} 
       });
@@ -188,4 +224,64 @@ exports.harvestCurrentCrop = async (req, res) => {
     console.error("Error harvesting crop:", error);
     res.status(500).json({ error: "Failed to harvest crop" });
   }
+};
+
+// Add this function to get real-time sensor data
+exports.getRealtimeSensorData = async (req, res) => {
+    try {
+        // Set up real-time listener for sensor data
+        const sensorRef = database.ref('sensors');
+        
+        sensorRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Emit the data through WebSocket or Server-Sent Events
+                req.app.get('io').emit('sensorUpdate', data);
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error setting up real-time sensor data:", error);
+        res.status(500).json({ error: "Failed to setup real-time sensor data" });
+    }
+};
+
+// Add weather API endpoint
+exports.getWeatherData = async (req, res) => {
+    try {
+        const city = 'Manila'; // You can make this configurable or get from user settings
+        const apiKey = process.env.OPENWEATHER_API_KEY;
+        
+        if (!apiKey) {
+            return res.status(500).json({
+                success: false,
+                error: 'Weather API key not configured'
+            });
+        }
+
+        const response = await axios.get(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+
+        const weatherData = {
+            main: response.data.weather[0].main,
+            description: response.data.weather[0].description,
+            temperature: response.data.main.temp,
+            humidity: response.data.main.humidity,
+            windSpeed: response.data.wind.speed,
+            icon: response.data.weather[0].icon
+        };
+
+        res.json({
+            success: true,
+            weather: weatherData
+        });
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch weather data'
+        });
+    }
 };

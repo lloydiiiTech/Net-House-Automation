@@ -70,6 +70,24 @@ exports.Dashboard = async (req, res) => {
         const data = sensorSnapshot.val();
         console.log('Sensor data received:', data);
         
+        // Get user data from session
+        const userId = req.session.user?.uid;
+        let userData = null;
+        
+        if (userId) {
+            try {
+                const userDoc = await firestore.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    userData.id = userDoc.id;
+                    // Set default profile picture if none exists
+                    userData.profilePicture = userData.profilePicture || '/assets/img/default-avatar.png';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+        
         // Get crop recommendations
         console.log('Fetching crop recommendations...');
         const predictionSnapshot = await admin.firestore()
@@ -196,10 +214,16 @@ exports.Dashboard = async (req, res) => {
         console.log('Rendering dashboard with data:', { 
             hasSensorData: !!sensorData, 
             hasCropData: !!cropData,
-            hasHistory: history.length > 0
+            hasHistory: history.length > 0,
+            hasUserData: !!userData
         });
         
         res.render("admin/home", { 
+            user: userData || {
+                name: 'Admin',
+                role: 'Admin',
+                profilePicture: '/assets/img/default-avatar.png'
+            },
             sensorData,
             sensorHistory: JSON.stringify(history),
             cropData: cropData,
@@ -417,9 +441,42 @@ exports.plantOverview = async (req, res) => {
 
 
 exports.irrigationControll = async (req, res) => {
-    
+    try {
+        // Get user data from session
+        const userId = req.session.user?.uid;
+        let userData = null;
+        
+        if (userId) {
+            try {
+                const userDoc = await firestore.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    userData.id = userDoc.id;
+                    // Set default profile picture if none exists
+                    userData.profilePicture = userData.profilePicture || '/assets/img/default-avatar.png';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
 
-    res.render("admin/irrigation");  
+        res.render("admin/irrigation", {
+            user: userData || {
+                name: 'Admin',
+                role: 'Admin',
+                profilePicture: '/assets/img/default-avatar.png'
+            }
+        });
+    } catch (error) {
+        console.error('Error rendering irrigation page:', error);
+        res.render("admin/irrigation", {
+            user: {
+                name: 'Admin',
+                role: 'Admin',
+                profilePicture: '/assets/img/default-avatar.png'
+            }
+        });
+    }
 };
 
 

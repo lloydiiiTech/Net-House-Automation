@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - NetHouseAutomation</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        .profile-header-content {
+            position: relative;
+            z-index: 2;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .profile-email {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        .profile-role {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        .profile-card-header {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .profile-card-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .info-value {
+            color: #6c757d;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .status-deactivated {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+            color: white;
+        }
+        .verified-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .not-verified-badge {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-upload-label {
+            display: block;
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #17a2b8, #20c997);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease-out;
+            max-width: 300px;
+        }
+        .toast-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .toast-error {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .password-strength {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+        /* Pending Users Styles (Admin Only) */
+        .pending-users-btn {
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .pending-users-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .pending-users-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pending-user-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .pending-user-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        .pending-user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pending-user-info {
+            padding: 15px;
+        }
+        .pending-user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .btn-approve {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .btn-reject {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-reject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        .no-pending-users {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        .no-pending-users i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->
+        <header class="header">
+            <div class="page-brand">
+                <a class="link" href="<%= user.role === 'Admin' ? '/admin-dashboard' : '/user-dashboard' %>">
+                    <span class="brand">NetHouse
+                        <span class="brand-tip">Automation</span>
+                    </span>
+                    <span class="brand-mini">NHA</span>
+                </a>
+            </div>
+            <div class="flexbox flex-1">
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-toolbar">
+                    <% if (user.role === 'Admin') { %>
+                        <li>
+                            <a class="nav-link pending-users-btn" href="#" id="pendingUsersBtn" title="Pending Users">
+                                <i class="fa fa-user-clock"></i>
+                                <span class="badge badge-danger pending-users-badge" id="pendingUsersCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+                    <% } %>
+                    <li class="dropdown dropdown-user">
+                        <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
+                            <li class="dropdown-divider"></li>
+                            <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <nav class="page-sidebar" id="sidebar">
+            <div id="sidebar-collapse">
+                <div class="admin-block d-flex">
+                    <div>
+                        <img src="<%= user.profilePicture %>" width="45px" />
+                    </div>
+                    <div class="admin-info">
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small>
+                    </div>
+                </div>
+                <ul class="side-menu metismenu">
+                    <% if (user.role === 'Admin') { %>
+                        <li>
+                            <a href="/admin-dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                                <span class="nav-label">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin-plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                                <span class="nav-label">Plant Overview</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin-irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                                <span class="nav-label">Irrigation Control</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin-reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                                <span class="nav-label">Reports & Analytics</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin-user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                                <span class="nav-label">User Management</span>
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li>
+                            <a href="/user-dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                                <span class="nav-label">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                                <span class="nav-label">Plant Overview</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/irrigation"><i class="sidebar-item-icon fas fa-faucet"></i>
+                                <span class="nav-label">Irrigation Control</span>
+                            </a>
+                        </li>
+                    <% } %>
+                    
+                </ul>
+            </div>
+        </nav>
+        <!-- END SIDEBAR-->
+        <div class="content-wrapper">
+            <div class="page-heading">
+                <h1 class="page-title">My Profile</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="<%= user.role === 'Admin' ? '/admin-dashboard' : '/user-dashboard' %>"><i class="fa fa-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">My Profile</li>
+                </ol>
+            </div>
+            <div class="page-content fade-in-up">
+                <div class="profile-container">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-header-content">
+                            <img src="<%= user.profilePicture %>" alt="<%= user.name %>" class="profile-avatar">
+                            <div class="profile-name"><%= user.name %></div>
+                            <div class="profile-email"><%= user.email %></div>
+                            <div class="profile-role"><%= user.role %></div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Information Card -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            Profile Information
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <span class="info-label">Account Status:</span>
+                                        <span class="status-badge <%= user.status === 'Active' ? 'status-active' : 'status-deactivated' %>">
+                                            <%= user.status %>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Email Verification:</span>
+                                        <span class="status-badge <%= user.isVerified ? 'verified-badge' : 'not-verified-badge' %>">
+                                            <%= user.isVerified ? 'Verified' : 'Not Verified' %>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Last Login:</span>
+                                        <span class="info-value"><%= user.lastLogin %></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <span class="info-label">Contact Number:</span>
+                                        <span class="info-value"><%= user.contactNumber || 'Not provided' %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Update Profile Information -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-edit mr-2"></i>
+                            Update Profile Information
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="updateProfileForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="name" class="form-label">Full Name *</label>
+                                            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" value="<%= user.email %>" readonly>
+                                            <small class="text-muted">Email cannot be changed</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="contactNumber" class="form-label">Contact Number</label>
+                                            <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="<%= user.contactNumber %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-save mr-2"></i>Update Profile
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-lock mr-2"></i>
+                            Change Password
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="changePasswordForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="currentPassword" class="form-label">Current Password *</label>
+                                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="newPassword" class="form-label">New Password *</label>
+                                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                            <div class="password-strength" id="passwordStrength"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password *</label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fa fa-key mr-2"></i>Change Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Upload Profile Picture -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-camera mr-2"></i>
+                            Profile Picture
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="uploadProfilePictureForm" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label class="form-label">Upload New Profile Picture</label>
+                                    <div class="file-upload">
+                                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                                        <label for="profilePicture" class="file-upload-label">
+                                            <i class="fa fa-upload mr-2"></i>Choose File
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">Supported formats: JPEG, PNG, GIF (Max size: 5MB)</small>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-upload mr-2"></i>Upload Picture
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="page-footer">
+            <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+        </footer>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <!-- CORE SCRIPTS-->
+    <script src="assets/js/app.min.js" type="text/javascript"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show flash messages
+            <% if (success && success.length > 0) { %>
+                showNotification('success', '<%= success %>');
+            <% } %>
+            <% if (error && error.length > 0) { %>
+                showNotification('error', '<%= error %>');
+            <% } %>
+
+            // Admin-specific functionality
+            <% if (user.role === 'Admin') { %>
+                // Load pending users count
+                loadPendingUsersCount();
+
+                // Handle pending users button click
+                const pendingUsersBtn = document.getElementById('pendingUsersBtn');
+                if (pendingUsersBtn) {
+                    pendingUsersBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        loadPendingUsers();
+                        $('#pendingUsersModal').modal('show');
+                    });
+                }
+
+                // Function to load pending users count
+                async function loadPendingUsersCount() {
+                    try {
+                        const response = await fetch('/api/users/pending/count');
+                        const data = await response.json();
+                        if (data.success) {
+                            const countBadge = document.getElementById('pendingUsersCount');
+                            if (countBadge && data.count > 0) {
+                                countBadge.textContent = data.count;
+                                countBadge.style.display = 'flex';
+                            } else if (countBadge) {
+                                countBadge.style.display = 'none';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading pending users count:', error);
+                    }
+                }
+
+                // Function to load pending users
+                async function loadPendingUsers() {
+                    try {
+                        const response = await fetch('/api/users/pending');
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const pendingUsersList = document.getElementById('pendingUsersList');
+                            pendingUsersList.innerHTML = '';
+
+                            if (!data.users || data.users.length === 0) {
+                                pendingUsersList.innerHTML = `
+                                    <div class="no-pending-users">
+                                        <i class="fa fa-user-clock"></i>
+                                        <h5>No Pending Users</h5>
+                                        <p>All users have been processed.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            data.users.forEach(user => {
+                                const userCard = document.createElement('div');
+                                userCard.className = 'card pending-user-card mb-3';
+                                userCard.innerHTML = `
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2 text-center">
+                                                <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                                     class="pending-user-avatar" 
+                                                     alt="${user.name}">
+                                            </div>
+                                            <div class="col-md-7 pending-user-info">
+                                                <h5 class="card-title mb-2">${user.name}</h5>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1"><strong>Email:</strong> ${user.email}</p>
+                                                        <p class="mb-1"><strong>Contact:</strong> ${user.contactNumber || 'N/A'}</p>
+                                                        <p class="mb-1"><strong>Role:</strong> ${user.role}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1"><strong>Verification:</strong> 
+                                                            <span class="badge ${user.isVerified ? 'badge-success' : 'badge-warning'}">
+                                                                ${user.isVerified ? 'Verified' : 'Not Verified'}
+                                                            </span>
+                                                        </p>
+                                                        <p class="mb-1"><strong>Registered:</strong> ${user.createdAt}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 pending-user-actions">
+                                                <button class="btn btn-approve btn-sm w-100 mb-2 approve-user" 
+                                                        data-user-id="${user.id}">
+                                                    <i class="fa fa-check mr-1"></i> Approve
+                                                </button>
+                                                <button class="btn btn-reject btn-sm w-100 reject-user" 
+                                                        data-user-id="${user.id}">
+                                                    <i class="fa fa-times mr-1"></i> Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                pendingUsersList.appendChild(userCard);
+                            });
+
+                            // Add event listeners for approve/reject buttons
+                            document.querySelectorAll('.approve-user').forEach(button => {
+                                button.addEventListener('click', handleUserApproval);
+                            });
+                            document.querySelectorAll('.reject-user').forEach(button => {
+                                button.addEventListener('click', handleUserRejection);
+                            });
+                        } else {
+                            const pendingUsersList = document.getElementById('pendingUsersList');
+                            pendingUsersList.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-triangle mr-2"></i>
+                                    Error: ${data.message}
+                                </div>
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('Error loading pending users:', error);
+                        const pendingUsersList = document.getElementById('pendingUsersList');
+                        pendingUsersList.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa fa-exclamation-triangle mr-2"></i>
+                                Failed to load pending users: ${error.message}
+                            </div>
+                        `;
+                    }
+                }
+
+                // Handle user approval
+                async function handleUserApproval(e) {
+                    const userId = e.target.closest('button').dataset.userId;
+                    try {
+                        const response = await fetch(`/api/users/${userId}/approve`, {
+                            method: 'PUT'
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showNotification('success', 'User approved successfully');
+                            loadPendingUsers();
+                            loadPendingUsersCount();
+                        } else {
+                            showNotification('error', 'Error approving user');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('error', 'Error approving user');
+                    }
+                }
+
+                // Handle user rejection
+                async function handleUserRejection(e) {
+                    const userId = e.target.closest('button').dataset.userId;
+                    try {
+                        const response = await fetch(`/api/users/${userId}/reject`, {
+                            method: 'PUT'
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showNotification('success', 'User rejected successfully');
+                            loadPendingUsers();
+                            loadPendingUsersCount();
+                        } else {
+                            showNotification('error', 'Error rejecting user');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('error', 'Error rejecting user');
+                    }
+                }
+            <% } %>
+
+            // Update Profile Form
+            document.getElementById('updateProfileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = {
+                    name: formData.get('name'),
+                    contactNumber: formData.get('contactNumber')
+                };
+
+                try {
+                    const response = await fetch('/api/profile/update', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to update profile');
+                }
+            });
+
+            // Change Password Form
+            document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = {
+                    currentPassword: formData.get('currentPassword'),
+                    newPassword: formData.get('newPassword'),
+                    confirmPassword: formData.get('confirmPassword')
+                };
+
+                try {
+                    const response = await fetch('/api/profile/change-password', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        this.reset();
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to change password');
+                }
+            });
+
+            // Upload Profile Picture Form
+            document.getElementById('uploadProfilePictureForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                try {
+                    const response = await fetch('/api/profile/upload-picture', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        // Update profile picture in header and sidebar
+                        document.querySelector('.dropdown-user img').src = result.profilePicture;
+                        document.querySelector('.admin-block img').src = result.profilePicture;
+                        document.querySelector('.profile-avatar').src = result.profilePicture;
+                        this.reset();
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to upload profile picture');
+                }
+            });
+
+            // Password strength indicator
+            document.getElementById('newPassword').addEventListener('input', function() {
+                const password = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                
+                if (password.length === 0) {
+                    strengthDiv.textContent = '';
+                    strengthDiv.className = 'password-strength';
+                    return;
+                }
+                
+                let strength = 0;
+                if (password.length >= 6) strength++;
+                if (password.match(/[a-z]/)) strength++;
+                if (password.match(/[A-Z]/)) strength++;
+                if (password.match(/[0-9]/)) strength++;
+                if (password.match(/[^a-zA-Z0-9]/)) strength++;
+                
+                let strengthText = '';
+                let strengthClass = '';
+                
+                if (strength <= 2) {
+                    strengthText = 'Weak';
+                    strengthClass = 'strength-weak';
+                } else if (strength <= 3) {
+                    strengthText = 'Medium';
+                    strengthClass = 'strength-medium';
+                } else {
+                    strengthText = 'Strong';
+                    strengthClass = 'strength-strong';
+                }
+                
+                strengthDiv.textContent = `Password strength: ${strengthText}`;
+                strengthDiv.className = `password-strength ${strengthClass}`;
+            });
+
+            // File upload label update
+            document.getElementById('profilePicture').addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (this.files.length > 0) {
+                    label.textContent = this.files[0].name;
+                } else {
+                    label.innerHTML = '<i class="fa fa-upload mr-2"></i>Choose File';
+                }
+            });
+        });
+
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+
+    <!-- Pending Users Modal (Admin Only) -->
+    <% if (user.role === 'Admin') { %>
+    <div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa fa-user-clock mr-2"></i>
+                        Pending Users
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="pendingUsersList">
+                        <!-- Pending users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</body>
+
+</html> 

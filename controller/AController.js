@@ -5,6 +5,10 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 
 exports.register = async (req, res) => {
+    // If already logged in, redirect to dashboard
+    if (req.session.user) {
+        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+    }
     res.render("register", {
         Data: {
             name: req.flash("name")[0] || "",
@@ -121,8 +125,10 @@ exports.registerUser = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-    
-
+    // If already logged in, redirect to dashboard
+    if (req.session.user) {
+        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+    }
     res.render("login", {
         Data: {
             email: req.flash("email")[0] || "",
@@ -186,6 +192,23 @@ exports.loginUser = async (req, res) => {
             }
         }
 
+        // 🔹 Check account status
+        if (userData.Status === "Pending") {
+            req.flash("error", "Your account is pending approval. Please wait for the admin to approve your access.");
+            req.flash("email", email);
+            return res.redirect("/login");
+        }
+        if (userData.Status === "Deactivated") {
+            req.flash("error", "Your account was deactivated. Please contact the admin.");
+            req.flash("email", email);
+            return res.redirect("/login");
+        }
+        if (userData.Status !== "Active") {
+            req.flash("error", "Account status is invalid. Please contact the admin.");
+            req.flash("email", email);
+            return res.redirect("/login");
+        }
+
         // 🔹 Pass `req, res` in the correct order
         return loginSuccess(req, res, userData, userId);
 
@@ -201,6 +224,16 @@ const loginSuccess = async (req, res, userData, userId, email) => {
         req.flash("error", "Session error. Please try again.");
         req.flash("email", email);
         return res.redirect("/login");
+    }
+
+    // Update last login timestamp in Firestore
+    try {
+        await firestore.collection("users").doc(userId).update({
+            lastLogin: new Date()
+        });
+    } catch (error) {
+        console.error("Error updating last login:", error);
+        // Continue with login even if last login update fails
     }
 
     // Configure session to not expire
@@ -477,4 +510,11 @@ exports.handleNewPassword = async (req, res) => {
         req.flash("error", "Server error. Please try again later.");
         res.redirect("/reset-password");
     }
+};
+
+exports.preventIfAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+    }
+    next();
 };

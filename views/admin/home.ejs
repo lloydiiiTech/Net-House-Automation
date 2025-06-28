@@ -470,10 +470,16 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i>
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/admin-profile"><i class="fa fa-user"></i>Profile</a>
@@ -490,11 +496,11 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
+                        <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div>
-                        <small>Administrator</small>
+                        <div class="font-strong"><%= user.name %></div>
+                        <small><%= user.role %></small>
                     </div>
                 </div>
                 <ul class="side-menu metismenu">
@@ -960,7 +966,9 @@
                                         <% if (recommendations && recommendations.length > 0) { %>
                                             <% recommendations.forEach((crop, index) => { %>
                                                 <div class="crop-item" 
-                                                     onclick="showCropDetails('<%= crop.name %>', '<%= crop.score || crop.ruleBasedScore %>', '<%= crop.isRegistered ? 'Registered' : 'New' %>')">
+                                                     data-crop-name="<%= crop.name %>"
+                                                     data-crop-score="<%= (crop.score || crop.ruleBasedScore || 0) %>"
+                                                     data-crop-status="<%= crop.isRegistered ? 'Registered' : 'New' %>">
                                                     <div class="crop-rank"><%= index + 1 %></div>
                                                     <div class="crop-info">
                                                         <div class="crop-name">
@@ -1053,6 +1061,24 @@
                     </div>
                 </div>
             </div>
+            <!-- Pending Users Modal -->
+<div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pending Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="pendingUsersList">
+                    <!-- Pending users will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Footer -->
             <footer class="page-footer">
@@ -1483,7 +1509,179 @@
             console.log('Planting crop:', cropName);
             // You can add an API call here to handle the planting process
         }
+
+        // Add event listeners for crop items
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.crop-item')) {
+                    const cropItem = e.target.closest('.crop-item');
+                    const name = cropItem.dataset.cropName;
+                    const score = cropItem.dataset.cropScore;
+                    const status = cropItem.dataset.cropStatus;
+                    showCropDetails(name, score, status);
+                }
+            });
+        });
     </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load pending users count
+    loadPendingUsersCount();
+
+    // Handle pending users button click
+    document.getElementById('pendingUsersBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        loadPendingUsers();
+        $('#pendingUsersModal').modal('show');
+    });
+
+    // Function to load pending users count
+    async function loadPendingUsersCount() {
+        try {
+            const response = await fetch('/api/users/pending/count');
+            const data = await response.json();
+            if (data.success) {
+                const countBadge = document.getElementById('pendingUsersCount');
+                if (data.count > 0) {
+                    countBadge.textContent = data.count;
+                    countBadge.style.display = 'inline';
+                } else {
+                    countBadge.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading pending users count:', error);
+        }
+    }
+
+    // Function to load pending users
+    async function loadPendingUsers() {
+        try {
+            const response = await fetch('/api/users/pending');
+            const data = await response.json();
+
+            if (data.success) {
+                const pendingUsersList = document.getElementById('pendingUsersList');
+                pendingUsersList.innerHTML = '';
+
+                if (!data.users || data.users.length === 0) {
+                    pendingUsersList.innerHTML = '<div class="alert alert-info">No pending users found.</div>';
+                    return;
+                }
+
+                data.users.forEach(user => {
+                    const userCard = document.createElement('div');
+                    userCard.className = 'card mb-3';
+                    userCard.innerHTML = `
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                         class="img-fluid rounded-circle" 
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
+                                <div class="col-md-7">
+                                    <h5 class="card-title">${user.name}</h5>
+                                    <p class="card-text">
+                                        <strong>Email:</strong> ${user.email}<br>
+                                        <strong>Contact:</strong> ${user.contactNumber || 'N/A'}<br>
+                                        <strong>Role:</strong> ${user.role}<br>
+                                        <strong>Email Verification:</strong> ${user.isVerified ? 'Verified' : 'Not Verified'}<br>
+                                        <strong>Registered:</strong> ${user.createdAt}
+                                    </p>
+                                </div>
+                                <div class="col-md-3 text-right">
+                                    <button class="btn btn-success btn-sm mb-2 approve-user" 
+                                            data-user-id="${user.id}">
+                                        <i class="fa fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-danger btn-sm reject-user" 
+                                            data-user-id="${user.id}">
+                                        <i class="fa fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    pendingUsersList.appendChild(userCard);
+                });
+
+                // Add event listeners for approve/reject buttons
+                document.querySelectorAll('.approve-user').forEach(button => {
+                    button.addEventListener('click', handleUserApproval);
+                });
+                document.querySelectorAll('.reject-user').forEach(button => {
+                    button.addEventListener('click', handleUserRejection);
+                });
+            } else {
+                const pendingUsersList = document.getElementById('pendingUsersList');
+                pendingUsersList.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+            }
+        } catch (error) {
+            console.error('Error loading pending users:', error);
+            const pendingUsersList = document.getElementById('pendingUsersList');
+            pendingUsersList.innerHTML = `<div class="alert alert-danger">Failed to load pending users: ${error.message}</div>`;
+        }
+    }
+
+    // Handle user approval
+    async function handleUserApproval(e) {
+        const userId = e.target.closest('button').dataset.userId;
+        try {
+            const response = await fetch(`/api/users/${userId}/approve`, {
+                method: 'PUT'
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification('success', 'User approved successfully');
+                loadPendingUsers();
+                loadPendingUsersCount();
+            } else {
+                showNotification('error', 'Error approving user');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('error', 'Error approving user');
+        }
+    }
+
+    // Handle user rejection
+    async function handleUserRejection(e) {
+        const userId = e.target.closest('button').dataset.userId;
+        try {
+            const response = await fetch(`/api/users/${userId}/reject`, {
+                method: 'PUT'
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification('success', 'User rejected successfully');
+                loadPendingUsers();
+                loadPendingUsersCount();
+            } else {
+                showNotification('error', 'Error rejecting user');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('error', 'Error rejecting user');
+        }
+    }
+
+    // Show notification
+    function showNotification(type, message) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+});
+</script>
+
 </body>
 
 </html>

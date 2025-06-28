@@ -8,16 +8,14 @@ const flash = require('express-flash');
 const { firestore } = require('./config/firebase');
 const CropPredictionService = require('./services/cropPredictionService');
 const { initScheduledJobs } = require('./controller/sensorController.js');
-const { createServer } = require('http');
+const server = require('http').createServer(app);
 const { Server } = require('socket.io');
 const path = require('path');
 const irrigationController = require('./controller/irrigationController');
-
-// Create HTTP server
-const httpServer = createServer(app);
+const initializeSocket = require('./config/socket');
 
 // Configure Socket.IO with CORS
-const io = new Server(httpServer, {
+const io = new Server(server, {
   cors: {
     origin: "*", // Adjust this to your specific domain in production
     methods: ["GET", "POST"]
@@ -131,8 +129,14 @@ app.get('/predict', async (req, res) => {
   }
 });
 
+// Initialize Socket.IO for sensor data
+initializeSocket(io);
+
 // Initialize Socket.IO for irrigation controller
 irrigationController.initializeSocket(io);
+
+// Set io instance in app for use in routes
+app.set('io', io);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -145,7 +149,7 @@ app.use((err, req, res, next) => {
 
 // Start server with Socket.IO
 const PORT = process.env.PORT || 9999;
-httpServer.listen(PORT, async () => {
+server.listen(PORT, async () => {
   console.log(`🚀 Server started on http://localhost:${PORT}`);
   await initializeServices();
 });
