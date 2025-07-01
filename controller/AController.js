@@ -104,7 +104,11 @@ exports.registerUser = async (req, res) => {
 
         // Save user to Firestore (optional)
         const newUser = new User(name, contactNumber, email, hashedPassword, false);
-        await firestore.collection("users").doc(userRecord.uid).set(newUser.toFirestore());
+        const userData = {
+            ...newUser.toFirestore(),
+            Status: "Pending"
+        };
+        await firestore.collection("users").doc(userRecord.uid).set(userData);
 
         req.flash('success', 'Check your email to verify your account before logging in.');
         return res.redirect('/login');

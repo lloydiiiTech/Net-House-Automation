@@ -9,6 +9,7 @@ const reportsController = require('../controller/reportsController.js');
 const irrigationController = require('../controller/irrigationController.js');
 const userManagementController = require('../controller/userManagementController.js');
 const userProfileController = require('../controller/userProfileController.js');
+const recommendationController = require('../controller/recommendationController.js');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -45,7 +46,7 @@ router.post('/newpassword', aController.handleNewPassword);
 // aController.isAuthenticated, aController.isAdmin,
 router.get('/admin-plant-overview', aController.isAuthenticated, aController.isAdmin, plantOverview.plantOverview);
 router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
-router.post('/confirmCropSelection', plantOverview.confirmCropSelection);
+router.post('/confirmCropSelection', recommendationController.confirmCropSelection);
 router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
 router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCurrentCrop);
 router.get('/realtime-sensor-data', aController.isAuthenticated, plantOverview.getRealtimeSensorData);
@@ -140,5 +141,12 @@ router.post('/api/profile/upload-picture', aController.isAuthenticated, userProf
 // router.get('/crops/train', cropController.trainModel);
 
 // router.post('/crops', cropController.addCrop);
+
+router.get('/admin-crop-recommendations', aController.isAuthenticated, aController.isAdmin, recommendationController.recommendationsPage);
+
+router.post('/api/crops/register', aController.isAuthenticated, aController.isAdmin, recommendationController.registerCrop);
+
+router.put('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.updateCrop);
+router.delete('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.deleteCrop);
 
 module.exports = router;

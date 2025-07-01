@@ -54,7 +54,64 @@ exports.plantOverview = async (req, res) => {
         .filter(crop => crop && crop.name)
         .sort((a, b) => (b.score || b.ruleBasedScore || 0) - (a.score || a.ruleBasedScore || 0))
         .slice(0, 5);
-  
+
+      // Fetch the current active crop for the user
+      let currentCrop = null;
+      if (userId) {
+        const cropSnapshot = await firestore.collection('planted_crops')
+          .where('userId', '==', userId)
+          .where('endDate', '==', null)
+          .limit(1)
+          .get();
+        if (!cropSnapshot.empty) {
+          currentCrop = cropSnapshot.docs[0].data();
+          currentCrop.id = cropSnapshot.docs[0].id;
+
+          // Add growthStage (default to 'Seedling' if null)
+          currentCrop.growthStage = currentCrop.growthStage || 'Seedling';
+
+          // Fetch latest sensor summary
+          const sensorSummarySnap = await firestore.collection('sensor_summaries')
+            .orderBy('timestamp', 'desc')
+            .limit(1)
+            .get();
+          let healthStatus = 'Unknown';
+          if (!sensorSummarySnap.empty && currentCrop.optimalConditions) {
+            const summary = sensorSummarySnap.docs[0].data();
+            // Compare each parameter to optimal
+            let totalParams = 0;
+            let goodParams = 0;
+            const params = [
+              { key: 'temperature', summaryKey: 'temperature' },
+              { key: 'humidity', summaryKey: 'humidity' },
+              { key: 'moisture', summaryKey: 'moistureAve' },
+              { key: 'light', summaryKey: 'light' },
+              { key: 'npk_N', summaryKey: 'nitrogen' },
+              { key: 'npk_P', summaryKey: 'phosphorus' },
+              { key: 'npk_K', summaryKey: 'potassium' },
+              { key: 'ph', summaryKey: 'ph' }
+            ];
+            params.forEach(param => {
+              const optimal = currentCrop.optimalConditions[param.key];
+              const summaryVal = summary[param.summaryKey]?.average;
+              if (typeof optimal === 'number' && typeof summaryVal === 'number') {
+                totalParams++;
+                // Consider 'good' if within 15% of optimal
+                if (Math.abs(summaryVal - optimal) / optimal <= 0.15) {
+                  goodParams++;
+                }
+              }
+            });
+            const ratio = totalParams > 0 ? goodParams / totalParams : 0;
+            if (ratio >= 0.75) healthStatus = 'Good';
+            else if (ratio >= 0.5) healthStatus = 'Warning';
+            else healthStatus = 'Critical';
+            currentCrop.healthScore = Math.round(ratio * 100);
+          }
+          currentCrop.healthStatus = healthStatus;
+        }
+      }
+
       res.render("admin/plants", { 
         user: userData || {
           name: 'Admin',
@@ -62,7 +119,8 @@ exports.plantOverview = async (req, res) => {
           profilePicture: '/assets/img/default-avatar.png'
         },
         recommendations,
-        sensorData 
+        sensorData,
+        currentCrop
       });
   
     } catch (error) {
@@ -142,54 +200,7 @@ exports.checkActiveCrop = async (req, res) => {
   }
 };
 
-// Confirm new crop planting
-exports.confirmCropSelection = async (req, res) => {
-  try {
-    const { cropData } = req.body;
-    
-    if (!cropData?.name) {
-      return res.status(400).json({ error: "Invalid crop data" });
-    }
 
-    if (!req.session.user?.uid) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
-
-    // Verify no active crop exists
-    const activeCheck = await firestore.collection('planted_crops')
-      .where('userId', '==', req.session.user.uid)
-      .where('endDate', '==', null)
-      .limit(1)
-      .get();
-
-    if (!activeCheck.empty) {
-      return res.status(400).json({ 
-        error: "You already have an active crop. Harvest it first."
-      });
-    }
-
-    // Create new planted crop
-    const plantedCropRef = firestore.collection('planted_crops').doc();
-    await plantedCropRef.set({
-      ...cropData,
-      startDate: admin.firestore.FieldValue.serverTimestamp(),
-      endDate: null,
-      status: 'active',
-      userId: req.session.user.uid,
-      userEmail: req.session.user.email,
-      userName: req.session.user.name
-    });
-
-    res.json({ 
-      success: true, 
-      plantedCropId: plantedCropRef.id,
-      message: `${cropData.name} planted successfully`
-    });
-  } catch (error) {
-    console.error("Error saving planted crop:", error);
-    res.status(500).json({ error: "Failed to save crop selection" });
-  }
-};
 
 // Harvest current crop
 exports.harvestCurrentCrop = async (req, res) => {

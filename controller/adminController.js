@@ -120,44 +120,62 @@ exports.Dashboard = async (req, res) => {
             const cropDoc = cropSnapshot.docs[0];
             const cropInfo = cropDoc.data();
             console.log('Raw crop data:', cropInfo);
-            
-            // Calculate growth stage
-            const startDate = cropInfo.startDate.toDate();
-            const now = new Date();
-            const daysSincePlanting = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-            console.log('Days since planting:', daysSincePlanting);
-            
-            let growthStage = "Seedling";
-            if (daysSincePlanting > 60) {
-                growthStage = "Mature";
-            } else if (daysSincePlanting > 40) {
-                growthStage = "Flowering";
-            } else if (daysSincePlanting > 20) {
-                growthStage = "Vegetative";
-            }
 
-            // Calculate health score and status based on sensor data
-            const healthScore = calculateHealthScore(data, cropInfo.optimalConditions);
-            const healthStatus = getHealthStatus(healthScore);
-            console.log('Health score:', healthScore, 'Status:', healthStatus);
+            // Planting date
+            const plantingDate = cropInfo.startDate.toDate();
+
+            // Growth stage
+            let growthStage = cropInfo.growthStage || 'Seedling';
+
+            // Fetch latest sensor summary for health computation
+            let healthScore = null;
+            let healthStatus = 'Unknown';
+            try {
+                const summarySnap = await admin.firestore()
+                    .collection('sensor_summaries')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+                if (!summarySnap.empty && cropInfo.optimalConditions) {
+                    const summary = summarySnap.docs[0].data();
+                    let totalParams = 0;
+                    let goodParams = 0;
+                    const params = [
+                        { key: 'temperature', summaryKey: 'temperature' },
+                        { key: 'humidity', summaryKey: 'humidity' },
+                        { key: 'moisture', summaryKey: 'moistureAve' },
+                        { key: 'light', summaryKey: 'light' },
+                        { key: 'npk_N', summaryKey: 'nitrogen' },
+                        { key: 'npk_P', summaryKey: 'phosphorus' },
+                        { key: 'npk_K', summaryKey: 'potassium' },
+                        { key: 'ph', summaryKey: 'ph' }
+                    ];
+                    params.forEach(param => {
+                        const optimal = cropInfo.optimalConditions[param.key];
+                        const summaryVal = summary[param.summaryKey]?.average;
+                        if (typeof optimal === 'number' && typeof summaryVal === 'number') {
+                            totalParams++;
+                            if (Math.abs(summaryVal - optimal) / optimal <= 0.15) {
+                                goodParams++;
+                            }
+                        }
+                    });
+                    const ratio = totalParams > 0 ? goodParams / totalParams : 0;
+                    healthScore = Math.round(ratio * 100);
+                    if (ratio >= 0.75) healthStatus = 'Good';
+                    else if (ratio >= 0.5) healthStatus = 'Warning';
+                    else healthStatus = 'Critical';
+                }
+            } catch (err) {
+                console.error('Error computing health score/status:', err);
+            }
 
             cropData = {
                 name: cropInfo.name,
-                plantingDate: cropInfo.startDate.toDate().toISOString(),
+                plantingDate: plantingDate.toISOString(),
                 growthStage: growthStage,
                 healthStatus: healthStatus,
-                score: healthScore,
-                optimalConditions: {
-                    temperature: `${cropInfo.optimalConditions.temperature}°C`,
-                    humidity: `${cropInfo.optimalConditions.humidity}%`,
-                    moisture: `${cropInfo.optimalConditions.moisture}%`,
-                    ph: cropInfo.optimalConditions.ph,
-                    npk: {
-                        nitrogen: `${cropInfo.optimalConditions.npk_N} ppm`,
-                        phosphorus: `${cropInfo.optimalConditions.npk_P} ppm`,
-                        potassium: `${cropInfo.optimalConditions.npk_K} ppm`
-                    }
-                }
+                healthScore: healthScore
             };
             console.log('Processed crop data:', cropData);
         } else {
