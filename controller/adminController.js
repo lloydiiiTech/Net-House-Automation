@@ -229,6 +229,66 @@ exports.Dashboard = async (req, res) => {
         };
         console.log('Processed sensor data:', sensorData);
 
+        // Fetch the current active crop for the user
+        let aiFertilizerAdvice = null;
+        let aiDiseaseAdvice = null;
+        let currentCrop = null;
+        if (userId) {
+            const cropSnapshot = await firestore.collection('planted_crops')
+                .where('userId', '==', userId)
+                .where('endDate', '==', null)
+                .limit(1)
+                .get();
+            if (!cropSnapshot.empty) {
+                currentCrop = cropSnapshot.docs[0].data();
+                currentCrop.id = cropSnapshot.docs[0].id;
+                // Fetch latest AI fertilizer advice for the current crop
+                try {
+                    let fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
+                        .where('cropId', '==', currentCrop.id)
+                        .get();
+                    if (fertilizerSnapshot.empty) {
+                        fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
+                            .where('cropName', '==', currentCrop.name)
+                            .get();
+                    }
+                    if (!fertilizerSnapshot.empty) {
+                        const fertilizerDocs = fertilizerSnapshot.docs;
+                        fertilizerDocs.sort((a, b) => {
+                            const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
+                            const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
+                            return bTime - aTime;
+                        });
+                        aiFertilizerAdvice = fertilizerDocs[0].data();
+                    }
+                } catch (error) {
+                    console.error('Error fetching AI fertilizer advice:', error);
+                }
+                // Fetch latest AI disease advice for the current crop
+                try {
+                    let diseaseSnapshot = await firestore.collection('ai_disease_advice')
+                        .where('cropId', '==', currentCrop.id)
+                        .get();
+                    if (diseaseSnapshot.empty) {
+                        diseaseSnapshot = await firestore.collection('ai_disease_advice')
+                            .where('cropName', '==', currentCrop.name)
+                            .get();
+                    }
+                    if (!diseaseSnapshot.empty) {
+                        const diseaseDocs = diseaseSnapshot.docs;
+                        diseaseDocs.sort((a, b) => {
+                            const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
+                            const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
+                            return bTime - aTime;
+                        });
+                        aiDiseaseAdvice = diseaseDocs[0].data();
+                    }
+                } catch (error) {
+                    console.error('Error fetching AI disease advice:', error);
+                }
+            }
+        }
+
         console.log('Rendering dashboard with data:', { 
             hasSensorData: !!sensorData, 
             hasCropData: !!cropData,
@@ -246,6 +306,8 @@ exports.Dashboard = async (req, res) => {
             sensorHistory: JSON.stringify(history),
             cropData: cropData,
             recommendations: recommendations,
+            aiFertilizerAdvice,
+            aiDiseaseAdvice,
             firebaseConfig: {
                 apiKey: process.env.FIREBASE_API_KEY,
                 projectId: process.env.FIREBASE_PROJECT_ID

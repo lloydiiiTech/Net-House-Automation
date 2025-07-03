@@ -21,7 +21,7 @@
     "datatables.net-bs4": "^2.3.0",
     "date-fns": "^4.1.0",
     "docx": "^9.5.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.6.1",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-flash": "^0.0.2",
@@ -36,6 +36,8 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "nodeplotlib": "^1.1.2",
+    "openai": "^5.8.2",
+    "pdfkit": "^0.17.1",
     "redis": "^4.7.0",
     "socket.io": "^4.8.1",
     "xlsx": "^0.18.5"

@@ -448,6 +448,111 @@
                 justify-content: center;
             }
         }
+
+        /* --- AI Disease and Fertilizer Advice Section Styles --- */
+        .disease-card, .fertilizer-card {
+            border: none;
+            border-radius: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .disease-card:hover, .fertilizer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .card-header {
+            padding: 1.25rem;
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #ff9f43 0%, #ff7f00 100%);
+        }
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #28a745 0%, #1a7f3a 100%);
+        }
+        .card-header h5 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 1.5rem;
+            background: #ffffff;
+        }
+        .disease-item, .fertilizer-item {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            background: #f8f9fa !important;
+            border-radius: 8px !important;
+        }
+        .disease-item {
+            border-left-color: #ffc107;
+        }
+        .disease-item:hover {
+            background: #fff3cd !important;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+        }
+        .fertilizer-item {
+            border-left-color: #28a745;
+        }
+        .fertilizer-item:hover {
+            background: #d4edda !important;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+        .disease-name, .fertilizer-name {
+            color: #495057;
+            font-size: 1rem;
+        }
+        .disease-prevention, .fertilizer-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .fertilizer-reason, .fertilizer-effect, .fertilizer-application {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .fertilizer-application {
+            border-bottom: none;
+        }
+        .disease-header, .fertilizer-header {
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 1.5rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .empty-state:hover {
+            background: #f0f2f5;
+        }
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .empty-state-icon i {
+            font-size: 2rem;
+            color: #6c757d;
+        }
     </style>
 </head>
 
@@ -871,7 +976,20 @@
                                             <i class="fas fa-shield-virus mr-2"></i>Disease Prevention
                                         </h4>
                                         <div class="disease-list">
-                                            <% if (cropData.diseases) { %>
+                                            <% if (typeof aiDiseaseAdvice !== 'undefined' && aiDiseaseAdvice && aiDiseaseAdvice.diseases && aiDiseaseAdvice.diseases.length > 0) { %>
+                                                <% aiDiseaseAdvice.diseases.forEach(disease => { %>
+                                                    <div class="disease-item mb-3 p-3 bg-light rounded">
+                                                        <div class="disease-name mb-2">
+                                                            <i class="fas fa-exclamation-triangle text-warning mr-2"></i>
+                                                            <strong><%= disease.disease %></strong>
+                                                        </div>
+                                                        <div class="disease-prevention">
+                                                            <i class="fas fa-shield-alt text-info mr-2"></i>
+                                                            <span><%= disease.prevention %></span>
+                                                        </div>
+                                                    </div>
+                                                <% }); %>
+                                            <% } else if (cropData && cropData.diseases) { %>
                                                 <% cropData.diseases.forEach(disease => { %>
                                                     <div class="disease-item">
                                                         <div class="disease-header">
@@ -906,7 +1024,30 @@
                                             <i class="fas fa-flask mr-2"></i>Recommended Fertilizers
                                         </h4>
                                         <div class="fertilizer-list">
-                                            <% if (cropData.fertilizers) { %>
+                                            <% if (typeof aiFertilizerAdvice !== 'undefined' && aiFertilizerAdvice && aiFertilizerAdvice.fertilizers && aiFertilizerAdvice.fertilizers.length > 0) { %>
+                                                <% aiFertilizerAdvice.fertilizers.forEach(fertilizer => { %>
+                                                    <div class="fertilizer-item mb-3 p-3 bg-light rounded">
+                                                        <div class="fertilizer-name mb-2">
+                                                            <i class="fas fa-flask text-success mr-2"></i>
+                                                            <strong><%= fertilizer.name %></strong>
+                                                        </div>
+                                                        <div class="fertilizer-details">
+                                                            <div class="fertilizer-reason mb-2">
+                                                                <i class="fas fa-info-circle text-info mr-2"></i>
+                                                                <span><strong>Reason:</strong> <%= fertilizer.reason %></span>
+                                                            </div>
+                                                            <div class="fertilizer-effect mb-2">
+                                                                <i class="fas fa-leaf text-success mr-2"></i>
+                                                                <span><strong>Effect:</strong> <%= fertilizer.effect %></span>
+                                                            </div>
+                                                            <div class="fertilizer-application">
+                                                                <i class="fas fa-tools text-warning mr-2"></i>
+                                                                <span><strong>Application:</strong> <%= fertilizer.application %></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <% }); %>
+                                            <% } else if (cropData && cropData.fertilizers) { %>
                                                 <% cropData.fertilizers.forEach(fertilizer => { %>
                                                     <div class="fertilizer-item">
                                                         <div class="fertilizer-header">
@@ -940,6 +1081,7 @@
                                 <% } %>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Right Column -->

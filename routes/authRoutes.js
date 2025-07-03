@@ -51,6 +51,8 @@ router.get('/checkActiveCrop', plantOverview.checkActiveCrop);
 router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCurrentCrop);
 router.get('/realtime-sensor-data', aController.isAuthenticated, plantOverview.getRealtimeSensorData);
 router.get('/api/weather', aController.isAuthenticated, plantOverview.getWeatherData);
+router.get('/api/ai-fertilizer-advice', aController.isAuthenticated, plantOverview.getAIFertilizerAdvice);
+router.get('/api/ai-disease-advice', aController.isAuthenticated, plantOverview.getAIDiseaseAdvice);
 
 
 
@@ -148,5 +150,8 @@ router.post('/api/crops/register', aController.isAuthenticated, aController.isAd
 
 router.put('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.updateCrop);
 router.delete('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.deleteCrop);
+
+router.post('/cancelCrop', plantOverview.cancelCurrentCrop);
+router.get('/cancellation-preview/:cropId', plantOverview.cancellationPreview);
 
 module.exports = router;

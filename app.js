@@ -1,3 +1,4 @@
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const express = require('express');
 const mainRoutes = require('./routes/authRoutes');
@@ -13,6 +14,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 const irrigationController = require('./controller/irrigationController');
 const initializeSocket = require('./config/socket');
+const { initAIScheduledJobs } = require('./controller/aiController');
 
 // Configure Socket.IO with CORS
 const io = new Server(server, {
@@ -81,6 +83,9 @@ const initializeServices = async () => {
     process.exit(1);
   }
 };
+
+// Initialize AI scheduled jobs
+initAIScheduledJobs();
 
 // Routes
 app.use('/', mainRoutes);
