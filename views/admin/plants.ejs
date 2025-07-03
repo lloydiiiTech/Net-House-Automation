@@ -837,7 +837,7 @@
 
         <!-- Add this HTML for the harvest modal -->
         <div class="modal fade" id="harvestModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Harvest Crop</h5>
@@ -846,17 +846,87 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="mb-3 font-weight-bold text-success">Record your harvest details</div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestQuantity">Harvest Quantity (kg):</label>
+                                    <input type="number" class="form-control" id="harvestQuantity" min="0" step="0.1" required>
+                                    <small class="form-text text-muted">Enter the total weight harvested in kilograms</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestSuccessRate">Success Rate (%):</label>
+                                    <input type="number" class="form-control" id="harvestSuccessRate" min="0" max="100" required>
+                                    <small class="form-text text-muted">Rate the overall success of this planting (0-100)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestQuality">Harvest Quality:</label>
+                                    <select class="form-control" id="harvestQuality" required>
+                                        <option value="">Select quality</option>
+                                        <option value="excellent">Excellent</option>
+                                        <option value="good">Good</option>
+                                        <option value="average">Average</option>
+                                        <option value="poor">Poor</option>
+                                        <option value="very_poor">Very Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestMethod">Harvest Method:</label>
+                                    <input type="text" class="form-control" id="harvestMethod" value="Manual" readonly>
+                                    <small class="form-text text-muted">Manual harvesting method</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestDate">Harvest Date:</label>
+                                    <input type="date" class="form-control" id="harvestDate" required>
+                                    <small class="form-text text-muted">Date when the crop was harvested</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="harvestTime">Harvest Time:</label>
+                                    <input type="time" class="form-control" id="harvestTime" required>
+                                    <small class="form-text text-muted">Time when the crop was harvested</small>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label for="successRate">Rate the crop success (0-100):</label>
-                            <input type="number" class="form-control" id="successRate" min="0" max="100" required>
-                            <small class="form-text text-muted">Enter a value between 0 and 100 to rate the crop's success</small>
+                            <label for="harvestNotes">Harvest Notes (optional):</label>
+                            <textarea class="form-control" id="harvestNotes" rows="3" placeholder="Add any additional notes about the harvest, conditions, observations, etc."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="harvestChallenges">Challenges Faced (optional):</label>
+                            <textarea class="form-control" id="harvestChallenges" rows="2" placeholder="Describe any challenges encountered during the growing period"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <div id="harvestLoading" style="display:none;" class="w-100 text-center mb-2">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Processing...</span>
+                            </div>
+                            <div class="mt-2 text-primary">Processing harvest...</div>
+                        </div>
+                        <div id="harvestAlert" style="display:none;" class="alert mt-2" role="alert"></div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirmHarvest">
+                        <button type="button" class="btn btn-success" id="confirmHarvest">
                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                            Harvest
+                            Confirm Harvest
                         </button>
                     </div>
                 </div>
@@ -1817,6 +1887,139 @@
                     toast.remove();
                 }, 3000);
             }
+        });
+        </script>
+
+        <!-- Enhanced Harvest Functionality -->
+        <script>
+        $(function() {
+            // Set default date and time for harvest
+            function setDefaultHarvestDateTime() {
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const timeStr = now.toTimeString().split(' ')[0];
+                
+                $('#harvestDate').val(dateStr);
+                $('#harvestTime').val(timeStr);
+            }
+
+            // Reset harvest modal
+            function resetHarvestModal() {
+                $('#harvestQuantity').val('');
+                $('#harvestSuccessRate').val('');
+                $('#harvestQuality').val('');
+                $('#harvestMethod').val('Manual');
+                $('#harvestNotes').val('');
+                $('#harvestChallenges').val('');
+                $('#harvestAlert').hide();
+            }
+
+            // Harvest button functionality
+            $('#harvest-btn').off('click').on('click', function() {
+                resetHarvestModal();
+                $('#harvestModal').modal('show');
+            });
+
+            // Confirm harvest functionality
+            $('#confirmHarvest').off('click').on('click', async function() {
+                const quantity = parseFloat($('#harvestQuantity').val());
+                const successRate = parseInt($('#harvestSuccessRate').val());
+                const quality = $('#harvestQuality').val();
+                const method = $('#harvestMethod').val();
+                const harvestDate = $('#harvestDate').val();
+                const harvestTime = $('#harvestTime').val();
+                const notes = $('#harvestNotes').val().trim();
+                const challenges = $('#harvestChallenges').val().trim();
+
+                const $btn = $(this);
+                const $loading = $('#harvestLoading');
+                const $alert = $('#harvestAlert');
+
+                $alert.hide();
+
+                // Validation
+                if (!quantity || quantity <= 0) {
+                    $alert.removeClass().addClass('alert alert-danger').text('Please enter a valid harvest quantity.').show();
+                    return;
+                }
+
+                if (!successRate || successRate < 0 || successRate > 100) {
+                    $alert.removeClass().addClass('alert alert-danger').text('Please enter a valid success rate between 0 and 100.').show();
+                    return;
+                }
+
+                if (!quality) {
+                    $alert.removeClass().addClass('alert alert-danger').text('Please select harvest quality.').show();
+                    return;
+                }
+
+                if (!harvestDate) {
+                    $alert.removeClass().addClass('alert alert-danger').text('Please select harvest date.').show();
+                    return;
+                }
+
+                if (!harvestTime) {
+                    $alert.removeClass().addClass('alert alert-danger').text('Please select harvest time.').show();
+                    return;
+                }
+
+                $btn.prop('disabled', true);
+                $loading.show();
+
+                try {
+                    const response = await fetch('/harvestCrop', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            harvestQuantity: quantity,
+                            harvestSuccessRate: successRate,
+                            harvestQuality: quality,
+                            harvestMethod: method,
+                            harvestDate: harvestDate,
+                            harvestTime: harvestTime,
+                            harvestNotes: notes,
+                            harvestChallenges: challenges
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        $alert.removeClass().addClass('alert alert-success').text(data.message).show();
+                        
+                        // Open preview page in new tab
+                        if (data.previewUrl) {
+                            const newWindow = window.open(data.previewUrl, '_blank');
+                            if (newWindow) {
+                                newWindow.focus();
+                            }
+                            // Close the harvest modal after a short delay
+                            setTimeout(() => {
+                                $('#harvestModal').modal('hide');
+                                if (typeof getActiveCrop === 'function') getActiveCrop();
+                                else window.location.reload();
+                            }, 1500);
+                        } else {
+                            $alert.removeClass().addClass('alert alert-warning').text('Could not open preview - no URL available.').show();
+                        }
+                    } else {
+                        $alert.removeClass().addClass('alert alert-danger').text(data.error || 'Failed to harvest crop').show();
+                    }
+                } catch (error) {
+                    console.error('Harvest error:', error);
+                    $alert.removeClass().addClass('alert alert-danger').text('Failed to harvest crop').show();
+                } finally {
+                    $btn.prop('disabled', false);
+                    $loading.hide();
+                }
+            });
+
+            // Initialize default date/time when modal is shown
+            $('#harvestModal').on('shown.bs.modal', function() {
+                setDefaultHarvestDateTime();
+            });
         });
         </script>
 

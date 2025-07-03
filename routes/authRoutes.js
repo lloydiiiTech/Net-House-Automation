@@ -153,5 +153,6 @@ router.delete('/api/crops/:cropId', aController.isAuthenticated, aController.isA
 
 router.post('/cancelCrop', plantOverview.cancelCurrentCrop);
 router.get('/cancellation-preview/:cropId', plantOverview.cancellationPreview);
+router.get('/harvest-preview/:cropId', plantOverview.harvestPreview);
 
 module.exports = router;

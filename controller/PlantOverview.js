@@ -347,8 +347,48 @@ exports.checkActiveCrop = async (req, res) => {
 // Harvest current crop
 exports.harvestCurrentCrop = async (req, res) => {
   try {
+    console.log('==== HARVEST CROP DEBUG START ====');
+    const { 
+      harvestQuantity, 
+      harvestSuccessRate, 
+      harvestQuality, 
+      harvestMethod, 
+      harvestDate, 
+      harvestTime, 
+      harvestNotes, 
+      harvestChallenges 
+    } = req.body;
+    
+    console.log('Harvest request body:', { 
+      harvestQuantity, 
+      harvestSuccessRate, 
+      harvestQuality, 
+      harvestMethod, 
+      harvestDate, 
+      harvestTime, 
+      harvestNotes, 
+      harvestChallenges 
+    });
+
     if (!req.session.user?.uid) {
       return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    // Validation
+    if (!harvestQuantity || harvestQuantity <= 0) {
+      return res.status(400).json({ error: "Invalid harvest quantity" });
+    }
+
+    if (!harvestSuccessRate || harvestSuccessRate < 0 || harvestSuccessRate > 100) {
+      return res.status(400).json({ error: "Invalid success rate" });
+    }
+
+    if (!harvestQuality) {
+      return res.status(400).json({ error: "Harvest quality is required" });
+    }
+
+    if (!harvestDate || !harvestTime) {
+      return res.status(400).json({ error: "Harvest date and time are required" });
     }
 
     // Find active crop
@@ -362,16 +402,103 @@ exports.harvestCurrentCrop = async (req, res) => {
       return res.status(400).json({ error: "No active crop found" });
     }
 
-    // Update with harvest date
+    const cropRef = snapshot.docs[0].ref;
     const cropDoc = snapshot.docs[0];
-    await cropDoc.ref.update({
-      endDate: admin.firestore.FieldValue.serverTimestamp(),
-      status: 'harvested'
+    const cropData = cropDoc.data();
+    console.log('Crop doc data:', cropData);
+
+    // Disable irrigation schedules for this crop
+    try {
+      const irrigationSchedulesSnap = await firestore.collection('irrigation_schedules')
+        .get();
+      
+      if (!irrigationSchedulesSnap.empty) {
+        const batch = firestore.batch();
+        irrigationSchedulesSnap.docs.forEach(doc => {
+          batch.update(doc.ref, { isActive: false });
+        });
+        await batch.commit();
+        console.log(`Disabled ${irrigationSchedulesSnap.size} irrigation schedules for crop ${cropDoc.id}`);
+      }
+    } catch (error) {
+      console.error('Error disabling irrigation schedules:', error);
+    }
+
+    // Disable automation state in realtime database
+    try {
+      await realtimeDB.ref('automationState').update({ enabled: false });
+      console.log('Disabled automation state in realtime database');
+    } catch (error) {
+      console.error('Error disabling automation state:', error);
+    }
+
+    // Create harvest timestamp
+    const harvestDateTime = new Date(`${harvestDate}T${harvestTime}`);
+    const harvestTimestamp = admin.firestore.Timestamp.fromDate(harvestDateTime);
+
+    // Update with harvest data
+    const endDate = admin.firestore.Timestamp.now();
+    await cropRef.update({
+      endDate: endDate,
+      status: 'harvested',
+      harvestQuantity: harvestQuantity,
+      harvestSuccessRate: harvestSuccessRate,
+      harvestQuality: harvestQuality,
+      harvestMethod: harvestMethod,
+      harvestDate: harvestTimestamp,
+      harvestNotes: harvestNotes || null,
+      harvestChallenges: harvestChallenges || null
     });
 
+    // Summarize daily_sensor_summaries for this crop between startDate and endDate
+    const cropStartDate = cropData.startDate;
+    console.log('Summarizing for cropId:', cropDoc.id, 'from', cropStartDate, 'to', endDate);
+    const summariesSnap = await firestore.collection('daily_sensor_summaries')
+      .where('timestamp', '>=', cropStartDate)
+      .where('timestamp', '<=', endDate)
+      .get();
+    console.log('Found', summariesSnap.size, 'summaries');
+
+    const sensorParams = ['humidity', 'light', 'moistureAve', 'nitrogen', 'ph', 'phosphorus', 'potassium', 'temperature'];
+    let paramSums = {};
+    let paramCounts = {};
+    sensorParams.forEach(param => {
+      paramSums[param] = 0;
+      paramCounts[param] = 0;
+    });
+
+    if (!summariesSnap.empty) {
+      summariesSnap.docs.forEach(doc => {
+        const data = doc.data();
+        sensorParams.forEach(param => {
+          if (data[param] && typeof data[param].average === 'number') {
+            paramSums[param] += data[param].average;
+            paramCounts[param] += 1;
+          }
+        });
+      });
+    }
+
+    let avgSummary = {};
+    sensorParams.forEach(param => {
+      avgSummary[param] = paramCounts[param] > 0 ? paramSums[param] / paramCounts[param] : null;
+    });
+    console.log('Final sensor summary:', avgSummary);
+
+    // Save to crop document (even if empty)
+    await cropRef.update({ finalSensorSummary: avgSummary });
+    
+    // Get the updated crop data with all fields for PDF generation
+    const updatedCropDoc = await cropRef.get();
+    const updatedCropData = updatedCropDoc.data();
+    updatedCropData.id = cropDoc.id;
+
+    console.log('==== HARVEST CROP DEBUG END ====');
     res.json({ 
-      success: true,
-      message: `${cropDoc.data().name} harvested successfully` 
+      success: true, 
+      message: `${cropData.name} harvested successfully`,
+      harvestedCrop: updatedCropData,
+      previewUrl: `/harvest-preview/${cropDoc.id}`
     });
   } catch (error) {
     console.error("Error harvesting crop:", error);
@@ -692,6 +819,40 @@ exports.cancellationPreview = async (req, res) => {
 
     } catch (error) {
         console.error("Error rendering cancellation preview:", error);
+        res.status(500).json({ error: "Failed to load preview" });
+    }
+};
+
+// New endpoint to render harvest preview page
+exports.harvestPreview = async (req, res) => {
+    try {
+        const cropId = req.params.cropId;
+        
+        if (!cropId) {
+            return res.status(400).json({ error: "Crop ID is required" });
+        }
+
+        // Get the harvested crop data
+        const cropDoc = await firestore.collection('planted_crops').doc(cropId).get();
+        
+        if (!cropDoc.exists) {
+            return res.status(404).json({ error: "Crop not found" });
+        }
+
+        const cropData = cropDoc.data();
+        cropData.id = cropDoc.id;
+
+        // Render the preview page
+        res.render('admin/harvest-preview', {
+            crop: cropData,
+            user: req.session.user || {
+                name: 'Admin',
+                role: 'Admin'
+            }
+        });
+
+    } catch (error) {
+        console.error("Error rendering harvest preview:", error);
         res.status(500).json({ error: "Failed to load preview" });
     }
 };
