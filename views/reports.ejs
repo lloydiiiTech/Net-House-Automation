@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>NetHouseAutomation Dashboard</title>
+    <title>NetHouseAutomation Reports & Analytics</title>
     <!-- GLOBAL MAINLY STYLES-->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
     <!-- PLUGINS STYLES-->
+    <link href="./assets/vendors/datatables/datatables.min.css" rel="stylesheet" />
     <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
     <!-- THEME STYLES-->
     <link href="assets/css/main.min.css" rel="stylesheet" />
@@ -18,7 +19,305 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .report-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+
+        .report-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .section-header h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table-responsive {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-normal {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .parameter-item {
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .parameter-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .parameter-item h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pagination-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-size-selector select {
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ddd;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-controls .btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .export-buttons .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .export-buttons .btn i {
+            font-size: 1.1rem;
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--box-shadow);
+        }
+
+        .modal-header {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--light-bg);
+        }
+
+        .form-group label {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        @media print {
+            .report-section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .section-actions,
+            .export-buttons {
+                display: none;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+    </style>
 </head>
 
 <body class="fixed-navbar">
@@ -26,7 +325,7 @@
         <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="/home">
+                <a class="link" href="/dashboard">
                     <span class="brand">Demo
                         <span class="brand-tip">FARM</span>
                     </span>
@@ -39,23 +338,20 @@
                     <li>
                         <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
                     </li>
-                    <!--<li>
-                        <form class="navbar-search" action="javascript:;">
-                            <div class="rel">
-                                <span class="search-icon"><i class="ti-search"></i></span>
-                                <input class="form-control" placeholder="Search here...">
-                            </div>
-                        </form>
-                    </li>-->
                 </ul>
                 <!-- END TOP-LEFT TOOLBAR-->
                 <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
-                    
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i></a>
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
@@ -72,784 +368,471 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
+                        <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div><small>User</small></div>
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="active" href="/home"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
-                    
                     <li>
-                        <a class="active" href="/plant"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/irrigation"><i class="sidebar-item-icon fas fa-faucet"></i>
-                            <span class="nav-label">Irrigation Controll</span>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/reports"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
                     
-                    <!--<li class="heading">FEATURES</li>
                     <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
-                            <span class="nav-label">Basic UI</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="#">Colors</a>
-                            </li>
-                            <li>
-                                <a href="#">Typography</a>
-                            </li>
-                            <li>
-                                <a href="#">Panels</a>
-                            </li>
-                            <li>
-                                <a href="buttons.html">Buttons</a>
-                            </li>
-                            <li>
-                                <a href="tabs.html">Tabs</a>
-                            </li>
-                            <li>
-                                <a href="alerts_tooltips.html">Alerts &amp; Tooltips</a>
-                            </li>
-                            <li>
-                                <a href="badges_progress.html">Badges &amp; Progress</a>
-                            </li>
-                            <li>
-                                <a href="lists.html">List</a>
-                            </li>
-                            <li>
-                                <a href="cards.html">Card</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-edit"></i>
-                            <span class="nav-label">Forms</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="form_basic.html">Basic Forms</a>
-                            </li>
-                            <li>
-                                <a href="form_advanced.html">Advanced Plugins</a>
-                            </li>
-                            <li>
-                                <a href="form_masks.html">Form input masks</a>
-                            </li>
-                            <li>
-                                <a href="form_validation.html">Form Validation</a>
-                            </li>
-                            <li>
-                                <a href="text_editors.html">Text Editors</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-table"></i>
-                            <span class="nav-label">Tables</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="table_basic.html">Basic Tables</a>
-                            </li>
-                            <li>
-                                <a href="datatables.html">Datatables</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bar-chart"></i>
-                            <span class="nav-label">Charts</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="charts_flot.html">Flot Charts</a>
-                            </li>
-                            <li>
-                                <a href="charts_morris.html">Morris Charts</a>
-                            </li>
-                            <li>
-                                <a href="chartjs.html">Chart.js</a>
-                            </li>
-                            <li>
-                                <a href="charts_sparkline.html">Sparkline Charts</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-map"></i>
-                            <span class="nav-label">Maps</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="maps_vector.html">Vector maps</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="icons.html"><i class="sidebar-item-icon fa fa-smile-o"></i>
-                            <span class="nav-label">Icons</span>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
-                    <li class="heading">PAGES</li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label">Mailbox</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="mailbox.html">Inbox</a>
-                            </li>
-                            <li>
-                                <a href="mail_view.html">Mail view</a>
-                            </li>
-                            <li>
-                                <a href="mail_compose.html">Compose mail</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">Calendar</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-file-text"></i>
-                            <span class="nav-label">Pages</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="invoice.html">Invoice</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="lockscreen.html">Lockscreen</a>
-                            </li>
-                            <li>
-                                <a href="forgot_password.html">Forgot password</a>
-                            </li>
-                            <li>
-                                <a href="error_404.html">404 error</a>
-                            </li>
-                            <li>
-                                <a href="error_500.html">500 error</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-sitemap"></i>
-                            <span class="nav-label">Menu Levels</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="javascript:;">Level 2</a>
-                            </li>
-                            <li>
-                                <a href="javascript:;">
-                                    <span class="nav-label">Level 2</span><i class="fa fa-angle-left arrow"></i></a>
-                                <ul class="nav-3-level collapse">
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>-->
                 </ul>
             </div>
         </nav>
-        <!-- END SIDEBAR-->
         <div class="content-wrapper">
-
-            <h1>Reports And Analytics</h1>
-            <!--<div class="page-content fade-in-up">
+            <div class="page-content fade-in-up">
                 <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Temperature</h2>
-                                <div class="m-b-5 widget-stat-icon">28°C</div><i class="fas fa-thermometer-half "></i>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 25-30°C)</small></div>
+                    <div class="col-12">
+                        <h1 class="page-title">Reports & Analytics</h1>
+                        
+                        <!-- Export Controls -->
+                        <div class="export-buttons">
+                            <button class="btn btn-primary" onclick="exportToPDF()">
+                                <i class="fa fa-file-pdf-o"></i> Export to PDF
+                            </button>
+                            <button class="btn btn-success" onclick="exportToExcel()">
+                                <i class="fa fa-file-excel-o"></i> Export to Excel
+                            </button>
+                            <button class="btn btn-info" onclick="exportToWord()">
+                                <i class="fa fa-file-word-o"></i> Export to Word
+                            </button>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Humidity</h2><i class=" fas fa-tint"></i>
-                                <div class="m-b-5 widget-stat-icon">65%</div>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 50-70%)</small></div>
+
+                        <!-- Daily Sensor Summary Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Daily Sensor Summary</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printSensorData()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="showDownloadModal('sensor')">
+                                        <i class="fa fa-download"></i> Download
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Moisture</h2><i class="fas fa-water"></i>
-                                <div class="m-b-5 widget-stat-icon">45%</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Low (Ideal: 50-80%)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
                             
-                                <h2 class="m-b-5 font-strong">PH Level</h2><i class="fas fa-flask"></i>
-                                <div class="m-b-5 widget-stat-icon">	6.5</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Slightly Acidic (Ideal: 6.0-7.0)</small></div>
+                            <div class="search-box mb-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="sensorSearch" placeholder="Search sensor data...">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="clearSensorSearch()">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
+                            <div class="chart-container mb-4">
+                                <canvas id="sensorChart"></canvas>
+                            </div>
 
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="sensorTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Temperature (°C)</th>
+                                                <th>Humidity (%)</th>
+                                                <th>Soil Moisture (%)</th>
+                                                <th>Light (lux)</th>
+                                                <th>pH Level</th>
+                                                <th>NPK Values</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Data will be populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div class="flexbox mb-4">
-                                    <div>
-                                        <h3 class="m-0">Daily NPK Data</h3>
+                                <div class="pagination-info">
+                                    <div class="page-size-selector">
+                                        <label for="pageSize">Show:</label>
+                                        <select class="form-control form-control-sm" id="pageSize" onchange="changePageSize()">
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span>entries</span>
                                     </div>
                                     
-                                    <div class="d-inline-flex">
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(N)51.3</span>
-                                                <span class="text-success ml-2"><i class="fa fa-level-up"></i> +25%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                        
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(P)31.0</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(K)41.9</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
+                                    <div class="text-muted">
+                                        Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
                                     </div>
-                                </div>
-                                <div>
-                                    <canvas id="bar_chart" style="height:300px;"></canvas>
+
+                                    <div class="pagination-controls">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="loadFirstPage()" id="firstPageBtn">
+                                            <i class="fa fa-angle-double-left"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="loadPreviousPage()" id="prevPageBtn" disabled>
+                                            <i class="fa fa-angle-left"></i>
+                                        </button>
+                                        <span class="mx-2">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="loadNextPage()" id="nextPageBtn">
+                                            <i class="fa fa-angle-right"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="loadLastPage()" id="lastPageBtn">
+                                            <i class="fa fa-angle-double-right"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crop</div>
-                            </div>
-                            <div class="ibox-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6">
-                                        <h1>Lettuce</h1>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>Temperature 17°C</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>pH Level 5.8</div>
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>N 70</div>
-                                        <div class="m-b-20 text-danger"><i class="fa fa-circle-o m-r-10"></i>P 35</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>K 50</div>
-                                    </div>
-                                </div>
-                                <ul class="list-group list-group-divider list-group-full">
-                                    <li class="list-group-item">Tomato
-                                        <span class="float-right text-success"> 35%</span>
-                                    </li>
-                                    <li class="list-group-item">Bell Pepper 
-                                        <span class="float-right text-success"> 24%</span>
-                                    </li>
-                                    <li class="list-group-item">Cucumber
-                                        <span class="float-right text-danger"> 20%</span>
-                                    </li>
-                                    <li class="list-group-item">Strawberry
-                                        <span class="float-right text-danger"> 16%</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div><div class="row">
-                    
-                    <div class="col-md-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div id="calendar"></div>
-                                
-                                <div class="modal fade" id="new-event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">New Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="new-event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="new-event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="new-event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                                <button class="btn btn-info" id="addEventButton" type="submit">Add event</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                
-                                <div class="modal fade" id="event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">Edit Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-info" id="editEventButton" type="submit">Save</button>
-                                                <button class="btn btn-danger" id="deleteEventButton" type="button" data-dismiss="modal">Delete</button>
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                
-                
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Tasks(Organic Nutrients)</div>
-                                
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="list-group list-group-divider list-group-full tasks-list">
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Add wood ash or dolomite lime to raise pH; use peat moss or sulfur to lower pH</span>
-                                            </label>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use composted manure, alfalfa meal, or blood meal</span>
-                                            </label>
-                                        </div>
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Apply bone meal, rock phosphate, or banana peel tea</span>
-                                            </label>
-                                            
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use wood ash, kelp meal, or banana peel fertilizer</span>
-                                            </label>
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Crop Disease</div>
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="media-list media-list-divider m-0">
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Downy Mildew </div>
-                                            <div class="font-13">Yellow spots on leaves, white to purple mold on the undersides.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Fusarium Wilt  </div>
-                                            <div class="font-13">Yellowing of older leaves, stunted growth, brown streaks in stems.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Root Rot </div>
-                                            <div class="font-13">Wilting, brown and mushy roots, stunted growth.</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crops for Net House</div>
-                                <div class="ibox-tools">
-                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
-                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item">Refresh</a>
-                                        <a class="dropdown-item">Settings</a>
-                                    </div>
+
+                        <!-- Planted Crops Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Planted Crops History</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printPlantedCrops()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
                                 </div>
                             </div>
-                            <div class="ibox-body">
-                                <table class="table table-striped table-hover">
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="plantedCropSearch" placeholder="Search planted crops...">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="plantedCropsTable">
                                     <thead>
                                         <tr>
-                                            <th>Crop</th>
-                                            <th>Temperature (°C)</th>
-                                            <th>Humidity (%)</th>
-                                            <th>Soil Moisture (%)</th>
-                                            <th>pH Level</th>
-                                            <th>NPK Ratio</th>
+                                            <th>Crop Name</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Status</th>
+                                            <th>Success Rate</th>
+                                            <th>Score</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+
+                        <!-- Registered Crops Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Registered Crops</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printRegisteredCrops()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="registeredCropSearch" placeholder="Search registered crops...">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="registeredCropsTable">
+                                    <thead>
                                         <tr>
-                                            <td>Lettuce</td>
-                                            <td>15-20</td>
-                                            <td>60-70</td>
-                                            <td>55-65</td>
-                                            <td>6.0-6.5</td>
-                                            <td>10-5-5</td>
+                                            <th>Crop Name</th>
+                                            <th>Optimal Temperature</th>
+                                            <th>Optimal Humidity</th>
+                                            <th>Optimal Moisture</th>
+                                            <th>Optimal Light</th>
+                                            <th>Optimal pH</th>
+                                            <th>Optimal NPK</th>
+                                            <th>Priority</th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                    </div>
+                </div>
+
+                        <!-- Disease Monitoring Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Disease Monitoring</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printDiseaseData()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="diseaseSearch" placeholder="Search disease records...">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="diseaseTable">
+                                    <thead>
                                         <tr>
-                                            <td>Bell Pepper</td>
-                                            <td>18-25</td>
-                                            <td>65-75</td>
-                                            <td>50-60</td>
-                                            <td>6.0-6.8</td>
-                                            <td>5-10-10</td>
+                                            <th>Disease Name</th>
+                                            <th>Affected Crop</th>
+                                            <th>Detection Date</th>
+                                            <th>Severity</th>
+                                            <th>Treatment Status</th>
+                                            <th>Actions</th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                                            </div>
+                                        </div>
+
+                        <!-- Nutrient Analysis Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Nutrient Analysis</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printNutrientData()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="nutrientChart"></canvas>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="nutrientTable">
+                                    <thead>
                                         <tr>
-                                            <td>Tomato</td>
-                                            <td>18-27</td>
-                                            <td>60-80</td>
-                                            <td>50-70</td>
-                                            <td>5.8-6.5</td>
-                                            <td>10-10-10</td>
+                                            <th>Date</th>
+                                            <th>Nitrogen (N)</th>
+                                            <th>Phosphorus (P)</th>
+                                            <th>Potassium (K)</th>
+                                            <th>Status</th>
+                                            <th>Recommendations</th>
                                         </tr>
-                                        <tr>
-                                            <td>Strawberry</td>
-                                            <td>15-25</td>
-                                            <td>60-75</td>
-                                            <td>60-70</td>
-                                            <td>5.5-6.5</td>
-                                            <td>8-10-8</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Cucumber</td>
-                                            <td>18-30</td>
-                                            <td>70-80</td>
-                                            <td>50-65</td>
-                                            <td>5.5-6.5</td>
-                                            <td>5-10-10</td>
-                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated dynamically -->
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
+                        <!-- Irrigation Schedule Section -->
+                        <div class="report-section">
+                            <div class="section-header">
+                                <h3>Irrigation Schedule</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printIrrigationData()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="irrigationSearch" placeholder="Search irrigation records...">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="irrigationTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Schedule ID</th>
+                                            <th>Crop</th>
+                                            <th>Start Time</th>
+                                            <th>Duration</th>
+                                            <th>Water Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Current Crop Analysis Section -->
+                        <div class="report-section" id="currentCropSection" style="display: none;">
+                            <div class="section-header">
+                                <h3>Current Crop Analysis</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-outline-primary" onclick="printCurrentCropAnalysis()">
+                                        <i class="fa fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="parameter-grid">
+                                        <div class="parameter-item">
+                                            <h5>Current Conditions</h5>
+                                            <div id="currentConditions"></div>
+                                        </div>
+                                        <div class="parameter-item">
+                                            <h5>Optimal Conditions</h5>
+                                            <div id="optimalConditions"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="parameter-grid">
+                                        <div class="parameter-item">
+                                            <h5>Parameter Matching</h5>
+                                            <div id="parameterMatching"></div>
+                                        </div>
+                                        <div class="parameter-item">
+                                            <h5>Health Analysis</h5>
+                                            <div id="healthAnalysis"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="chart-container">
+                                        <canvas id="parameterMatchChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <style>
-                    .visitors-table tbody tr td:last-child {
-                        display: flex;
-                        align-items: center;
-                    }
-
-                    .visitors-table .progress {
-                        flex: 1;
-                    }
-
-                    .visitors-table .progress-parcent {
-                        text-align: right;
-                        margin-left: 10px;
-                    }
-                </style>
-             END PAGE CONTENT-->
+            </div>
             <footer class="page-footer">
                 <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
                 <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
             </footer>
         </div>
     </div>
-    <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
-            </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+
+    <!-- Add this modal HTML just before the closing body tag -->
+    <div class="modal fade" id="cropDetailsModal" tabindex="-1" role="dialog" aria-labelledby="cropDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropDetailsModalLabel">Crop Details Report</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
+                <div class="modal-body">
+                    <div class="report-header text-center mb-4">
+                        <h4>NetHouseAutomation</h4>
+                        <p>Crop Performance Report</p>
+                    </div>
+                    <div class="report-content">
+                        <div class="report-section">
+                            <h5>Basic Information</h5>
+                            <div id="cropBasicInfo"></div>
+                        </div>
+                        <div class="report-section">
+                            <h5>Performance Metrics</h5>
+                            <div id="cropPerformance"></div>
+                        </div>
+                        <div class="report-section">
+                            <h5>Parameter Analysis</h5>
+                            <div id="cropParameters"></div>
+                        </div>
+                        <div class="report-section">
+                            <h5>Optimal Conditions</h5>
+                            <div id="cropOptimalConditions"></div>
+                        </div>
+                    </div>
+                    <div class="report-footer text-center mt-4">
+                        <p>Generated on: <span id="reportDate"></span></p>
+                        <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                    </div>
                 </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-            </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="printReport()">Print Report</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END THEME CONFIG PANEL-->
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
+<!-- Pending Users Modal -->
+<div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pending Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="pendingUsersList">
+                    <!-- Pending users will be loaded here -->
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- END PAGA BACKDROPS-->
+</div>
+    <!-- Download Modal -->
+    <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="downloadModalLabel">Download Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="downloadForm">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" class="form-control" id="endDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="downloadFormat">Format</label>
+                            <select class="form-control" id="downloadFormat">
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                                <option value="excel">Excel</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="downloadType">Data Type</label>
+                            <select class="form-control" id="downloadType">
+                                <option value="sensor">Sensor Data</option>
+                                <option value="crops">Crop Data</option>
+                                <option value="all">All Data</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="downloadData()">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- CORE PLUGINS-->
     <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
@@ -858,20 +841,1248 @@
     <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
     <!-- PAGE LEVEL PLUGINS-->
     <script src="./assets/vendors/chart.js/dist/Chart.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-us-aea-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/moment/min/moment.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/fullcalendar/dist/fullcalendar.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/datatables/datatables.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/jspdf/jspdf.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/jspdf-autotable/jspdf.plugin.autotable.js" type="text/javascript"></script>
+    <script src="./assets/vendors/xlsx/xlsx.full.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/docx/docx.min.js" type="text/javascript"></script>
     
     <!-- CORE SCRIPTS-->
     <script src="assets/js/app.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-    <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script>
+    
+    <script>
+        // Add these variables at the top of your script section
+        let currentPage = 1;
+        let pageSize = 10;
+        let lastDoc = null;
+        let hasMore = false;
+        let totalEntries = 0;
+        let currentSection = 'sensor';
 
-    <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
+        function initializeSensorChart() {
+            console.log('Initializing sensor chart...');
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            window.sensorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [],
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1,
+                        fill: false
+                    }, {
+                        label: 'Humidity (%)',
+                        data: [],
+                        borderColor: 'rgb(54, 162, 235)',
+                        tension: 0.1,
+                        fill: false
+                    }, {
+                        label: 'Soil Moisture (%)',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
+                    }, {
+                        label: 'Light (lux)',
+                        data: [],
+                        borderColor: 'rgb(255, 206, 86)',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sensor Data Over Time'
+                        }
+                    }
+                }
+            });
+            console.log('Sensor chart initialized');
+        }
 
+        function initializeNutrientChart() {
+            console.log('Initializing nutrient chart...');
+            const ctx = document.getElementById('nutrientChart').getContext('2d');
+            window.nutrientChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Nitrogen (N)',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    }, {
+                        label: 'Phosphorus (P)',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    }, {
+                        label: 'Potassium (K)',
+                        data: [],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nutrient Levels'
+                        }
+                    }
+                }
+            });
+            console.log('Nutrient chart initialized');
+        }
+
+        function loadSensorData(page = 1) {
+            console.log('Loading sensor data for page:', page);
+            const tbody = document.querySelector('#sensorTable tbody');
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border text-primary" role="status"></div></td></tr>';
+
+            let url = `/api/sensor-data?pageSize=${pageSize}`;
+            if (page > 1 && lastDoc) {
+                url += `&lastDoc=${encodeURIComponent(JSON.stringify(lastDoc))}`;
+            }
+
+            fetch(url)
+                .then(response => {
+                    console.log('Sensor data response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Raw sensor data received:', data);
+                    if (data && data.daily_sensor_summaries && data.daily_sensor_summaries.length > 0) {
+                        console.log('Processing sensor data:', data.daily_sensor_summaries);
+                        const sensorData = data.daily_sensor_summaries;
+                        
+                        // Update pagination state
+                        currentPage = page;
+                        lastDoc = data.lastDoc;
+                        hasMore = data.hasMore;
+                        totalEntries = data.totalEntries || sensorData.length;
+                        
+                        // Update pagination controls
+                        document.getElementById('currentPage').textContent = currentPage;
+                        document.getElementById('totalPages').textContent = Math.ceil(totalEntries / pageSize);
+                        document.getElementById('totalEntries').textContent = totalEntries;
+                        document.getElementById('startEntry').textContent = ((currentPage - 1) * pageSize) + 1;
+                        document.getElementById('endEntry').textContent = Math.min(currentPage * pageSize, totalEntries);
+                        
+                        document.getElementById('firstPageBtn').disabled = currentPage === 1;
+                        document.getElementById('prevPageBtn').disabled = currentPage === 1;
+                        document.getElementById('nextPageBtn').disabled = !hasMore;
+                        document.getElementById('lastPageBtn').disabled = !hasMore;
+                        
+                        // Update the table
+                        tbody.innerHTML = sensorData.map(item => createTableRow(item)).join('');
+
+                        // Update the charts
+                        updateSensorChart(sensorData);
+                        updateNutrientChart(sensorData);
+                    } else {
+                        console.log('No sensor data found in response');
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle"></i> No sensor data available
+                            </div>
+                                </td>
+                            </tr>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading sensor data:', error);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-circle"></i> Error loading sensor data: ${error.message}
+                        </div>
+                            </td>
+                        </tr>`;
+                });
+        }
+
+        function loadCropData() {
+            fetch('/api/crop-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.crops) {
+                        updateRegisteredCropsTable(data.crops);
+                    }
+                })
+                .catch(error => console.error('Error loading crop data:', error));
+        }
+
+        function loadPlantedCrops() {
+            console.log('Loading planted crops...');
+            const tbody = document.querySelector('#plantedCropsTable tbody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading planted crops data...</td></tr>';
+
+            fetch('/api/planted-crops')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received planted crops data:', data);
+                    if (data && data.planted_crops && data.planted_crops.length > 0) {
+                        console.log('Number of planted crops:', data.planted_crops.length);
+                        updatePlantedCropsTable(data.planted_crops);
+                    } else {
+                        console.log('No planted crops data found');
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle"></i> No planted crops data available
+                            </div>
+                                </td>
+                            </tr>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading planted crops:', error);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-circle"></i> Error loading planted crops data: ${error.message}
+                                        </div>
+                            </td>
+                        </tr>`;
+                });
+        }
+
+        function updateSensorChart(data) {
+            console.log('Updating sensor chart with data:', data);
+            if (!data || !Array.isArray(data)) {
+                console.error('Invalid data provided for sensor chart update');
+                return;
+            }
+
+            const labels = data.map(d => new Date(d.period_start).toLocaleDateString());
+            const temperatureData = data.map(d => d.temperature?.average || 0);
+            const humidityData = data.map(d => d.humidity?.average || 0);
+            const moistureData = data.map(d => d.moistureAve?.average || 0);
+            const lightData = data.map(d => d.light?.average || 0);
+            
+            window.sensorChart.data.labels = labels;
+            window.sensorChart.data.datasets[0].data = temperatureData;
+            window.sensorChart.data.datasets[1].data = humidityData;
+            window.sensorChart.data.datasets[2].data = moistureData;
+            window.sensorChart.data.datasets[3].data = lightData;
+            
+            window.sensorChart.update();
+        }
+
+        function updateNutrientChart(data) {
+            if (!data || !Array.isArray(data)) {
+                console.error('Invalid data provided for nutrient chart update');
+                return;
+            }
+
+            const labels = data.map(d => new Date(d.period_start).toLocaleDateString());
+            const nitrogenData = data.map(d => d.nitrogen?.average || 0);
+            const phosphorusData = data.map(d => d.phosphorus?.average || 0);
+            const potassiumData = data.map(d => d.potassium?.average || 0);
+            
+            window.nutrientChart.data.labels = labels;
+            window.nutrientChart.data.datasets[0].data = nitrogenData;
+            window.nutrientChart.data.datasets[1].data = phosphorusData;
+            window.nutrientChart.data.datasets[2].data = potassiumData;
+            
+            window.nutrientChart.update();
+        }
+
+        function updateNutrientTable(data) {
+            const tbody = document.querySelector('#nutrientTable tbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td>${new Date(data.period_start).toLocaleDateString()}</td>
+                    <td>
+                        ${data.nitrogen.average.toFixed(1)}
+                        <small class="text-muted d-block">
+                            Min: ${data.nitrogen.min.toFixed(1)} | Max: ${data.nitrogen.max.toFixed(1)}
+                        </small>
+                    </td>
+                    <td>
+                        ${data.phosphorus.average.toFixed(1)}
+                        <small class="text-muted d-block">
+                            Min: ${data.phosphorus.min.toFixed(1)} | Max: ${data.phosphorus.max.toFixed(1)}
+                        </small>
+                    </td>
+                    <td>
+                        ${data.potassium.average.toFixed(1)}
+                        <small class="text-muted d-block">
+                            Min: ${data.potassium.min.toFixed(1)} | Max: ${data.potassium.max.toFixed(1)}
+                        </small>
+                    </td>
+                    <td>
+                        <span class="status-indicator ${getNutrientStatusClass(data)}"></span>
+                        ${getNutrientStatusText(data)}
+                    </td>
+                    <td>${getNutrientRecommendations(data)}</td>
+                </tr>
+            `;
+        }
+
+        function updateRegisteredCropsTable(crops) {
+            const tbody = document.querySelector('#registeredCropsTable tbody');
+            tbody.innerHTML = crops.map(crop => `
+                <tr>
+                    <td>${crop.name}</td>
+                    <td>${crop.optimal_temperature}°C</td>
+                    <td>${crop.optimal_humidity}%</td>
+                    <td>${crop.optimal_moisture}%</td>
+                    <td>${crop.optimal_light} lux</td>
+                    <td>${crop.optimal_ph}</td>
+                    <td>N:${crop.optimal_n} P:${crop.optimal_p} K:${crop.optimal_k}</td>
+                    <td>${crop.priority}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updatePlantedCropsTable(crops) {
+            const tbody = document.querySelector('#plantedCropsTable tbody');
+            
+            if (!crops || crops.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No planted crops data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = crops.map(crop => `
+                <tr data-crop='${JSON.stringify(crop)}' onclick="showCropDetails(this)">
+                    <td>${crop.name || 'Unknown'}</td>
+                    <td>${crop.startDate ? new Date(crop.startDate).toLocaleDateString() : 'N/A'}</td>
+                    <td>${crop.endDate ? new Date(crop.endDate).toLocaleDateString() : 'Active'}</td>
+                    <td><span class="status-badge status-${crop.status.toLowerCase()}">${crop.status}</span></td>
+                    <td>${crop.successRate || 0}%</td>
+                    <td>${crop.score || 0}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function showCropDetails(row) {
+            const crop = JSON.parse(row.getAttribute('data-crop'));
+            
+            // Update modal content
+            document.getElementById('cropBasicInfo').innerHTML = `
+                <div class="parameter-grid">
+                    <div class="parameter-item">
+                        <strong>Crop Name:</strong> ${crop.name}
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Status:</strong> <span class="status-badge status-${crop.status.toLowerCase()}">${crop.status}</span>
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Start Date:</strong> ${new Date(crop.startDate).toLocaleDateString()}
+                    </div>
+                    <div class="parameter-item">
+                        <strong>End Date:</strong> ${crop.endDate ? new Date(crop.endDate).toLocaleDateString() : 'Active'}
+                    </div>
+                    <div class="parameter-item">
+                        <strong>User:</strong> ${crop.userName} (${crop.userEmail})
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Last Updated:</strong> ${crop.lastUpdated ? new Date(crop.lastUpdated._seconds * 1000).toLocaleString() : 'N/A'}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cropPerformance').innerHTML = `
+                <div class="parameter-grid">
+                    <div class="parameter-item">
+                        <strong>Success Rate:</strong> ${crop.successRate}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Overall Score:</strong> ${crop.score}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Rule-Based Score:</strong> ${crop.ruleBasedScore}%
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cropParameters').innerHTML = `
+                <div class="parameter-grid">
+                    <div class="parameter-item">
+                        <strong>Temperature Match:</strong> ${crop.parameterMatches.temperature.toFixed(1)}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Humidity Match:</strong> ${crop.parameterMatches.humidity.toFixed(1)}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Moisture Match:</strong> ${crop.parameterMatches.moisture.toFixed(1)}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Light Match:</strong> ${crop.parameterMatches.light.toFixed(1)}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>pH Match:</strong> ${crop.parameterMatches.ph.toFixed(1)}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>NPK Matches:</strong>
+                        <div class="ml-3">
+                            N: ${crop.parameterMatches.npk_N.toFixed(1)}%<br>
+                            P: ${crop.parameterMatches.npk_P.toFixed(1)}%<br>
+                            K: ${crop.parameterMatches.npk_K.toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('cropOptimalConditions').innerHTML = `
+                <div class="parameter-grid">
+                    <div class="parameter-item">
+                        <strong>Temperature:</strong> ${crop.optimalConditions.temperature}°C
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Humidity:</strong> ${crop.optimalConditions.humidity}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Moisture:</strong> ${crop.optimalConditions.moisture}%
+                    </div>
+                    <div class="parameter-item">
+                        <strong>Light:</strong> ${crop.optimalConditions.light} lux
+                    </div>
+                    <div class="parameter-item">
+                        <strong>pH Level:</strong> ${crop.optimalConditions.ph}
+                    </div>
+                    <div class="parameter-item">
+                        <strong>NPK Levels:</strong>
+                        <div class="ml-3">
+                            N: ${crop.optimalConditions.npk_N}<br>
+                            P: ${crop.optimalConditions.npk_P}<br>
+                            K: ${crop.optimalConditions.npk_K}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportDate').textContent = new Date().toLocaleString();
+            
+            // Show the modal
+            $('#cropDetailsModal').modal('show');
+        }
+
+        function printReport() {
+            const printContent = document.querySelector('.modal-body').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <div class="container">
+                    ${printContent}
+                </div>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // Reinitialize any necessary event listeners
+            initializeEventListeners();
+        }
+
+        function initializeEventListeners() {
+            // Reinitialize any event listeners that were lost after printing
+            $('#plantedCropsTable tbody tr').on('click', function() {
+                showCropDetails(this);
+            });
+        }
+
+        function getStatusClass(data) {
+            const tempStatus = data.temperature.average >= 25 && data.temperature.average <= 30;
+            const humidityStatus = data.humidity.average >= 50 && data.humidity.average <= 70;
+            const moistureStatus = data.moistureAve.average >= 50 && data.moistureAve.average <= 80;
+            
+            if (tempStatus && humidityStatus && moistureStatus) return 'status-normal';
+            if (!tempStatus || !humidityStatus || !moistureStatus) return 'status-warning';
+            return 'status-danger';
+        }
+
+        function getStatusText(data) {
+            const tempStatus = data.temperature.average >= 25 && data.temperature.average <= 30;
+            const humidityStatus = data.humidity.average >= 50 && data.humidity.average <= 70;
+            const moistureStatus = data.moistureAve.average >= 50 && data.moistureAve.average <= 80;
+            
+            if (tempStatus && humidityStatus && moistureStatus) return 'Optimal';
+            if (!tempStatus || !humidityStatus || !moistureStatus) return 'Warning';
+            return 'Critical';
+        }
+
+        function getNutrientStatusClass(data) {
+            const nStatus = data.nitrogen.average >= 20 && data.nitrogen.average <= 30;
+            const pStatus = data.phosphorus.average >= 10 && data.phosphorus.average <= 20;
+            const kStatus = data.potassium.average >= 15 && data.potassium.average <= 25;
+            
+            if (nStatus && pStatus && kStatus) return 'status-normal';
+            if (!nStatus || !pStatus || !kStatus) return 'status-warning';
+            return 'status-danger';
+        }
+
+        function getNutrientStatusText(data) {
+            const nStatus = data.nitrogen.average >= 20 && data.nitrogen.average <= 30;
+            const pStatus = data.phosphorus.average >= 10 && data.phosphorus.average <= 20;
+            const kStatus = data.potassium.average >= 15 && data.potassium.average <= 25;
+            
+            if (nStatus && pStatus && kStatus) return 'Balanced';
+            if (!nStatus || !pStatus || !kStatus) return 'Imbalanced';
+            return 'Deficient';
+        }
+
+        function getNutrientRecommendations(data) {
+            let recommendations = [];
+            
+            if (data.nitrogen.average < 20) recommendations.push('Add nitrogen-rich fertilizer');
+            if (data.phosphorus.average < 10) recommendations.push('Add phosphorus-rich fertilizer');
+            if (data.potassium.average < 15) recommendations.push('Add potassium-rich fertilizer');
+            
+            return recommendations.join(', ') || 'No adjustments needed';
+        }
+
+        function exportToPDF() {
+            const doc = new jsPDF();
+            
+            // Add header
+            doc.setFontSize(20);
+            doc.text('NetHouseAutomation Report', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text('Generated on: ' + new Date().toLocaleDateString(), 105, 30, { align: 'center' });
+            
+            // Add content
+            doc.autoTable({ html: '#sensorTable' });
+            doc.autoTable({ html: '#registeredCropsTable' });
+            doc.autoTable({ html: '#diseaseTable' });
+            doc.autoTable({ html: '#nutrientTable' });
+            doc.autoTable({ html: '#irrigationTable' });
+            
+            // Add footer
+            doc.setFontSize(10);
+            doc.text('© 2025 NetHouseAutomation - All rights reserved', 105, 280, { align: 'center' });
+            
+            doc.save('nethouse-report.pdf');
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            // Convert tables to worksheets
+            const sensorWS = XLSX.utils.table_to_sheet(document.getElementById('sensorTable'));
+            const cropWS = XLSX.utils.table_to_sheet(document.getElementById('registeredCropsTable'));
+            const diseaseWS = XLSX.utils.table_to_sheet(document.getElementById('diseaseTable'));
+            const nutrientWS = XLSX.utils.table_to_sheet(document.getElementById('nutrientTable'));
+            const irrigationWS = XLSX.utils.table_to_sheet(document.getElementById('irrigationTable'));
+            
+            // Add worksheets to workbook
+            XLSX.utils.book_append_sheet(wb, sensorWS, 'Sensor Data');
+            XLSX.utils.book_append_sheet(wb, cropWS, 'Crop Data');
+            XLSX.utils.book_append_sheet(wb, diseaseWS, 'Disease Data');
+            XLSX.utils.book_append_sheet(wb, nutrientWS, 'Nutrient Data');
+            XLSX.utils.book_append_sheet(wb, irrigationWS, 'Irrigation Data');
+            
+            // Save workbook
+            XLSX.writeFile(wb, 'nethouse-report.xlsx');
+        }
+
+        function exportToWord() {
+            const doc = new docx.Document({
+                sections: [{
+                    properties: {},
+                    children: [
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'NetHouseAutomation Report',
+                                    bold: true,
+                                    size: 32
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER
+                        }),
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: 'Generated on: ' + new Date().toLocaleDateString(),
+                                    size: 24
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER
+                        }),
+                        // Add tables and other content here
+                    ]
+                }]
+            });
+
+            docx.Packer.toBlob(doc).then(blob => {
+                saveAs(blob, 'nethouse-report.docx');
+            });
+        }
+
+        function printSensorData() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('sensorTable');
+            const title = 'NetHouseAutomation - Daily Sensor Summary';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function showDownloadModal(section) {
+            currentSection = section;
+            const end = new Date();
+            const start = new Date();
+            start.setDate(start.getDate() - 30);
+            
+            document.getElementById('startDate').value = start.toISOString().split('T')[0];
+            document.getElementById('endDate').value = end.toISOString().split('T')[0];
+            document.getElementById('downloadType').value = section;
+            
+            $('#downloadModal').modal('show');
+        }
+
+        function downloadData() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const format = document.getElementById('downloadFormat').value;
+            const type = document.getElementById('downloadType').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            const url = `/api/download-data?startDate=${startDate}&endDate=${endDate}&format=${format}&type=${type}`;
+            
+            if (format === 'json') {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        downloadBlob(blob, `data-${type}-${startDate}-to-${endDate}.json`);
+                    })
+                    .catch(error => {
+                        console.error('Error downloading data:', error);
+                        alert('Error downloading data. Please try again.');
+                    });
+            } else if (format === 'excel') {
+                window.location.href = url;
+            } else if (format === 'pdf') {
+                window.location.href = url;
+            } else {
+                // CSV
+                window.location.href = url;
+            }
+            
+            $('#downloadModal').modal('hide');
+        }
+
+        function downloadBlob(blob, filename) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            lastDoc = null;
+            loadSensorData();
+        }
+
+        function loadFirstPage() {
+            if (currentPage > 1) {
+                currentPage = 1;
+                lastDoc = null;
+                loadSensorData();
+            }
+        }
+
+        function loadLastPage() {
+            if (hasMore) {
+                // Load all remaining pages
+                loadAllPages();
+            }
+        }
+
+        function loadAllPages() {
+            const tbody = document.querySelector('#sensorTable tbody');
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border text-primary" role="status"></div></td></tr>';
+            
+            let allData = [];
+            let currentLastDoc = lastDoc;
+            
+            function loadNextBatch() {
+                let url = '/api/sensor-data';
+                if (currentLastDoc) {
+                    url += `?lastDoc=${encodeURIComponent(JSON.stringify(currentLastDoc))}`;
+                }
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.daily_sensor_summaries && data.daily_sensor_summaries.length > 0) {
+                            allData = allData.concat(data.daily_sensor_summaries);
+                            currentLastDoc = data.lastDoc;
+                            
+                            if (data.hasMore) {
+                                loadNextBatch();
+                            } else {
+                                updateTableWithAllData(allData);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading all pages:', error);
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="alert alert-danger">
+                                        <i class="fa fa-exclamation-circle"></i> Error loading data: ${error.message}
+                                    </div>
+                                </td>
+                            </tr>`;
+                    });
+            }
+            
+            loadNextBatch();
+        }
+
+        function updateTableWithAllData(data) {
+            const tbody = document.querySelector('#sensorTable tbody');
+            tbody.innerHTML = data.map(item => createTableRow(item)).join('');
+            
+            // Update pagination info
+            totalEntries = data.length;
+            currentPage = Math.ceil(totalEntries / pageSize);
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = currentPage;
+            document.getElementById('totalEntries').textContent = totalEntries;
+            document.getElementById('startEntry').textContent = 1;
+            document.getElementById('endEntry').textContent = totalEntries;
+            
+            // Disable pagination controls
+            document.getElementById('firstPageBtn').disabled = true;
+            document.getElementById('prevPageBtn').disabled = true;
+            document.getElementById('nextPageBtn').disabled = true;
+            document.getElementById('lastPageBtn').disabled = true;
+        }
+
+        function clearSensorSearch() {
+            document.getElementById('sensorSearch').value = '';
+            loadSensorData();
+        }
+
+        function createTableRow(data) {
+            return `
+                <tr>
+                    <td>${new Date(data.period_start).toLocaleDateString()}</td>
+                    <td>
+                        ${(data.temperature?.average || 0).toFixed(1)}°C
+                        <small class="text-muted d-block">
+                            Min: ${(data.temperature?.min || 0).toFixed(1)}°C | Max: ${(data.temperature?.max || 0).toFixed(1)}°C
+                        </small>
+                    </td>
+                    <td>
+                        ${(data.humidity?.average || 0).toFixed(1)}%
+                        <small class="text-muted d-block">
+                            Min: ${(data.humidity?.min || 0).toFixed(1)}% | Max: ${(data.humidity?.max || 0).toFixed(1)}%
+                        </small>
+                    </td>
+                    <td>
+                        ${(data.moistureAve?.average || 0).toFixed(1)}%
+                        <small class="text-muted d-block">
+                            Min: ${(data.moistureAve?.min || 0).toFixed(1)}% | Max: ${(data.moistureAve?.max || 0).toFixed(1)}%
+                        </small>
+                    </td>
+                    <td>
+                        ${(data.light?.average || 0).toFixed(1)} lux
+                        <small class="text-muted d-block">
+                            Min: ${(data.light?.min || 0).toFixed(1)} lux | Max: ${(data.light?.max || 0).toFixed(1)} lux
+                        </small>
+                    </td>
+                    <td>
+                        ${(data.ph?.average || 0).toFixed(1)}
+                        <small class="text-muted d-block">
+                            Min: ${(data.ph?.min || 0).toFixed(1)} | Max: ${(data.ph?.max || 0).toFixed(1)}
+                        </small>
+                    </td>
+                    <td>
+                        <div>N: ${(data.nitrogen?.average || 0).toFixed(1)}</div>
+                        <div>P: ${(data.phosphorus?.average || 0).toFixed(1)}</div>
+                        <div>K: ${(data.potassium?.average || 0).toFixed(1)}</div>
+                        <small class="text-muted d-block">
+                            Min: N${(data.nitrogen?.min || 0).toFixed(1)} P${(data.phosphorus?.min || 0).toFixed(1)} K${(data.potassium?.min || 0).toFixed(1)}<br>
+                            Max: N${(data.nitrogen?.max || 0).toFixed(1)} P${(data.phosphorus?.max || 0).toFixed(1)} K${(data.potassium?.max || 0).toFixed(1)}
+                        </small>
+                    </td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(data)}">${getStatusText(data)}</span>
+                        <small class="text-muted d-block">
+                            Data Points: ${data.data_points || 0}
+                        </small>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function printPlantedCrops() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('plantedCropsTable');
+            const title = 'NetHouseAutomation - Planted Crops History';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                            .status-badge { padding: 5px 10px; border-radius: 15px; font-size: 0.9em; }
+                            .status-successful { background-color: #d4edda; color: #155724; }
+                            .status-active { background-color: #fff3cd; color: #856404; }
+                            .status-failed { background-color: #f8d7da; color: #721c24; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function printRegisteredCrops() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('registeredCropsTable');
+            const title = 'NetHouseAutomation - Registered Crops';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function printDiseaseData() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('diseaseTable');
+            const title = 'NetHouseAutomation - Disease Monitoring';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function printNutrientData() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('nutrientTable');
+            const chart = document.getElementById('nutrientChart');
+            const title = 'NetHouseAutomation - Nutrient Analysis';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                            .chart-container { margin: 20px 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        <div class="chart-container">
+                            <img src="${chart.toDataURL()}" style="width: 100%;">
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function printIrrigationData() {
+            const printWindow = window.open('', '_blank');
+            const table = document.getElementById('irrigationTable');
+            const title = 'NetHouseAutomation - Irrigation Schedule';
+            const date = new Date().toLocaleDateString();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>${title}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f5f5f5; }
+                            .text-muted { color: #666; font-size: 0.8em; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .footer { text-align: center; margin-top: 20px; font-size: 0.8em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>${title}</h1>
+                            <p>Generated on: ${date}</p>
+                        </div>
+                        ${table.outerHTML}
+                        <div class="footer">
+                            <p>© 2025 NetHouseAutomation - All rights reserved</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        // Document Ready Function
+        $(document).ready(function() {
+            console.log('Document ready, initializing components...');
+            
+            // Initialize DataTables
+            $('#sensorTable, #plantedCropsTable, #registeredCropsTable, #diseaseTable, #nutrientTable, #irrigationTable').DataTable({
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+            });
+
+            // Initialize Charts
+            initializeSensorChart();
+            initializeNutrientChart();
+            
+            // Load Data
+            loadSensorData();
+            loadCropData();
+            loadPlantedCrops();
+            
+            console.log('Initialization complete');
+        });
+    </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load pending users count
+        loadPendingUsersCount();
+    
+        // Handle pending users button click
+        document.getElementById('pendingUsersBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            loadPendingUsers();
+            $('#pendingUsersModal').modal('show');
+        });
+    
+        // Function to load pending users count
+        async function loadPendingUsersCount() {
+            try {
+                const response = await fetch('/api/users/pending/count');
+                const data = await response.json();
+                if (data.success) {
+                    const countBadge = document.getElementById('pendingUsersCount');
+                    if (data.count > 0) {
+                        countBadge.textContent = data.count;
+                        countBadge.style.display = 'inline';
+                    } else {
+                        countBadge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading pending users count:', error);
+            }
+        }
+    
+        // Function to load pending users
+        async function loadPendingUsers() {
+            try {
+                const response = await fetch('/api/users/pending');
+                const data = await response.json();
+    
+                if (data.success) {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = '';
+    
+                    if (!data.users || data.users.length === 0) {
+                        pendingUsersList.innerHTML = '<div class="alert alert-info">No pending users found.</div>';
+                        return;
+                    }
+    
+                    data.users.forEach(user => {
+                        const userCard = document.createElement('div');
+                        userCard.className = 'card mb-3';
+                        userCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                             class="img-fluid rounded-circle" 
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h5 class="card-title">${user.name}</h5>
+                                        <p class="card-text">
+                                            <strong>Email:</strong> ${user.email}<br>
+                                            <strong>Contact:</strong> ${user.contactNumber || 'N/A'}<br>
+                                            <strong>Role:</strong> ${user.role}<br>
+                                            <strong>Email Verification:</strong> ${user.isVerified ? 'Verified' : 'Not Verified'}<br>
+                                            <strong>Registered:</strong> ${user.createdAt}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-success btn-sm mb-2 approve-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-check"></i> Approve
+                                        </button>
+                                        <button class="btn btn-danger btn-sm reject-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        pendingUsersList.appendChild(userCard);
+                    });
+    
+                    // Add event listeners for approve/reject buttons
+                    document.querySelectorAll('.approve-user').forEach(button => {
+                        button.addEventListener('click', handleUserApproval);
+                    });
+                    document.querySelectorAll('.reject-user').forEach(button => {
+                        button.addEventListener('click', handleUserRejection);
+                    });
+                } else {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading pending users:', error);
+                const pendingUsersList = document.getElementById('pendingUsersList');
+                pendingUsersList.innerHTML = `<div class="alert alert-danger">Failed to load pending users: ${error.message}</div>`;
+            }
+        }
+    
+        // Handle user approval
+        async function handleUserApproval(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/approve`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User approved successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error approving user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error approving user');
+            }
+        }
+    
+        // Handle user rejection
+        async function handleUserRejection(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/reject`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User rejected successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error rejecting user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error rejecting user');
+            }
+        }
+    
+        // Show notification
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+    
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    });
+    </script>
 </body>
-
 </html>

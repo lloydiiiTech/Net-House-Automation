@@ -4,21 +4,335 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>NetHouseAutomation Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - NetHouseAutomation</title>
     <!-- GLOBAL MAINLY STYLES-->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
-    <!-- PLUGINS STYLES-->
-    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
     <!-- THEME STYLES-->
     <link href="assets/css/main.min.css" rel="stylesheet" />
     <!-- PAGE LEVEL STYLES-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
-    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
-
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        .profile-header-content {
+            position: relative;
+            z-index: 2;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .profile-email {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        .profile-role {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        .profile-card-header {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .profile-card-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .info-value {
+            color: #6c757d;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .status-deactivated {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+            color: white;
+        }
+        .verified-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .not-verified-badge {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-upload-label {
+            display: block;
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #17a2b8, #20c997);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease-out;
+            max-width: 300px;
+        }
+        .toast-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .toast-error {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .password-strength {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+        /* Pending Users Styles (Admin Only) */
+        .pending-users-btn {
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .pending-users-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .pending-users-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pending-user-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .pending-user-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        .pending-user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pending-user-info {
+            padding: 15px;
+        }
+        .pending-user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .btn-approve {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .btn-reject {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-reject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        .no-pending-users {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        .no-pending-users i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
 </head>
 
 <body class="fixed-navbar">
@@ -26,36 +340,32 @@
         <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="/home">
-                    <span class="brand">Demo
-                        <span class="brand-tip">FARM</span>
+                <a class="link" href="<%= user.role === 'Admin' ? '/dashboard' : '/dashboard' %>">
+                    <span class="brand">NetHouse
+                        <span class="brand-tip">Automation</span>
                     </span>
-                    <span class="brand-mini">DF</span>
+                    <span class="brand-mini">NHA</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
-                <!-- START TOP-LEFT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
                     <li>
                         <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
                     </li>
-                    <!--<li>
-                        <form class="navbar-search" action="javascript:;">
-                            <div class="rel">
-                                <span class="search-icon"><i class="ti-search"></i></span>
-                                <input class="form-control" placeholder="Search here...">
-                            </div>
-                        </form>
-                    </li>-->
                 </ul>
-                <!-- END TOP-LEFT TOOLBAR-->
-                <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
-                    
+                    <% if (user.role === 'Admin') { %>
+                        <li>
+                            <a class="nav-link pending-users-btn" href="#" id="pendingUsersBtn" title="Pending Users">
+                                <i class="fa fa-user-clock"></i>
+                                <span class="badge badge-danger pending-users-badge" id="pendingUsersCount" style="display: none;">0</span>
+                            </a>
+                        </li>
+                    <% } %>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i></a>
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
@@ -63,7 +373,6 @@
                         </ul>
                     </li>
                 </ul>
-                <!-- END TOP-RIGHT TOOLBAR-->
             </div>
         </header>
         <!-- END HEADER-->
@@ -72,805 +381,587 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
+                        <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div><small>User</small></div>
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small>
+                    </div>
                 </div>
                 <ul class="side-menu metismenu">
+                    
                     <li>
-                        <a class="active" href="/home"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
-                    
                     <li>
-                        <a class="active" href="/plant"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/irrigation"><i class="sidebar-item-icon fas fa-faucet"></i>
-                            <span class="nav-label">Irrigation Controll</span>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/reports"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
                     
-                    <!--<li class="heading">FEATURES</li>
                     <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
-                            <span class="nav-label">Basic UI</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="#">Colors</a>
-                            </li>
-                            <li>
-                                <a href="#">Typography</a>
-                            </li>
-                            <li>
-                                <a href="#">Panels</a>
-                            </li>
-                            <li>
-                                <a href="buttons.html">Buttons</a>
-                            </li>
-                            <li>
-                                <a href="tabs.html">Tabs</a>
-                            </li>
-                            <li>
-                                <a href="alerts_tooltips.html">Alerts &amp; Tooltips</a>
-                            </li>
-                            <li>
-                                <a href="badges_progress.html">Badges &amp; Progress</a>
-                            </li>
-                            <li>
-                                <a href="lists.html">List</a>
-                            </li>
-                            <li>
-                                <a href="cards.html">Card</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-edit"></i>
-                            <span class="nav-label">Forms</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="form_basic.html">Basic Forms</a>
-                            </li>
-                            <li>
-                                <a href="form_advanced.html">Advanced Plugins</a>
-                            </li>
-                            <li>
-                                <a href="form_masks.html">Form input masks</a>
-                            </li>
-                            <li>
-                                <a href="form_validation.html">Form Validation</a>
-                            </li>
-                            <li>
-                                <a href="text_editors.html">Text Editors</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-table"></i>
-                            <span class="nav-label">Tables</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="table_basic.html">Basic Tables</a>
-                            </li>
-                            <li>
-                                <a href="datatables.html">Datatables</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bar-chart"></i>
-                            <span class="nav-label">Charts</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="charts_flot.html">Flot Charts</a>
-                            </li>
-                            <li>
-                                <a href="charts_morris.html">Morris Charts</a>
-                            </li>
-                            <li>
-                                <a href="chartjs.html">Chart.js</a>
-                            </li>
-                            <li>
-                                <a href="charts_sparkline.html">Sparkline Charts</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-map"></i>
-                            <span class="nav-label">Maps</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="maps_vector.html">Vector maps</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="icons.html"><i class="sidebar-item-icon fa fa-smile-o"></i>
-                            <span class="nav-label">Icons</span>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
-                    <li class="heading">PAGES</li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label">Mailbox</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="mailbox.html">Inbox</a>
-                            </li>
-                            <li>
-                                <a href="mail_view.html">Mail view</a>
-                            </li>
-                            <li>
-                                <a href="mail_compose.html">Compose mail</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">Calendar</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-file-text"></i>
-                            <span class="nav-label">Pages</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="invoice.html">Invoice</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="lockscreen.html">Lockscreen</a>
-                            </li>
-                            <li>
-                                <a href="forgot_password.html">Forgot password</a>
-                            </li>
-                            <li>
-                                <a href="error_404.html">404 error</a>
-                            </li>
-                            <li>
-                                <a href="error_500.html">500 error</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-sitemap"></i>
-                            <span class="nav-label">Menu Levels</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="javascript:;">Level 2</a>
-                            </li>
-                            <li>
-                                <a href="javascript:;">
-                                    <span class="nav-label">Level 2</span><i class="fa fa-angle-left arrow"></i></a>
-                                <ul class="nav-3-level collapse">
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>-->
+                    
+                    
                 </ul>
             </div>
         </nav>
+        <!-- END SIDEBAR-->
         <div class="content-wrapper">
-
-            <h1>Profile</h1>
-            <!--<div class="page-content fade-in-up">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Temperature</h2>
-                                <div class="m-b-5 widget-stat-icon">28°C</div><i class="fas fa-thermometer-half "></i>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 25-30°C)</small></div>
-                            </div>
+            <div class="page-heading">
+                <h1 class="page-title">My Profile</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="<%= user.role === 'Admin' ? '/dashboard' : '/user-dashboard' %>"><i class="fa fa-home font-20"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">My Profile</li>
+                </ol>
+            </div>
+            <div class="page-content fade-in-up">
+                <div class="profile-container">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-header-content">
+                            <img src="<%= user.profilePicture %>" alt="<%= user.name %>" class="profile-avatar">
+                            <div class="profile-name"><%= user.name %></div>
+                            <div class="profile-email"><%= user.email %></div>
+                            <div class="profile-role"><%= user.role %></div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Humidity</h2><i class=" fas fa-tint"></i>
-                                <div class="m-b-5 widget-stat-icon">65%</div>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 50-70%)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Moisture</h2><i class="fas fa-water"></i>
-                                <div class="m-b-5 widget-stat-icon">45%</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Low (Ideal: 50-80%)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
-                            
-                                <h2 class="m-b-5 font-strong">PH Level</h2><i class="fas fa-flask"></i>
-                                <div class="m-b-5 widget-stat-icon">	6.5</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Slightly Acidic (Ideal: 6.0-7.0)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-
-
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div class="flexbox mb-4">
-                                    <div>
-                                        <h3 class="m-0">Daily NPK Data</h3>
+                    <!-- Profile Information Card -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            Profile Information
+                        </div>
+                        <div class="profile-card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <span class="info-label">Account Status:</span>
+                                        <span class="status-badge <%= user.status === 'Active' ? 'status-active' : 'status-deactivated' %>">
+                                            <%= user.status %>
+                                        </span>
                                     </div>
-                                    
-                                    <div class="d-inline-flex">
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(N)51.3</span>
-                                                <span class="text-success ml-2"><i class="fa fa-level-up"></i> +25%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                        
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(P)31.0</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(K)41.9</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Email Verification:</span>
+                                        <span class="status-badge <%= user.isVerified ? 'verified-badge' : 'not-verified-badge' %>">
+                                            <%= user.isVerified ? 'Verified' : 'Not Verified' %>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Last Login:</span>
+                                        <span class="info-value"><%= user.lastLogin %></span>
                                     </div>
                                 </div>
-                                <div>
-                                    <canvas id="bar_chart" style="height:300px;"></canvas>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <span class="info-label">Contact Number:</span>
+                                        <span class="info-value"><%= user.contactNumber || 'Not provided' %></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crop</div>
-                            </div>
-                            <div class="ibox-body">
-                                <div class="row align-items-center">
+
+                    <!-- Update Profile Information -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-edit mr-2"></i>
+                            Update Profile Information
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="updateProfileForm">
+                                <div class="row">
                                     <div class="col-md-6">
-                                        <h1>Lettuce</h1>
+                                        <div class="form-group">
+                                            <label for="name" class="form-label">Full Name *</label>
+                                            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>Temperature 17°C</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>pH Level 5.8</div>
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>N 70</div>
-                                        <div class="m-b-20 text-danger"><i class="fa fa-circle-o m-r-10"></i>P 35</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>K 50</div>
+                                        <div class="form-group">
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" value="<%= user.email %>" readonly>
+                                            <small class="text-muted">Email cannot be changed</small>
+                                        </div>
                                     </div>
                                 </div>
-                                <ul class="list-group list-group-divider list-group-full">
-                                    <li class="list-group-item">Tomato
-                                        <span class="float-right text-success"> 35%</span>
-                                    </li>
-                                    <li class="list-group-item">Bell Pepper 
-                                        <span class="float-right text-success"> 24%</span>
-                                    </li>
-                                    <li class="list-group-item">Cucumber
-                                        <span class="float-right text-danger"> 20%</span>
-                                    </li>
-                                    <li class="list-group-item">Strawberry
-                                        <span class="float-right text-danger"> 16%</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div><div class="row">
-                    
-                    <div class="col-md-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div id="calendar"></div>
-                                
-                                <div class="modal fade" id="new-event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">New Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="new-event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="new-event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="new-event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                                <button class="btn btn-info" id="addEventButton" type="submit">Add event</button>
-                                            </div>
-                                        </form>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="contactNumber" class="form-label">Contact Number</label>
+                                            <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="<%= user.contactNumber %>">
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div class="modal fade" id="event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">Edit Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-info" id="editEventButton" type="submit">Save</button>
-                                                <button class="btn btn-danger" id="deleteEventButton" type="button" data-dismiss="modal">Delete</button>
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-save mr-2"></i>Update Profile
+                                    </button>
                                 </div>
-                                
-                            </div>
+                            </form>
                         </div>
                     </div>
-                
-                
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Tasks(Organic Nutrients)</div>
-                                
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="list-group list-group-divider list-group-full tasks-list">
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Add wood ash or dolomite lime to raise pH; use peat moss or sulfur to lower pH</span>
-                                            </label>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use composted manure, alfalfa meal, or blood meal</span>
-                                            </label>
-                                        </div>
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Apply bone meal, rock phosphate, or banana peel tea</span>
-                                            </label>
-                                            
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use wood ash, kelp meal, or banana peel fertilizer</span>
-                                            </label>
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Crop Disease</div>
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="media-list media-list-divider m-0">
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Downy Mildew </div>
-                                            <div class="font-13">Yellow spots on leaves, white to purple mold on the undersides.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Fusarium Wilt  </div>
-                                            <div class="font-13">Yellowing of older leaves, stunted growth, brown streaks in stems.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Root Rot </div>
-                                            <div class="font-13">Wilting, brown and mushy roots, stunted growth.</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crops for Net House</div>
-                                <div class="ibox-tools">
-                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
-                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item">Refresh</a>
-                                        <a class="dropdown-item">Settings</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ibox-body">
-                                <table class="table table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Crop</th>
-                                            <th>Temperature (°C)</th>
-                                            <th>Humidity (%)</th>
-                                            <th>Soil Moisture (%)</th>
-                                            <th>pH Level</th>
-                                            <th>NPK Ratio</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Lettuce</td>
-                                            <td>15-20</td>
-                                            <td>60-70</td>
-                                            <td>55-65</td>
-                                            <td>6.0-6.5</td>
-                                            <td>10-5-5</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Bell Pepper</td>
-                                            <td>18-25</td>
-                                            <td>65-75</td>
-                                            <td>50-60</td>
-                                            <td>6.0-6.8</td>
-                                            <td>5-10-10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tomato</td>
-                                            <td>18-27</td>
-                                            <td>60-80</td>
-                                            <td>50-70</td>
-                                            <td>5.8-6.5</td>
-                                            <td>10-10-10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Strawberry</td>
-                                            <td>15-25</td>
-                                            <td>60-75</td>
-                                            <td>60-70</td>
-                                            <td>5.5-6.5</td>
-                                            <td>8-10-8</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Cucumber</td>
-                                            <td>18-30</td>
-                                            <td>70-80</td>
-                                            <td>50-65</td>
-                                            <td>5.5-6.5</td>
-                                            <td>5-10-10</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <style>
-                    .visitors-table tbody tr td:last-child {
-                        display: flex;
-                        align-items: center;
-                    }
 
-                    .visitors-table .progress {
-                        flex: 1;
-                    }
+                    <!-- Change Password -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-lock mr-2"></i>
+                            Change Password
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="changePasswordForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="currentPassword" class="form-label">Current Password *</label>
+                                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="newPassword" class="form-label">New Password *</label>
+                                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                            <div class="password-strength" id="passwordStrength"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password *</label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fa fa-key mr-2"></i>Change Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-                    .visitors-table .progress-parcent {
-                        text-align: right;
-                        margin-left: 10px;
-                    }
-                </style>
-             END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
-        </div>
-    </div>
-    <!-- BEGIN THEME CONFIG PANEL-->
-    <div class="theme-config">
-        <div class="theme-config-toggle"><i class="fa fa-cog theme-config-show"></i><i class="ti-close theme-config-close"></i></div>
-        <div class="theme-config-box">
-            <div class="text-center font-18 m-b-20">SETTINGS</div>
-            <div class="font-strong">LAYOUT OPTIONS</div>
-            <div class="check-list m-b-20 m-t-10">
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedNavbar" type="checkbox" checked>
-                    <span class="input-span"></span>Fixed navbar</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input id="_fixedlayout" type="checkbox">
-                    <span class="input-span"></span>Fixed layout</label>
-                <label class="ui-checkbox ui-checkbox-gray">
-                    <input class="js-sidebar-toggler" type="checkbox">
-                    <span class="input-span"></span>Collapse sidebar</label>
-            </div>
-            <div class="font-strong">LAYOUT STYLE</div>
-            <div class="m-t-10">
-                <label class="ui-radio ui-radio-gray m-r-10">
-                    <input type="radio" name="layout-style" value="" checked="">
-                    <span class="input-span"></span>Fluid</label>
-                <label class="ui-radio ui-radio-gray">
-                    <input type="radio" name="layout-style" value="1">
-                    <span class="input-span"></span>Boxed</label>
-            </div>
-            <div class="m-t-10 m-b-10 font-strong">THEME COLORS</div>
-            <div class="d-flex m-b-20">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Default">
-                    <label>
-                        <input type="radio" name="setting-theme" value="default" checked="">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-white"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-ebony"></div>
-                    </label>
-                </div>
-            </div>
-            <div class="d-flex">
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="White">
-                    <label>
-                        <input type="radio" name="setting-theme" value="white">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Blue light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="blue-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-blue"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Green light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="green-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-green"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Purple light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="purple-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-purple"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Orange light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="orange-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-orange"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
-                </div>
-                <div class="color-skin-box" data-toggle="tooltip" data-original-title="Pink light">
-                    <label>
-                        <input type="radio" name="setting-theme" value="pink-light">
-                        <span class="color-check-icon"><i class="fa fa-check"></i></span>
-                        <div class="color bg-pink"></div>
-                        <div class="color-small bg-silver-100"></div>
-                    </label>
+                    <!-- Upload Profile Picture -->
+                    <div class="profile-card">
+                        <div class="profile-card-header">
+                            <i class="fa fa-camera mr-2"></i>
+                            Profile Picture
+                        </div>
+                        <div class="profile-card-body">
+                            <form id="uploadProfilePictureForm" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label class="form-label">Upload New Profile Picture</label>
+                                    <div class="file-upload">
+                                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                                        <label for="profilePicture" class="file-upload-label">
+                                            <i class="fa fa-upload mr-2"></i>Choose File
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">Supported formats: JPEG, PNG, GIF (Max size: 5MB)</small>
+                                </div>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-upload mr-2"></i>Upload Picture
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <footer class="page-footer">
+            <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+        </footer>
     </div>
-    <!-- END THEME CONFIG PANEL-->
-    <!-- BEGIN PAGA BACKDROPS-->
-    <div class="sidenav-backdrop backdrop"></div>
-    <div class="preloader-backdrop">
-        <div class="page-preloader">Loading</div>
-    </div>
-    <!-- END PAGA BACKDROPS-->
+
     <!-- CORE PLUGINS-->
     <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL PLUGINS-->
-    <script src="./assets/vendors/chart.js/dist/Chart.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jvectormap/jquery-jvectormap-us-aea-en.js" type="text/javascript"></script>
-    <script src="./assets/vendors/moment/min/moment.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/fullcalendar/dist/fullcalendar.min.js" type="text/javascript"></script>
-    <script src="./assets/vendors/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    
     <!-- CORE SCRIPTS-->
     <script src="assets/js/app.min.js" type="text/javascript"></script>
-    <!-- PAGE LEVEL SCRIPTS-->
-    <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script>
 
-    <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show flash messages
+            <% if (success && success.length > 0) { %>
+                showNotification('success', '<%= success %>');
+            <% } %>
+            <% if (error && error.length > 0) { %>
+                showNotification('error', '<%= error %>');
+            <% } %>
 
+            // Admin-specific functionality
+            <% if (user.role === 'Admin') { %>
+                // Load pending users count
+                loadPendingUsersCount();
+
+                // Handle pending users button click
+                const pendingUsersBtn = document.getElementById('pendingUsersBtn');
+                if (pendingUsersBtn) {
+                    pendingUsersBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        loadPendingUsers();
+                        $('#pendingUsersModal').modal('show');
+                    });
+                }
+
+                // Function to load pending users count
+                async function loadPendingUsersCount() {
+                    try {
+                        const response = await fetch('/api/users/pending/count');
+                        const data = await response.json();
+                        if (data.success) {
+                            const countBadge = document.getElementById('pendingUsersCount');
+                            if (countBadge && data.count > 0) {
+                                countBadge.textContent = data.count;
+                                countBadge.style.display = 'flex';
+                            } else if (countBadge) {
+                                countBadge.style.display = 'none';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading pending users count:', error);
+                    }
+                }
+
+                // Function to load pending users
+                async function loadPendingUsers() {
+                    try {
+                        const response = await fetch('/api/users/pending');
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const pendingUsersList = document.getElementById('pendingUsersList');
+                            pendingUsersList.innerHTML = '';
+
+                            if (!data.users || data.users.length === 0) {
+                                pendingUsersList.innerHTML = `
+                                    <div class="no-pending-users">
+                                        <i class="fa fa-user-clock"></i>
+                                        <h5>No Pending Users</h5>
+                                        <p>All users have been processed.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            data.users.forEach(user => {
+                                const userCard = document.createElement('div');
+                                userCard.className = 'card pending-user-card mb-3';
+                                userCard.innerHTML = `
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2 text-center">
+                                                <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                                     class="pending-user-avatar" 
+                                                     alt="${user.name}">
+                                            </div>
+                                            <div class="col-md-7 pending-user-info">
+                                                <h5 class="card-title mb-2">${user.name}</h5>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1"><strong>Email:</strong> ${user.email}</p>
+                                                        <p class="mb-1"><strong>Contact:</strong> ${user.contactNumber || 'N/A'}</p>
+                                                        <p class="mb-1"><strong>Role:</strong> ${user.role}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1"><strong>Verification:</strong> 
+                                                            <span class="badge ${user.isVerified ? 'badge-success' : 'badge-warning'}">
+                                                                ${user.isVerified ? 'Verified' : 'Not Verified'}
+                                                            </span>
+                                                        </p>
+                                                        <p class="mb-1"><strong>Registered:</strong> ${user.createdAt}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 pending-user-actions">
+                                                <button class="btn btn-approve btn-sm w-100 mb-2 approve-user" 
+                                                        data-user-id="${user.id}">
+                                                    <i class="fa fa-check mr-1"></i> Approve
+                                                </button>
+                                                <button class="btn btn-reject btn-sm w-100 reject-user" 
+                                                        data-user-id="${user.id}">
+                                                    <i class="fa fa-times mr-1"></i> Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                pendingUsersList.appendChild(userCard);
+                            });
+
+                            // Add event listeners for approve/reject buttons
+                            document.querySelectorAll('.approve-user').forEach(button => {
+                                button.addEventListener('click', handleUserApproval);
+                            });
+                            document.querySelectorAll('.reject-user').forEach(button => {
+                                button.addEventListener('click', handleUserRejection);
+                            });
+                        } else {
+                            const pendingUsersList = document.getElementById('pendingUsersList');
+                            pendingUsersList.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-triangle mr-2"></i>
+                                    Error: ${data.message}
+                                </div>
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('Error loading pending users:', error);
+                        const pendingUsersList = document.getElementById('pendingUsersList');
+                        pendingUsersList.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa fa-exclamation-triangle mr-2"></i>
+                                Failed to load pending users: ${error.message}
+                            </div>
+                        `;
+                    }
+                }
+
+                // Handle user approval
+                async function handleUserApproval(e) {
+                    const userId = e.target.closest('button').dataset.userId;
+                    try {
+                        const response = await fetch(`/api/users/${userId}/approve`, {
+                            method: 'PUT'
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showNotification('success', 'User approved successfully');
+                            loadPendingUsers();
+                            loadPendingUsersCount();
+                        } else {
+                            showNotification('error', 'Error approving user');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('error', 'Error approving user');
+                    }
+                }
+
+                // Handle user rejection
+                async function handleUserRejection(e) {
+                    const userId = e.target.closest('button').dataset.userId;
+                    try {
+                        const response = await fetch(`/api/users/${userId}/reject`, {
+                            method: 'PUT'
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showNotification('success', 'User rejected successfully');
+                            loadPendingUsers();
+                            loadPendingUsersCount();
+                        } else {
+                            showNotification('error', 'Error rejecting user');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('error', 'Error rejecting user');
+                    }
+                }
+            <% } %>
+
+            // Update Profile Form
+            document.getElementById('updateProfileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = {
+                    name: formData.get('name'),
+                    contactNumber: formData.get('contactNumber')
+                };
+
+                try {
+                    const response = await fetch('/api/profile/update', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to update profile');
+                }
+            });
+
+            // Change Password Form
+            document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const data = {
+                    currentPassword: formData.get('currentPassword'),
+                    newPassword: formData.get('newPassword'),
+                    confirmPassword: formData.get('confirmPassword')
+                };
+
+                try {
+                    const response = await fetch('/api/profile/change-password', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        this.reset();
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to change password');
+                }
+            });
+
+            // Upload Profile Picture Form
+            document.getElementById('uploadProfilePictureForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                try {
+                    const response = await fetch('/api/profile/upload-picture', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('success', result.message);
+                        // Update profile picture in header and sidebar
+                        document.querySelector('.dropdown-user img').src = result.profilePicture;
+                        document.querySelector('.admin-block img').src = result.profilePicture;
+                        document.querySelector('.profile-avatar').src = result.profilePicture;
+                        this.reset();
+                    } else {
+                        showNotification('error', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('error', 'Failed to upload profile picture');
+                }
+            });
+
+            // Password strength indicator
+            document.getElementById('newPassword').addEventListener('input', function() {
+                const password = this.value;
+                const strengthDiv = document.getElementById('passwordStrength');
+                
+                if (password.length === 0) {
+                    strengthDiv.textContent = '';
+                    strengthDiv.className = 'password-strength';
+                    return;
+                }
+                
+                let strength = 0;
+                if (password.length >= 6) strength++;
+                if (password.match(/[a-z]/)) strength++;
+                if (password.match(/[A-Z]/)) strength++;
+                if (password.match(/[0-9]/)) strength++;
+                if (password.match(/[^a-zA-Z0-9]/)) strength++;
+                
+                let strengthText = '';
+                let strengthClass = '';
+                
+                if (strength <= 2) {
+                    strengthText = 'Weak';
+                    strengthClass = 'strength-weak';
+                } else if (strength <= 3) {
+                    strengthText = 'Medium';
+                    strengthClass = 'strength-medium';
+                } else {
+                    strengthText = 'Strong';
+                    strengthClass = 'strength-strong';
+                }
+                
+                strengthDiv.textContent = `Password strength: ${strengthText}`;
+                strengthDiv.className = `password-strength ${strengthClass}`;
+            });
+
+            // File upload label update
+            document.getElementById('profilePicture').addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (this.files.length > 0) {
+                    label.textContent = this.files[0].name;
+                } else {
+                    label.innerHTML = '<i class="fa fa-upload mr-2"></i>Choose File';
+                }
+            });
+        });
+
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+
+    <!-- Pending Users Modal (Admin Only) -->
+    <% if (user.role === 'Admin') { %>
+    <div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa fa-user-clock mr-2"></i>
+                        Pending Users
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="pendingUsersList">
+                        <!-- Pending users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
 </body>
 
-</html>
+</html> 

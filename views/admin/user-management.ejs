@@ -308,7 +308,7 @@
         <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="/admin-dashboard">
+                <a class="link" href="/dashboard">
                     <span class="brand">NetHouse
                         <span class="brand-tip">Automation</span>
                     </span>
@@ -333,7 +333,7 @@
                             <img src="<%= user.profilePicture %>" />
                             <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="/admin-profile"><i class="fa fa-user"></i>Profile</a>
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
                             <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
                         </ul>
@@ -355,28 +355,33 @@
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a href="/admin-dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
                             <span class="nav-label">Irrigation Control</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/admin-user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
                             <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
                 </ul>
@@ -388,7 +393,7 @@
                 <h1 class="page-title">User Management</h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="/admin-dashboard"><i class="fa fa-home font-20"></i></a>
+                        <a href="/dashboard"><i class="fa fa-home font-20"></i></a>
                     </li>
                     <li class="breadcrumb-item">User Management</li>
                 </ol>
@@ -791,7 +796,7 @@
     }
 
     function resetFilters() {
-        window.location.href = '/admin-user-management';
+        window.location.href = '/user-management';
     }
 
     function showNotification(type, message) {

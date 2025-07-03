@@ -18,9 +18,8 @@ router.get('/forgotpassword', aController.forgotpassword);
 
 
 router.post('/login', aController.loginUser);
-router.get("/admin-dashboard", aController.isAuthenticated, aController.isAdmin, adminController.Dashboard);
+router.get("/dashboard", aController.isAuthenticated, adminController.Dashboard);
 
-router.get("/user-dashboard", aController.isAuthenticated, userController.Dashboard);
 router.get("/logout", (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -44,8 +43,8 @@ router.post('/newpassword', aController.handleNewPassword);
 
 
 // aController.isAuthenticated, aController.isAdmin,
-router.get('/admin-plant-overview', aController.isAuthenticated, aController.isAdmin, plantOverview.plantOverview);
-router.get('/getRecommendedCrops', aController.isAuthenticated, aController.isAdmin, plantOverview.getRecommendedCrops);
+router.get('/plant-overview', aController.isAuthenticated, plantOverview.plantOverview);
+router.get('/getRecommendedCrops', aController.isAuthenticated, plantOverview.getRecommendedCrops);
 router.post('/confirmCropSelection', recommendationController.confirmCropSelection);
 router.get('/checkActiveCrop', plantOverview.checkActiveCrop);  
 router.post('/harvestCrop', aController.isAuthenticated, plantOverview.harvestCurrentCrop);
@@ -56,7 +55,7 @@ router.get('/api/ai-disease-advice', aController.isAuthenticated, plantOverview.
 
 
 
-router.get('/admin-irrigation-controll', aController.isAuthenticated, aController.isAdmin, adminController.irrigationControll);
+router.get('/irrigation-controll', aController.isAuthenticated, adminController.irrigationControll);
 router.get('/api/soil-status', aController.isAuthenticated, irrigationController.getSoilStatus);
 router.post('/api/toggle-automation', irrigationController.toggleAutomation);
 router.get('/api/automation-state', irrigationController.getAutomationState);
@@ -77,14 +76,14 @@ router.get('/api/irrigation-history', aController.isAuthenticated, irrigationCon
 
 
 
-router.get('/admin-reports&analytics', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
-router.get('/admin-user-management', aController.isAuthenticated, aController.isAdmin, userManagementController.userManagement);
+router.get('/reports&analytics', aController.isAuthenticated, reportsController.reportsAnalytics);
+router.get('/user-management', aController.isAuthenticated, userManagementController.userManagement);
 
 
 router.get('/plant-overview', aController.isAuthenticated, userController.plantOverview);
 router.get('/irrigation', aController.isAuthenticated, userController.irrigationControll);
-router.get('/reports', aController.isAuthenticated, aController.isAdmin, reportsController.reportsAnalytics);
-router.get('/admin-profile', aController.isAuthenticated, userProfileController.getUserProfile);
+router.get('/reports', aController.isAuthenticated, reportsController.reportsAnalytics);
+router.get('/profile', aController.isAuthenticated, userProfileController.getUserProfile);
 
 
 
@@ -97,27 +96,27 @@ router.get('/current-crop', aController.isAuthenticated, adminController.getCurr
 // router.get('/test-firestore-write', adminController.testFirestoreWrite);
 
 // Reports & Analytics Routes
-router.get('/api/sensor-data', aController.isAuthenticated, aController.isAdmin, reportsController.getSensorData);
-router.get('/api/download-data', aController.isAuthenticated, aController.isAdmin, reportsController.downloadSensorData);
-router.get('/api/crop-data', aController.isAuthenticated, aController.isAdmin, reportsController.getCropData);
-router.get('/api/planted-crops', aController.isAuthenticated, aController.isAdmin, reportsController.getPlantedCrops);
-router.get('/api/historical-sensor-data', aController.isAuthenticated, aController.isAdmin, reportsController.getHistoricalSensorData);
-router.get('/api/crop-performance', aController.isAuthenticated, aController.isAdmin, reportsController.getCropPerformance);
+router.get('/api/sensor-data', aController.isAuthenticated, reportsController.getSensorData);
+router.get('/api/download-data', aController.isAuthenticated, reportsController.downloadSensorData);
+router.get('/api/crop-data', aController.isAuthenticated, reportsController.getCropData);
+router.get('/api/planted-crops', aController.isAuthenticated, reportsController.getPlantedCrops);
+router.get('/api/historical-sensor-data', aController.isAuthenticated, reportsController.getHistoricalSensorData);
+router.get('/api/crop-performance', aController.isAuthenticated, reportsController.getCropPerformance);
 
 // Add new routes for user management actions
 // Add routes for pending users (must come before /api/users/:userId)
-router.get('/api/users/pending/count', aController.isAuthenticated, aController.isAdmin, userManagementController.getPendingUsersCount);
-router.get('/api/users/pending', aController.isAuthenticated, aController.isAdmin, userManagementController.getPendingUsers);
-router.get('/api/users/pending/test', aController.isAuthenticated, aController.isAdmin, userManagementController.testPendingUsers);
-router.put('/api/users/:userId/approve', aController.isAuthenticated, aController.isAdmin, userManagementController.approveUser);
-router.put('/api/users/:userId/reject', aController.isAuthenticated, aController.isAdmin, userManagementController.rejectUser);
+router.get('/api/users/pending/count', aController.isAuthenticated, userManagementController.getPendingUsersCount);
+router.get('/api/users/pending', aController.isAuthenticated, userManagementController.getPendingUsers);
+router.get('/api/users/pending/test', aController.isAuthenticated, userManagementController.testPendingUsers);
+router.put('/api/users/:userId/approve', aController.isAuthenticated, userManagementController.approveUser);
+router.put('/api/users/:userId/reject', aController.isAuthenticated, userManagementController.rejectUser);
 
 // User management routes (must come after specific routes)
-router.put('/api/users/:userId/role', aController.isAuthenticated, aController.isAdmin, userManagementController.updateUserRole);
-router.put('/api/users/:userId/status', aController.isAuthenticated, aController.isAdmin, userManagementController.toggleUserStatus);
-router.put('/api/users/:userId/update', aController.isAuthenticated, aController.isAdmin, userManagementController.updateUser);
-router.delete('/api/users/:userId', aController.isAuthenticated, aController.isAdmin, userManagementController.deleteUser);
-router.get('/api/users/:userId', aController.isAuthenticated, aController.isAdmin, userManagementController.getUserDetails);
+router.put('/api/users/:userId/role', aController.isAuthenticated, userManagementController.updateUserRole);
+router.put('/api/users/:userId/status', aController.isAuthenticated, userManagementController.toggleUserStatus);
+router.put('/api/users/:userId/update', aController.isAuthenticated, userManagementController.updateUser);
+router.delete('/api/users/:userId', aController.isAuthenticated, userManagementController.deleteUser);
+router.get('/api/users/:userId', aController.isAuthenticated, userManagementController.getUserDetails);
 
 // User profile API routes
 router.put('/api/profile/update', aController.isAuthenticated, userProfileController.updateProfile);
@@ -144,12 +143,13 @@ router.get('/crops/train', cropController.trainModel);
 
 router.post('/crops', cropController.addCrop);
 
-router.get('/admin-crop-recommendations', aController.isAuthenticated, aController.isAdmin, recommendationController.recommendationsPage);
 
-router.post('/api/crops/register', aController.isAuthenticated, aController.isAdmin, recommendationController.registerCrop);
+router.get('/crop-recommendations', aController.isAuthenticated, recommendationController.recommendationsPage);
 
-router.put('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.updateCrop);
-router.delete('/api/crops/:cropId', aController.isAuthenticated, aController.isAdmin, recommendationController.deleteCrop);
+router.post('/api/crops/register', aController.isAuthenticated, recommendationController.registerCrop);
+
+router.put('/api/crops/:cropId', aController.isAuthenticated, recommendationController.updateCrop);
+router.delete('/api/crops/:cropId', aController.isAuthenticated, recommendationController.deleteCrop);
 
 router.post('/cancelCrop', plantOverview.cancelCurrentCrop);
 router.get('/cancellation-preview/:cropId', plantOverview.cancellationPreview);

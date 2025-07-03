@@ -340,7 +340,7 @@
         <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="<%= user.role === 'Admin' ? '/admin-dashboard' : '/user-dashboard' %>">
+                <a class="link" href="<%= user.role === 'Admin' ? '/dashboard' : '/dashboard' %>">
                     <span class="brand">NetHouse
                         <span class="brand-tip">Automation</span>
                     </span>
@@ -388,49 +388,36 @@
                     </div>
                 </div>
                 <ul class="side-menu metismenu">
-                    <% if (user.role === 'Admin') { %>
-                        <li>
-                            <a href="/admin-dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
-                                <span class="nav-label">Dashboard</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/admin-plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
-                                <span class="nav-label">Plant Overview</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/admin-irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
-                                <span class="nav-label">Irrigation Control</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/admin-reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
-                                <span class="nav-label">Reports & Analytics</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/admin-user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
-                                <span class="nav-label">User Management</span>
-                            </a>
-                        </li>
-                    <% } else { %>
-                        <li>
-                            <a href="/user-dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
-                                <span class="nav-label">Dashboard</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
-                                <span class="nav-label">Plant Overview</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/irrigation"><i class="sidebar-item-icon fas fa-faucet"></i>
-                                <span class="nav-label">Irrigation Control</span>
-                            </a>
-                        </li>
-                    <% } %>
+                    <li>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                            <span class="nav-label">Plant Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                            <span class="nav-label">Reports & Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                            <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
+                        </a>
+                    </li>
                     
                 </ul>
             </div>
@@ -441,7 +428,7 @@
                 <h1 class="page-title">My Profile</h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="<%= user.role === 'Admin' ? '/admin-dashboard' : '/user-dashboard' %>"><i class="fa fa-home font-20"></i></a>
+                        <a href="<%= user.role === 'Admin' ? '/dashboard' : '/user-dashboard' %>"><i class="fa fa-home font-20"></i></a>
                     </li>
                     <li class="breadcrumb-item">My Profile</li>
                 </ol>

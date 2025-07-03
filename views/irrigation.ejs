@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
     <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
 
 </head>
 
@@ -26,7 +27,7 @@
         <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="/home">
+                <a class="link" href="/dashboard">
                     <span class="brand">Demo
                         <span class="brand-tip">FARM</span>
                     </span>
@@ -51,11 +52,16 @@
                 <!-- END TOP-LEFT TOOLBAR-->
                 <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
-                    
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="./assets/img/admin-avatar.png" />
-                            <span></span>Admin<i class="fa fa-angle-down m-l-5"></i></a>
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
@@ -72,645 +78,2009 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="./assets/img/admin-avatar.png" width="45px" />
+                        <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong">Dan Lloyd</div><small>User</small></div>
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="active" href="/home"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a class="active" href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
                     
                     <li>
-                        <a class="active" href="/plant"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a class="active" href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/irrigation"><i class="sidebar-item-icon fas fa-faucet"></i>
+                        <a class="active" href="/irrigation-controll-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
                             <span class="nav-label">Irrigation Controll</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/reports"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a class="active" href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
+                        </a>
+                    </li>
                     
-                    <!--<li class="heading">FEATURES</li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bookmark"></i>
-                            <span class="nav-label">Basic UI</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="#">Colors</a>
-                            </li>
-                            <li>
-                                <a href="#">Typography</a>
-                            </li>
-                            <li>
-                                <a href="#">Panels</a>
-                            </li>
-                            <li>
-                                <a href="buttons.html">Buttons</a>
-                            </li>
-                            <li>
-                                <a href="tabs.html">Tabs</a>
-                            </li>
-                            <li>
-                                <a href="alerts_tooltips.html">Alerts &amp; Tooltips</a>
-                            </li>
-                            <li>
-                                <a href="badges_progress.html">Badges &amp; Progress</a>
-                            </li>
-                            <li>
-                                <a href="lists.html">List</a>
-                            </li>
-                            <li>
-                                <a href="cards.html">Card</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-edit"></i>
-                            <span class="nav-label">Forms</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="form_basic.html">Basic Forms</a>
-                            </li>
-                            <li>
-                                <a href="form_advanced.html">Advanced Plugins</a>
-                            </li>
-                            <li>
-                                <a href="form_masks.html">Form input masks</a>
-                            </li>
-                            <li>
-                                <a href="form_validation.html">Form Validation</a>
-                            </li>
-                            <li>
-                                <a href="text_editors.html">Text Editors</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-table"></i>
-                            <span class="nav-label">Tables</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="table_basic.html">Basic Tables</a>
-                            </li>
-                            <li>
-                                <a href="datatables.html">Datatables</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-bar-chart"></i>
-                            <span class="nav-label">Charts</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="charts_flot.html">Flot Charts</a>
-                            </li>
-                            <li>
-                                <a href="charts_morris.html">Morris Charts</a>
-                            </li>
-                            <li>
-                                <a href="chartjs.html">Chart.js</a>
-                            </li>
-                            <li>
-                                <a href="charts_sparkline.html">Sparkline Charts</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-map"></i>
-                            <span class="nav-label">Maps</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="maps_vector.html">Vector maps</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="icons.html"><i class="sidebar-item-icon fa fa-smile-o"></i>
-                            <span class="nav-label">Icons</span>
-                        </a>
-                    </li>
-                    <li class="heading">PAGES</li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-envelope"></i>
-                            <span class="nav-label">Mailbox</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="mailbox.html">Inbox</a>
-                            </li>
-                            <li>
-                                <a href="mail_view.html">Mail view</a>
-                            </li>
-                            <li>
-                                <a href="mail_compose.html">Compose mail</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html"><i class="sidebar-item-icon fa fa-calendar"></i>
-                            <span class="nav-label">Calendar</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-file-text"></i>
-                            <span class="nav-label">Pages</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="invoice.html">Invoice</a>
-                            </li>
-                            <li>
-                                <a href="profile.html">Profile</a>
-                            </li>
-                            <li>
-                                <a href="login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="lockscreen.html">Lockscreen</a>
-                            </li>
-                            <li>
-                                <a href="forgot_password.html">Forgot password</a>
-                            </li>
-                            <li>
-                                <a href="error_404.html">404 error</a>
-                            </li>
-                            <li>
-                                <a href="error_500.html">500 error</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="javascript:;"><i class="sidebar-item-icon fa fa-sitemap"></i>
-                            <span class="nav-label">Menu Levels</span><i class="fa fa-angle-left arrow"></i></a>
-                        <ul class="nav-2-level collapse">
-                            <li>
-                                <a href="javascript:;">Level 2</a>
-                            </li>
-                            <li>
-                                <a href="javascript:;">
-                                    <span class="nav-label">Level 2</span><i class="fa fa-angle-left arrow"></i></a>
-                                <ul class="nav-3-level collapse">
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:;">Level 3</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>-->
                 </ul>
             </div>
         </nav>
         <div class="content-wrapper">
+            <div class="page-content fade-in-up">
+                <!-- Add No Crop Overlay -->
+                <div id="noCropOverlay" class="no-crop-overlay" style="display: none;">
+                    <div class="no-crop-content">
+                        <i class="fas fa-seedling fa-4x mb-4"></i>
+                        <h2>No Active Crop</h2>
+                        <p>Please plant a crop to access irrigation controls</p>
+                        <a href="/plant-overview" class="btn btn-primary btn-lg mt-3">
+                            <i class="fas fa-plus"></i> Plant New Crop
+                        </a>
+                    </div>
+                </div>
 
-            <h1>Irrigation</h1>
-            <!--<div class="page-content fade-in-up">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-success color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Temperature</h2>
-                                <div class="m-b-5 widget-stat-icon">28°C</div><i class="fas fa-thermometer-half "></i>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 25-30°C)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-info color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Humidity</h2><i class=" fas fa-tint"></i>
-                                <div class="m-b-5 widget-stat-icon">65%</div>
-                                <div><i class="fa fa-level-up m-r-5"></i><small>Normal (Ideal: 50-70%)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-warning color-white widget-stat">
-                            <div class="ibox-body">
-                                <h2 class="m-b-5 font-strong">Moisture</h2><i class="fas fa-water"></i>
-                                <div class="m-b-5 widget-stat-icon">45%</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Low (Ideal: 50-80%)</small></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="ibox bg-danger color-white widget-stat">
-                            <div class="ibox-body">
+                <!-- Add wrapper div for all irrigation content -->
+                <div id="irrigationContent" class="irrigation-content">
+                    <div class="row">
+                        <!-- Left Column -->
+                        <div class="col-lg-8">
                             
-                                <h2 class="m-b-5 font-strong">PH Level</h2><i class="fas fa-flask"></i>
-                                <div class="m-b-5 widget-stat-icon">	6.5</div>
-                                <div><i class="fa fa-level-down m-r-5"></i><small>Slightly Acidic (Ideal: 6.0-7.0)</small></div>
+
+                            <!-- Soil Status -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Soil Status</div>
+                                </div>
+                                <div class="ibox-body">
+                                    <div class="row">
+                                        <!-- Moisture Gauge -->
+                                        <div class="col-md-6">
+                                            <div class="sensor-gauge moisture">
+                                                <div class="gauge-header">
+                                                    <div class="gauge-icon">
+                                                        <i class="fas fa-tint"></i>
+                                                    </div>
+                                                    <div class="gauge-title">Soil Moisture</div>
+                                                </div>
+                                                <div class="gauge-content">
+                                                    <div class="gauge-value" id="moistureValue">--%</div>
+                                                    <div class="gauge-status">
+                                                        <span class="badge" id="moistureStatus">Loading...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Temperature Gauge -->
+                                        <div class="col-md-6">
+                                            <div class="sensor-gauge temperature">
+                                                <div class="gauge-header">
+                                                    <div class="gauge-icon">
+                                                        <i class="fas fa-thermometer-half"></i>
+                                                    </div>
+                                                    <div class="gauge-title">Soil Temperature</div>
+                                                </div>
+                                                <div class="gauge-content">
+                                                    <div class="gauge-value" id="temperatureValue">--°C</div>
+                                                    <div class="gauge-status">
+                                                        <span class="badge" id="temperatureStatus">Loading...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <div class="sensor-stats">
+                                                <!-- Removed trend stat item -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Current Crop Information -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Current Crop Information</div>
+                                </div>
+                                <div class="ibox-body" id="currentCropSection">
+                                    <div id="noCropMessage" style="display: none;">
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                                            <h4>No Active Crop</h4>
+                                            <p class="text-muted">There is currently no active crop in the system.</p>
+                                            <a href="/plant-overview" class="btn btn-primary mt-3">
+                                                <i class="fas fa-plus"></i> Plant New Crop
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div id="cropInfo" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="crop-details">
+                                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                                        <h3 class="crop-name" id="cropName"></h3>
+                                                        <a href="/plant-overview" class="btn btn-primary">
+                                                            <i class="fas fa-leaf"></i> Plant Overview
+                                                        </a>
+                                                    </div>
+                                                    <div class="crop-info-grid">
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-calendar"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Planted Date</div>
+                                                                <div class="info-value" id="plantedDate"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-clock"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Expected Harvest</div>
+                                                                <div class="info-value" id="harvestDate"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-leaf"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Growth Stage</div>
+                                                                <div class="info-value" id="growthStage"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-chart-line"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Health Score</div>
+                                                                <div class="info-value" id="healthScore"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4">
+                                                        <h5 class="optimal-conditions-title">Optimal Conditions</h5>
+                                                        <div class="optimal-conditions-grid">
+                                                            <div class="info-item">
+                                                                <div class="info-icon">
+                                                                    <i class="fas fa-tint"></i>
+                                                                </div>
+                                                                <div class="info-content">
+                                                                    <div class="info-label">Moisture</div>
+                                                                    <div class="info-value" id="optimalMoisture"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="info-item">
+                                                                <div class="info-icon">
+                                                                    <i class="fas fa-thermometer-half"></i>
+                                                                </div>
+                                                                <div class="info-content">
+                                                                    <div class="info-label">Temperature</div>
+                                                                    <div class="info-value" id="optimalTemperature"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Irrigation History -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Irrigation History</div>
+                                </div>
+                                <div class="ibox-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date & Time</th>
+                                                    <th>Duration</th>
+                                                    <th>Moisture Before</th>
+                                                    <th>Moisture After</th>
+                                                    <th>Type</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="irrigationHistoryBody">
+                                                <!-- Data will be loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- Simplified Pagination -->
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div>
+                                            Page <span id="currentPageInfo">1</span> of <span id="totalPagesInfo">1</span>
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0">
+                                                <li class="page-item" id="prevPageBtn">
+                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                        <i class="fa fa-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item" id="nextPageBtn">
+                                                    <a class="page-link" href="#" aria-label="Next">
+                                                        <i class="fa fa-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-lg-4">
+                            <!-- Next Irrigation -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Next Irrigation</div>
+                                </div>
+                                <div class="ibox-body">
+                                    <!-- Add Running Irrigation Status -->
+                                    <div id="runningIrrigationStatus" class="alert alert-info mb-3" style="display: none;">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-tint fa-spin mr-2"></i>
+                                            <div>
+                                                <strong id="runningIrrigationType"></strong>
+                                                <div id="runningIrrigationDetails" class="small"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center" id="nextIrrigationInfo">
+                                        <div class="time-value" id="nextIrrigationTime">--:--</div>
+                                        <div class="time-label" id="nextIrrigationDate">Loading...</div>
+                                        <div class="progress mt-3">
+                                            <div class="progress-bar bg-primary" role="progressbar" id="nextIrrigationProgress" style="width: 0%"></div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted" id="nextIrrigationStatus">Calculating next irrigation...</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Quick Controls -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Irrigation Controls</div>
+                                </div>
+                                <div class="ibox-body">
+                                    <div class="irrigation-controls">
+                                        <!-- Automation Mode Switch -->
+                                        <div class="mode-switch">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-robot mr-2"></i>
+                                                    <span class="mode-label">Automation Mode</span>
+                                                </div>
+                                                <div class="switch">
+                                                    <input type="checkbox" id="autoModeSwitch" checked>
+                                                    <label for="autoModeSwitch"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Duration Control -->
+                                        <div class="duration-control">
+                                            <label>
+                                                <i class="fas fa-hourglass-half mr-2"></i>
+                                                Manual Duration
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="durationInput" min="1" max="60" value="15">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">minutes</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div class="action-buttons">
+                                            <button class="action-button start" id="startButton" onclick="startManualIrrigation()" data-toggle="tooltip" data-placement="top" title="Start manual irrigation">
+                                                <i class="fas fa-play"></i>
+                                                Start Irrigation
+                                            </button>
+                                            <button class="action-button stop" id="stopButton" onclick="stopIrrigation()" data-toggle="tooltip" data-placement="top" title="Stop current irrigation">
+                                                <i class="fas fa-stop"></i>
+                                                Stop Irrigation
+                                            </button>
+                                        </div>
+
+                                        <!-- Status Indicator -->
+                                        <div id="irrigationAlert" class="status-indicator" style="display: none;">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span id="alertMessage"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Irrigation Schedule -->
+                            <div class="ibox">
+                                <div class="ibox-head">
+                                    <div class="ibox-title">Irrigation Schedule</div>
+                                    <div class="ibox-tools">
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#scheduleModal">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="ibox-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover schedule-table" id="scheduleTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Time</th>
+                                                    <th>Duration</th>
+                                                    <th>Days</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Schedule rows will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <style>
+                .moisture-gauge {
+                    text-align: center;
+                    padding: 20px;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                }
 
+                .gauge-value {
+                    font-size: 48px;
+                    font-weight: 700;
+                    color: #2196F3;
+                }
 
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div class="flexbox mb-4">
-                                    <div>
-                                        <h3 class="m-0">Daily NPK Data</h3>
-                                    </div>
-                                    
-                                    <div class="d-inline-flex">
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(N)51.3</span>
-                                                <span class="text-success ml-2"><i class="fa fa-level-up"></i> +25%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
-                                        
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(P)31.0</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
-                                        <div class="px-3">
-                                            <div class="text-muted">WEEKLY AVERAGE</div>
-                                            <div>
-                                                <span class="h2 m-0">(K)41.9</span>
-                                                <span class="text-warning ml-2"><i class="fa fa-level-down"></i> -12%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <canvas id="bar_chart" style="height:300px;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crop</div>
-                            </div>
-                            <div class="ibox-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6">
-                                        <h1>Lettuce</h1>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>Temperature 17°C</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>pH Level 5.8</div>
-                                        <div class="m-b-20 text-success"><i class="fa fa-circle-o m-r-10"></i>N 70</div>
-                                        <div class="m-b-20 text-danger"><i class="fa fa-circle-o m-r-10"></i>P 35</div>
-                                        <div class="m-b-20 text-warning"><i class="fa fa-circle-o m-r-10"></i>K 50</div>
-                                    </div>
-                                </div>
-                                <ul class="list-group list-group-divider list-group-full">
-                                    <li class="list-group-item">Tomato
-                                        <span class="float-right text-success"> 35%</span>
-                                    </li>
-                                    <li class="list-group-item">Bell Pepper 
-                                        <span class="float-right text-success"> 24%</span>
-                                    </li>
-                                    <li class="list-group-item">Cucumber
-                                        <span class="float-right text-danger"> 20%</span>
-                                    </li>
-                                    <li class="list-group-item">Strawberry
-                                        <span class="float-right text-danger"> 16%</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div><div class="row">
+                .gauge-label {
+                    font-size: 16px;
+                    color: #666;
+                    margin-top: 5px;
+                }
+
+                .gauge-range {
+                    font-size: 14px;
+                    color: #999;
+                    margin-top: 5px;
+                }
+
+                .moisture-stats {
+                    padding: 20px;
+                }
+
+                .stat-item {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+
+                .stat-item i {
+                    font-size: 24px;
+                    color: #2196F3;
+                    margin-right: 15px;
+                }
+
+                .stat-info {
+                    flex: 1;
+                }
+
+                .stat-label {
+                    font-size: 14px;
+                    color: #666;
+                }
+
+                .stat-value {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                }
+
+                .mode-switch {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .mode-label {
+                    font-size: 16px;
+                    font-weight: 500;
+                }
+
+                .time-value {
+                    font-size: 32px;
+                    font-weight: 600;
+                    color: #2196F3;
+                }
+
+                .time-label {
+                    font-size: 14px;
+                    color: #666;
+                }
+
+                .switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 60px;
+                    height: 34px;
+                }
+
+                .switch input {
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }
+
+                .switch label {
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #ccc;
+                    transition: .4s;
+                    border-radius: 34px;
+                }
+
+                .switch label:before {
+                    position: absolute;
+                    content: "";
+                    height: 26px;
+                    width: 26px;
+                    left: 4px;
+                    bottom: 4px;
+                    background-color: white;
+                    transition: .4s;
+                    border-radius: 50%;
+                }
+
+                .switch input:checked + label {
+                    background-color: #2196F3;
+                }
+
+                .switch input:checked + label:before {
+                    transform: translateX(26px);
+                }
+
+                /* New styles for crop information */
+                .crop-image {
+                    max-height: 200px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                .crop-details {
+                    padding: 15px;
+                }
+
+                .crop-name {
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 20px;
+                }
+
+                .crop-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .info-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .info-item i {
+                    font-size: 18px;
+                    color: #2196F3;
+                    width: 24px;
+                }
+
+                /* Enhanced sensor gauge styles */
+                .sensor-gauge {
+                    background: #fff;
+                    border-radius: 8px;
+                    padding: 20px;
+                    height: 100%;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+
+                .gauge-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+
+                .gauge-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: #f8f9fa;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 15px;
+                }
+
+                .gauge-icon i {
+                    font-size: 20px;
+                    color: #2196F3;
+                }
+
+                .gauge-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                }
+
+                .gauge-content {
+                    text-align: center;
+                }
+
+                .gauge-value {
+                    font-size: 48px;
+                    font-weight: 700;
+                    color: #2196F3;
+                    margin: 10px 0;
+                }
+
+                .gauge-status {
+                    margin-top: 10px;
+                }
+
+                .gauge-status .badge {
+                    padding: 8px 15px;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+
+                .badge-success {
+                    background-color: #28a745;
+                }
+
+                .badge-warning {
+                    background-color: #ffc107;
+                    color: #000;
+                }
+
+                .badge-danger {
+                    background-color: #dc3545;
+                }
+
+                /* Add styles for disabled buttons */
+                .btn.disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                /* Style for the alert */
+                #irrigationAlert {
+                    transition: all 0.3s ease;
+                    margin-top: 15px;
+                }
+
+                #irrigationAlert i {
+                    margin-right: 8px;
+                }
+
+                .alert-warning {
+                    background-color: #fff3cd;
+                    border-color: #ffeeba;
+                    color: #856404;
+                }
+
+                .alert-info {
+                    background-color: #d1ecf1;
+                    border-color: #bee5eb;
+                    color: #0c5460;
+                }
+
+                /* Add tooltip styles */
+                [title] {
+                    position: relative;
+                    cursor: help;
+                }
+
+                .checkbox-wrapper {
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                .checkbox-wrapper input[type="checkbox"] {
+                    margin-right: 5px;
+                    cursor: pointer;
+                }
+
+                .checkbox-wrapper label {
+                    margin-bottom: 0;
+                    cursor: pointer;
+                }
+
+                .form-check-input {
+                    width: 18px;
+                    height: 18px;
+                    margin-top: 0;
+                }
+
+                .form-check-label {
+                    padding-left: 5px;
+                }
+
+                /* Enhanced Modal Styles */
+                .modal-content {
+                    border: none;
+                    border-radius: 12px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+
+                .modal-header {
+                    background-color: #f8f9fa;
+                    border-bottom: 1px solid #e9ecef;
+                    border-radius: 12px 12px 0 0;
+                    padding: 1.5rem;
+                }
+
+                .modal-title {
+                    font-weight: 600;
+                    color: #2c3e50;
+                    font-size: 1.25rem;
+                }
+
+                .modal-body {
+                    padding: 1.5rem;
+                }
+
+                .modal-footer {
+                    border-top: 1px solid #e9ecef;
+                    padding: 1.5rem;
+                    border-radius: 0 0 12px 12px;
+                }
+
+                /* Form Controls */
+                .form-control {
+                    border-radius: 8px;
+                    border: 1px solid #dee2e6;
+                    padding: 0.75rem 1rem;
+                    transition: all 0.3s ease;
+                }
+
+                .form-control:focus {
+                    border-color: #2196F3;
+                    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+                }
+
+                /* Checkbox Wrapper */
+                .checkbox-wrapper {
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    margin: 0.5rem;
+                    transition: all 0.3s ease;
+                }
+
+                .checkbox-wrapper:hover {
+                    background: #e9ecef;
+                }
+
+                .checkbox-wrapper input[type="checkbox"] {
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 8px;
+                }
+
+                .checkbox-wrapper label {
+                    margin-bottom: 0;
+                    font-weight: 500;
+                    color: #2c3e50;
+                }
+
+                /* Buttons */
+                .btn {
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 8px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-primary {
+                    background-color: #2196F3;
+                    border-color: #2196F3;
+                }
+
+                .btn-primary:hover {
+                    background-color: #1976D2;
+                    border-color: #1976D2;
+                }
+
+                .btn-secondary {
+                    background-color: #6c757d;
+                    border-color: #6c757d;
+                }
+
+                .btn-secondary:hover {
+                    background-color: #5a6268;
+                    border-color: #545b62;
+                }
+
+                .btn-danger {
+                    background-color: #dc3545;
+                    border-color: #dc3545;
+                }
+
+                .btn-danger:hover {
+                    background-color: #c82333;
+                    border-color: #bd2130;
+                }
+
+                /* Schedule Table Styles */
+                .schedule-table {
+                    margin-bottom: 0;
+                }
+
+                .schedule-table th {
+                    background-color: #f8f9fa;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    border-top: none;
+                    padding: 1rem;
+                }
+
+                .schedule-table td {
+                    vertical-align: middle;
+                    color: #2c3e50;
+                    padding: 1rem;
+                }
+
+                .schedule-actions {
+                    display: flex;
+                    gap: 0.5rem;
+                    justify-content: flex-end;
+                }
+
+                .schedule-btn {
+                    width: 36px;
+                    height: 36px;
+                    padding: 0;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 8px;
+                    border: none;
+                    transition: all 0.3s ease;
+                    color: #fff;
+                }
+
+                .schedule-btn i {
+                    font-size: 1rem;
+                }
+
+                .schedule-btn:hover {
+                    transform: translateY(-2px);
+                }
+
+                .schedule-btn:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none !important;
+                }
+
+                .schedule-btn.activate {
+                    background-color: #28a745;
+                }
+
+                .schedule-btn.activate:hover {
+                    background-color: #218838;
+                }
+
+                .schedule-btn.deactivate {
+                    background-color: #dc3545;
+                }
+
+                .schedule-btn.deactivate:hover {
+                    background-color: #c82333;
+                }
+
+                .schedule-btn.edit {
+                    background-color: #2196F3;
+                }
+
+                .schedule-btn.edit:hover {
+                    background-color: #1976D2;
+                }
+
+                .schedule-btn.delete {
+                    background-color: #6c757d;
+                }
+
+                .schedule-btn.delete:hover {
+                    background-color: #5a6268;
+                }
+
+                .schedule-time {
+                    font-weight: 500;
+                    color: #2c3e50;
+                }
+
+                .schedule-duration {
+                    color: #6c757d;
+                }
+
+                .schedule-days {
+                    color: #6c757d;
+                    font-size: 0.9rem;
+                }
+
+                .schedule-status {
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 6px;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                }
+
+                .schedule-status.active {
+                    background-color: #d4edda;
+                    color: #155724;
+                }
+
+                .schedule-status.inactive {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                }
+
+                /* Alert Styles */
+                .alert {
+                    border-radius: 8px;
+                    padding: 1rem 1.25rem;
+                    margin-bottom: 1rem;
+                    border: none;
+                }
+
+                .alert-info {
+                    background-color: #e3f2fd;
+                    color: #0d47a1;
+                }
+
+                .alert-warning {
+                    background-color: #fff3cd;
+                    color: #856404;
+                }
+
+                .alert-success {
+                    background-color: #d4edda;
+                    color: #155724;
+                }
+
+                .alert-danger {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                }
+
+                /* Modal Animation */
+                .modal.fade .modal-dialog {
+                    transform: scale(0.8);
+                    transition: transform 0.3s ease-in-out;
+                }
+
+                .modal.show .modal-dialog {
+                    transform: scale(1);
+                }
+
+                /* Form Groups */
+                .form-group {
+                    margin-bottom: 1.5rem;
+                }
+
+                .form-group label {
+                    font-weight: 500;
+                    color: #2c3e50;
+                    margin-bottom: 0.5rem;
+                }
+
+                /* Input Groups */
+                .input-group {
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                .input-group-text {
+                    background-color: #f8f9fa;
+                    border: 1px solid #dee2e6;
+                    color: #6c757d;
+                    font-weight: 500;
+                }
+
+                /* Schedule Modal Specific */
+                #scheduleModal .modal-body,
+                #editScheduleModal .modal-body {
+                    padding: 2rem;
+                }
+
+                /* Update days container style */
+                .days-container {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    gap: 0.5rem;
+                    margin-top: 1rem;
+                }
+
+                .checkbox-wrapper {
+                    flex: 1;
+                    text-align: center;
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 0.5rem;
+                    transition: all 0.3s ease;
+                }
+
+                .checkbox-wrapper:hover {
+                    background: #e9ecef;
+                }
+
+                .checkbox-wrapper input[type="checkbox"] {
+                    margin-right: 5px;
+                }
+
+                .checkbox-wrapper label {
+                    margin-bottom: 0;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                }
+
+                /* SweetAlert2 Customization */
+                .swal2-popup {
+                    border-radius: 12px;
+                    padding: 2rem;
+                }
+
+                .swal2-title {
+                    color: #2c3e50;
+                    font-weight: 600;
+                }
+
+                .swal2-content {
+                    color: #6c757d;
+                }
+
+                .swal2-confirm {
+                    background-color: #2196F3 !important;
+                    border-radius: 8px !important;
+                    padding: 0.75rem 1.5rem !important;
+                }
+
+                .swal2-cancel {
+                    background-color: #6c757d !important;
+                    border-radius: 8px !important;
+                    padding: 0.75rem 1.5rem !important;
+                }
+
+                /* Irrigation Controller Styles */
+                .irrigation-controls {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                }
+
+                .control-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                }
+
+                .control-header i {
+                    font-size: 1.5rem;
+                    color: #2196F3;
+                    margin-right: 1rem;
+                }
+
+                .control-header h5 {
+                    margin: 0;
+                    font-weight: 600;
+                    color: #2c3e50;
+                }
+
+                .mode-switch {
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .mode-switch .switch {
+                    width: 70px;
+                    height: 38px;
+                }
+
+                .mode-switch .switch label {
+                    background-color: #e9ecef;
+                }
+
+                .mode-switch .switch input:checked + label {
+                    background-color: #2196F3;
+                }
+
+                .mode-switch .switch label:before {
+                    height: 30px;
+                    width: 30px;
+                    left: 4px;
+                    bottom: 4px;
+                }
+
+                .mode-switch .switch input:checked + label:before {
+                    transform: translateX(32px);
+                }
+
+                .mode-label {
+                    font-size: 1.1rem;
+                    font-weight: 500;
+                    color: #2c3e50;
+                }
+
+                .duration-control {
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .duration-control label {
+                    font-weight: 500;
+                    color: #2c3e50;
+                    margin-bottom: 0.5rem;
+                }
+
+                .duration-control .input-group {
+                    background: #fff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                .duration-control .form-control {
+                    border: 1px solid #dee2e6;
+                    border-right: none;
+                }
+
+                .duration-control .input-group-text {
+                    background: #fff;
+                    border: 1px solid #dee2e6;
+                    color: #6c757d;
+                    font-weight: 500;
+                }
+
+                .action-buttons {
+                    display: grid;
+                    gap: 1rem;
+                }
+
+                .action-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                    border-radius: 10px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: none;
+                    cursor: pointer;
+                }
+
+                .action-button i {
+                    margin-right: 0.75rem;
+                    font-size: 1.1rem;
+                }
+
+                .action-button.start {
+                    background: #2196F3;
+                    color: #fff;
+                }
+
+                .action-button.start:hover {
+                    background: #1976D2;
+                    transform: translateY(-2px);
+                }
+
+                .action-button.stop {
+                    background: #dc3545;
+                    color: #fff;
+                }
+
+                .action-button.stop:hover {
+                    background: #c82333;
+                    transform: translateY(-2px);
+                }
+
+                .action-button:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none !important;
+                }
+
+                .status-indicator {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.75rem 1rem;
+                    border-radius: 8px;
+                    margin-top: 1rem;
+                    font-size: 0.9rem;
+                }
+
+                .status-indicator i {
+                    margin-right: 0.5rem;
+                }
+
+                .status-indicator.info {
+                    background: #e3f2fd;
+                    color: #0d47a1;
+                }
+
+                .status-indicator.warning {
+                    background: #fff3cd;
+                    color: #856404;
+                }
+
+                .status-indicator.success {
+                    background: #d4edda;
+                    color: #155724;
+                }
+
+                .status-indicator.danger {
+                    background: #f8d7da;
+                    color: #721c24;
+                }
+
+                /* Tooltip styles */
+                .tooltip-inner {
+                    background-color: #2c3e50;
+                    border-radius: 6px;
+                    padding: 0.5rem 1rem;
+                    font-size: 0.875rem;
+                }
+
+                .tooltip.show {
+                    opacity: 1;
+                }
+
+                /* Update schedule actions styles */
+                .schedule-actions {
+                    display: flex;
+                    gap: 0.15rem;
+                    justify-content: flex-end;
+                    min-width: 70px;
+                }
+
+                .schedule-btn {
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 4px;
+                    border: none;
+                    transition: all 0.2s ease;
+                    color: #fff;
+                    font-size: 0.75rem;
+                }
+
+                .schedule-btn i {
+                    font-size: 0.75rem;
+                }
+
+                .schedule-btn:hover {
+                    transform: translateY(-1px);
+                }
+
+                .schedule-btn:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none !important;
+                }
+
+                /* Update table styles */
+                .schedule-table td {
+                    vertical-align: middle;
+                    padding: 0.5rem;
+                }
+
+                .schedule-table td:last-child {
+                    width: 70px;
+                    padding-right: 0.5rem;
+                }
+
+                /* Crop Information Styles */
+                .crop-details {
+                    padding: 1rem;
+                }
+
+                .crop-name {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin: 0;
+                }
+
+                .crop-info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                    margin-top: 1rem;
+                }
+
+                .optimal-conditions-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                    margin-top: 0.5rem;
+                }
+
+                .info-item {
+                    display: flex;
+                    align-items: center;
+                    background: #f8f9fa;
+                    padding: 1rem;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                }
+
+                .info-item:hover {
+                    background: #e9ecef;
+                    transform: translateY(-2px);
+                }
+
+                .info-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 8px;
+                    background: #fff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 1rem;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                }
+
+                .info-icon i {
+                    font-size: 1.25rem;
+                    color: #2196F3;
+                }
+
+                .info-content {
+                    flex: 1;
+                }
+
+                .info-label {
+                    font-size: 0.875rem;
+                    color: #6c757d;
+                    margin-bottom: 0.25rem;
+                }
+
+                .info-value {
+                    font-size: 1rem;
+                    font-weight: 500;
+                    color: #2c3e50;
+                }
+
+                .optimal-conditions-title {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 1rem;
+                }
+
+                #noCropMessage {
+                    text-align: center;
+                    padding: 2rem;
+                }
+
+                #noCropMessage i {
+                    color: #6c757d;
+                    margin-bottom: 1rem;
+                }
+
+                #noCropMessage h4 {
+                    color: #2c3e50;
+                    margin-bottom: 0.5rem;
+                }
+
+                #noCropMessage p {
+                    color: #6c757d;
+                    margin-bottom: 1.5rem;
+                }
+
+                /* Add these new styles */
+                .no-crop-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(255, 255, 255, 0.95);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                }
+
+                .no-crop-content {
+                    padding: 2rem;
+                    max-width: 500px;
+                }
+
+                .no-crop-content i {
+                    color: #6c757d;
+                    margin-bottom: 1.5rem;
+                }
+
+                .no-crop-content h2 {
+                    color: #2c3e50;
+                    font-size: 2rem;
+                    margin-bottom: 1rem;
+                }
+
+                .no-crop-content p {
+                    color: #6c757d;
+                    font-size: 1.1rem;
+                    margin-bottom: 2rem;
+                }
+
+                .irrigation-content.disabled {
+                    opacity: 0.5;
+                    pointer-events: none;
+                }
+
+                .btn-primary {
+                    padding: 0.75rem 1.5rem;
+                    font-size: 1.1rem;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+            </style>
+
+            <script>
+                function toggleIrrigation(id, status) {
+                    console.log(`Setting irrigation ${id} to ${status ? 'on' : 'off'}`);
+                }
+
+                // Function to show loading state
+                function showLoadingState(message) {
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: message,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                }
+
+                // Function to show success message
+                function showSuccessMessage(title, message) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: title,
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+
+                // Function to show error message
+                function showErrorMessage(title, message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: title,
+                        text: message
+                    });
+                }
+
+                // Modify startManualIrrigation function
+                async function startManualIrrigation() {
+                    try {
+                        const duration = document.getElementById('durationInput').value;
+                        
+                        // Show loading state
+                        showLoadingState('Starting irrigation...');
+                        
+                        // Get current moisture value
+                        const response = await fetch('/api/soil-status');
+                        const data = await response.json();
+                        const currentMoisture = data.moisture.value;
+
+                        // Create irrigation record in Firestore
+                        const irrigationResponse = await fetch('/api/irrigation-records', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                startTime: new Date(),
+                                moistureBefore: currentMoisture,
+                                duration: parseInt(duration),
+                                note: 'Manual Irrigation'
+                            })
+                        });
+
+                        if (!irrigationResponse.ok) {
+                            throw new Error('Failed to create irrigation record');
+                        }
+
+                        // Update manual trigger in Realtime DB
+                        const manualResponse = await fetch('/api/manual-trigger', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                enabled: true,
+                                duration: parseInt(duration)
+                            })
+                        });
+
+                        if (!manualResponse.ok) {
+                            throw new Error('Failed to update manual trigger');
+                        }
+
+                        // Check status after update
+                        await checkIrrigationStatus();
+                        
+                        // Show success message
+                        showSuccessMessage('Irrigation Started', `Manual irrigation will run for ${duration} minutes`);
+                        
+                        console.log('Manual irrigation started');
+                    } catch (error) {
+                        console.error('Error starting manual irrigation:', error);
+                        showErrorMessage('Error', 'Failed to start irrigation. Please try again.');
+                    }
+                }
+
+                // Modify stopIrrigation function
+                async function stopIrrigation() {
+                    try {
+                        // Show loading state
+                        showLoadingState('Stopping irrigation...');
+
+                        // Update stop trigger in Realtime DB
+                        const stopResponse = await fetch('/api/stop-trigger', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                enabled: true
+                            })
+                        });
+
+                        if (!stopResponse.ok) {
+                            throw new Error('Failed to update stop trigger');
+                        }
+
+                        // Check status after update
+                        await checkIrrigationStatus();
+                        
+                        // Show success message
+                        showSuccessMessage('Irrigation Stopped', 'The irrigation has been stopped successfully.');
+                        
+                        console.log('Irrigation stop triggered');
+                    } catch (error) {
+                        console.error('Error stopping irrigation:', error);
+                        showErrorMessage('Error', 'Failed to stop irrigation. Please try again.');
+                    }
+                }
+
+                // Update next irrigation countdown
+                function updateCountdown() {
+                    // Implementation for countdown timer
+                }
+
+                // Function to format date
+                function formatDate(date) {
+                    return new Date(date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+
+                // Function to update crop information
+                function updateCropInfo(cropData) {
+                    const noCropOverlay = document.getElementById('noCropOverlay');
+                    const irrigationContent = document.getElementById('irrigationContent');
+                    const noCropMessage = document.getElementById('noCropMessage');
+                    const cropInfo = document.getElementById('cropInfo');
+
+                    if (!cropData) {
+                        // Show overlay and disable content
+                        noCropOverlay.style.display = 'flex';
+                        irrigationContent.classList.add('disabled');
+                        noCropMessage.style.display = 'block';
+                        cropInfo.style.display = 'none';
+                        return;
+                    }
+
+                    // Hide overlay and enable content
+                    noCropOverlay.style.display = 'none';
+                    irrigationContent.classList.remove('disabled');
+                    noCropMessage.style.display = 'none';
+                    cropInfo.style.display = 'block';
+
+                    // Update crop details
+                    document.getElementById('cropName').textContent = cropData.name;
+                    document.getElementById('plantedDate').textContent = formatDate(cropData.startDate);
+                    document.getElementById('harvestDate').textContent = formatDate(cropData.expectedHarvest);
+                    document.getElementById('growthStage').textContent = cropData.growthStage;
+                    document.getElementById('healthScore').textContent = `${cropData.score}%`;
+
+                    // Update optimal conditions
+                    const optimal = cropData.optimalConditions;
+                    document.getElementById('optimalMoisture').textContent = `${optimal.moisture}%`;
+                    document.getElementById('optimalTemperature').textContent = `${optimal.temperature}°C`;
+                }
+
+                // Update the updateSoilStatus function to include crop information
+                function updateSoilStatus() {
+                    fetch('/api/soil-status')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update moisture
+                            document.getElementById('moistureValue').textContent = `${data.moisture.value}%`;
+                            const moistureStatus = document.getElementById('moistureStatus');
+                            moistureStatus.textContent = data.moisture.status;
+                            moistureStatus.className = `badge badge-${data.moisture.color}`;
+
+                            // Update temperature
+                            document.getElementById('temperatureValue').textContent = `${data.temperature.value}°C`;
+                            const temperatureStatus = document.getElementById('temperatureStatus');
+                            temperatureStatus.textContent = data.temperature.status;
+                            temperatureStatus.className = `badge badge-${data.temperature.color}`;
+
+                            // Update crop information
+                            updateCropInfo(data.currentCrop);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching soil status:', error);
+                        });
+                }
+
+                // Initialize the page
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateSoilStatus();
+                    // Update every 30 seconds
+                    setInterval(updateSoilStatus, 30000);
+                });
+
+                // Add these new functions for automation control
+                function toggleAutomationMode(isEnabled) {
+                    fetch('/api/toggle-automation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ enabled: isEnabled })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Automation mode updated successfully');
+                        } else {
+                            console.error('Failed to update automation mode');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating automation mode:', error);
+                    });
+                }
+
+                // Add event listener for automation switch
+                document.getElementById('autoModeSwitch').addEventListener('change', function(e) {
+                    toggleAutomationMode(e.target.checked);
+                });
+
+                // Initialize automation state
+                function initializeAutomationState() {
+                    fetch('/api/automation-state')
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('autoModeSwitch').checked = data.enabled;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching automation state:', error);
+                        });
+                }
+
+                // Add to the DOMContentLoaded event listener
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadInitialSoilStatus();
+                    initializeAutomationState();
+                });
+
+                // Modify checkIrrigationStatus function
+                async function checkIrrigationStatus() {
+                    try {
+                        // Get both manual and automation status
+                        const [manualSnapshot, automationSnapshot] = await Promise.all([
+                            realtimeDB.ref('/manual').once('value'),
+                            realtimeDB.ref('/automation').once('value')
+                        ]);
+
+                        const manualData = manualSnapshot.val();
+                        const automationData = automationSnapshot.val();
+
+                        const isManualEnabled = manualData?.enabled || false;
+                        const isAutomationEnabled = automationData?.enabled || false;
+
+                        // Update button states
+                        const startButton = document.getElementById('startButton');
+                        const stopButton = document.getElementById('stopButton');
+                        const alertDiv = document.getElementById('irrigationAlert');
+                        const alertMessage = document.getElementById('alertMessage');
+
+                        // Disable start button if automation is running
+                        if (isAutomationEnabled) {
+                            startButton.disabled = true;
+                            startButton.classList.add('disabled');
+                            alertDiv.style.display = 'block';
+                            alertDiv.className = 'alert alert-warning mt-3';
+                            alertMessage.textContent = 'Automated irrigation is currently running';
+                        } else if (isManualEnabled) {
+                            startButton.disabled = true;
+                            startButton.classList.add('disabled');
+                            alertDiv.style.display = 'block';
+                            alertDiv.className = 'alert alert-info mt-3';
+                            alertMessage.textContent = `Manual irrigation will run for ${manualData.duration} minutes`;
+                        } else {
+                            startButton.disabled = false;
+                            startButton.classList.remove('disabled');
+                            alertDiv.style.display = 'none';
+                        }
+
+                        // Enable stop button only if either manual or automation is enabled
+                        stopButton.disabled = !(isManualEnabled || isAutomationEnabled);
+                        stopButton.classList.toggle('disabled', !(isManualEnabled || isAutomationEnabled));
+                    } catch (error) {
+                        console.error('Error checking irrigation status:', error);
+                    }
+                }
+
+                // Initial load of soil status
+                function loadInitialSoilStatus() {
+                    fetch('/api/soil-status')
+                        .then(response => response.json())
+                        .then(data => {
+                            updateSensorValues(data);
+                            updateCropInfo(data.currentCrop);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching soil status:', error);
+                        });
+                }
+
+                // Initialize the page
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadInitialSoilStatus();
+                });
+
+                // Function to format time remaining
+                function formatTimeRemaining(milliseconds) {
+                    const seconds = Math.floor(milliseconds / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const hours = Math.floor(minutes / 60);
                     
-                    <div class="col-md-8">
-                        <div class="ibox">
-                            <div class="ibox-body">
-                                <div id="calendar"></div>
-                                
-                                <div class="modal fade" id="new-event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">New Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="new-event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="new-event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="new-event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="new-event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                                <button class="btn btn-info" id="addEventButton" type="submit">Add event</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                
-                                <div class="modal fade" id="event-modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog" role="document">
-                                        <form class="modal-content form-horizontal" action="javascript:;">
-                                            <div class="modal-header bg-silver-100">
-                                                <h4 class="modal-title">Edit Event</h4>
-                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Title:</label>
-                                                    <div class="col-sm-10">
-                                                        <input class="form-control" id="event-title" type="text">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row" id="date_1">
-                                                    <label class="col-sm-2 col-form-label">Start:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-start" type="text" value="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End:</label>
-                                                    <div class="col-sm-10">
-                                                        <div class="input-group datepicker date">
-                                                            <span class="input-group-addon bg-white"><i class="fa fa-calendar"></i></span>
-                                                            <input class="form-control" id="event-end" type="text">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Color:</label>
-                                                    <div class="col-sm-10">
-                                                        <select class="form-control" id="event-color">
-                                                            <option value="bg-blue">Blue</option>
-                                                            <option value="bg-red">Red</option>
-                                                            <option value="bg-green">Green</option>
-                                                            <option value="bg-orange">Orange</option>
-                                                            <option value="bg-silver">Silver</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-10 ml-sm-auto">
-                                                        <label class="ui-checkbox ui-checkbox-info">
-                                                            <input id="event-allDay" type="checkbox">
-                                                            <span class="input-span"></span>All Day</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-info" id="editEventButton" type="submit">Save</button>
-                                                <button class="btn btn-danger" id="deleteEventButton" type="button" data-dismiss="modal">Delete</button>
-                                                <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                
-                
-                    <div class="col-lg-4">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Tasks(Organic Nutrients)</div>
-                                
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="list-group list-group-divider list-group-full tasks-list">
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Add wood ash or dolomite lime to raise pH; use peat moss or sulfur to lower pH</span>
-                                            </label>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use composted manure, alfalfa meal, or blood meal</span>
-                                            </label>
-                                        </div>
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Apply bone meal, rock phosphate, or banana peel tea</span>
-                                            </label>
-                                            
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                    <li class="list-group-item task-item">
-                                        <div>
-                                            <label class="ui-checkbox ui-checkbox-gray ui-checkbox-success">
-                                                <input type="checkbox" checked="">
-                                                <span class="input-span"></span>
-                                                <span class="task-title">Use wood ash, kelp meal, or banana peel fertilizer</span>
-                                            </label>
-                                        </div>
-                                        
-                                        
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Crop Disease</div>
-                            </div>
-                            <div class="ibox-body">
-                                <ul class="media-list media-list-divider m-0">
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Downy Mildew </div>
-                                            <div class="font-13">Yellow spots on leaves, white to purple mold on the undersides.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Fusarium Wilt  </div>
-                                            <div class="font-13">Yellowing of older leaves, stunted growth, brown streaks in stems.</div>
-                                        </div>
-                                    </li>
-                                    <li class="media">
-                                        
-                                        <div class="media-body">
-                                            <div class="media-heading text-danger">Root Rot </div>
-                                            <div class="font-13">Wilting, brown and mushy roots, stunted growth.</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Recommended Crops for Net House</div>
-                                <div class="ibox-tools">
-                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
-                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item">Refresh</a>
-                                        <a class="dropdown-item">Settings</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ibox-body">
-                                <table class="table table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Crop</th>
-                                            <th>Temperature (°C)</th>
-                                            <th>Humidity (%)</th>
-                                            <th>Soil Moisture (%)</th>
-                                            <th>pH Level</th>
-                                            <th>NPK Ratio</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Lettuce</td>
-                                            <td>15-20</td>
-                                            <td>60-70</td>
-                                            <td>55-65</td>
-                                            <td>6.0-6.5</td>
-                                            <td>10-5-5</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Bell Pepper</td>
-                                            <td>18-25</td>
-                                            <td>65-75</td>
-                                            <td>50-60</td>
-                                            <td>6.0-6.8</td>
-                                            <td>5-10-10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tomato</td>
-                                            <td>18-27</td>
-                                            <td>60-80</td>
-                                            <td>50-70</td>
-                                            <td>5.8-6.5</td>
-                                            <td>10-10-10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Strawberry</td>
-                                            <td>15-25</td>
-                                            <td>60-75</td>
-                                            <td>60-70</td>
-                                            <td>5.5-6.5</td>
-                                            <td>8-10-8</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Cucumber</td>
-                                            <td>18-30</td>
-                                            <td>70-80</td>
-                                            <td>50-65</td>
-                                            <td>5.5-6.5</td>
-                                            <td>5-10-10</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <style>
-                    .visitors-table tbody tr td:last-child {
-                        display: flex;
-                        align-items: center;
+                    if (hours > 0) {
+                        return `${hours}h ${minutes % 60}m remaining`;
+                    } else if (minutes > 0) {
+                        return `${minutes}m ${seconds % 60}s remaining`;
+                    } else {
+                        return `${seconds}s remaining`;
                     }
+                }
 
-                    .visitors-table .progress {
-                        flex: 1;
-                    }
+                // Function to update next irrigation display
+                async function updateNextIrrigation() {
+                    try {
+                        const response = await fetch('/api/irrigation-schedules');
+                        const data = await response.json();
+                        
+                        if (data.success && data.schedules.length > 0) {
+                            const now = new Date();
+                            let nextSchedule = null;
+                            let minTimeDiff = Infinity;
 
-                    .visitors-table .progress-parcent {
-                        text-align: right;
-                        margin-left: 10px;
+                            // Find the next active schedule
+                            data.schedules.forEach(schedule => {
+                                if (schedule.isActive) {
+                                    const [hours, minutes] = schedule.time.split(':').map(Number);
+                                    const scheduleTime = new Date(now);
+                                    scheduleTime.setHours(hours, minutes, 0, 0);
+
+                                    // If the time has passed today, check for next occurrence
+                                    if (scheduleTime <= now) {
+                                        scheduleTime.setDate(scheduleTime.getDate() + 1);
+                                    }
+
+                                    // Find the next scheduled day
+                                    let daysToAdd = 0;
+                                    const currentDay = scheduleTime.getDay();
+                                    
+                                    // If today is not a scheduled day, find the next scheduled day
+                                    if (!schedule.days.includes(currentDay)) {
+                                        // Look for the next scheduled day within the next 7 days
+                                        for (let i = 1; i <= 7; i++) {
+                                            const nextDay = (currentDay + i) % 7;
+                                            if (schedule.days.includes(nextDay)) {
+                                                daysToAdd = i;
+                                                break;
+                                            }
+                                        }
+                                        scheduleTime.setDate(scheduleTime.getDate() + daysToAdd);
+                                    }
+
+                                    const timeDiff = scheduleTime - now;
+                                    if (timeDiff < minTimeDiff) {
+                                        minTimeDiff = timeDiff;
+                                        nextSchedule = {
+                                            time: schedule.time,
+                                            nextOccurrence: scheduleTime,
+                                            days: schedule.days
+                                        };
+                                    }
+                                }
+                            });
+
+                            if (nextSchedule) {
+                                // Format the days
+                                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                                const scheduledDays = nextSchedule.days.map(day => dayNames[day]).join(', ');
+
+                                // Update the display
+                                document.getElementById('nextIrrigationTime').textContent = nextSchedule.time;
+                                document.getElementById('nextIrrigationDate').textContent = 
+                                    `${nextSchedule.nextOccurrence.toLocaleDateString('en-US', { 
+                                        weekday: 'long', 
+                                        month: 'short', 
+                                        day: 'numeric' 
+                                    })} (${scheduledDays})`;
+
+                                // Calculate progress (assuming 24-hour cycle)
+                                const totalTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                                const timeUntilNext = nextSchedule.nextOccurrence - now;
+                                const progress = ((totalTime - timeUntilNext) / totalTime) * 100;
+                                
+                                document.getElementById('nextIrrigationProgress').style.width = `${progress}%`;
+                                document.getElementById('nextIrrigationStatus').textContent = formatTimeRemaining(timeUntilNext);
+                            } else {
+                                // No active schedules
+                                document.getElementById('nextIrrigationTime').textContent = '--:--';
+                                document.getElementById('nextIrrigationDate').textContent = 'No active schedules';
+                                document.getElementById('nextIrrigationProgress').style.width = '0%';
+                                document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                            }
+                        } else {
+                            // No schedules found
+                            document.getElementById('nextIrrigationTime').textContent = '--:--';
+                            document.getElementById('nextIrrigationDate').textContent = 'No schedules';
+                            document.getElementById('nextIrrigationProgress').style.width = '0%';
+                            document.getElementById('nextIrrigationStatus').textContent = 'No upcoming irrigation';
+                        }
+                    } catch (error) {
+                        console.error('Error updating next irrigation:', error);
+                        document.getElementById('nextIrrigationTime').textContent = '--:--';
+                        document.getElementById('nextIrrigationDate').textContent = 'Error';
+                        document.getElementById('nextIrrigationProgress').style.width = '0%';
+                        document.getElementById('nextIrrigationStatus').textContent = 'Failed to load schedule';
                     }
-                </style>
-             END PAGE CONTENT-->
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
+                }
+
+                // Initialize the page
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadSchedules();
+                    updateNextIrrigation();
+                    // Update next irrigation every minute
+                    setInterval(updateNextIrrigation, 60000);
+                    // Reload schedules every minute
+                    setInterval(loadSchedules, 60000);
+                });
+
+                // Modify the updateRunningIrrigationStatus function
+                function updateRunningIrrigationStatus(record) {
+                    const statusDiv = document.getElementById('runningIrrigationStatus');
+                    const typeSpan = document.getElementById('runningIrrigationType');
+                    const detailsDiv = document.getElementById('runningIrrigationDetails');
+                    const nextIrrigationInfo = document.getElementById('nextIrrigationInfo');
+                    
+                    if (record && record.status === 'in_progress') {
+                        // Show the status div
+                        statusDiv.style.display = 'block';
+                        
+                        // Determine irrigation type and details based on the note field
+                        let type = '';
+                        let details = '';
+                        
+                        // Check the note field to determine the type of irrigation
+                        if (record.note && record.note.toLowerCase().includes('automated')) {
+                            type = 'Automation Irrigation';
+                            details = `Started at ${formatDateTime(record.startTime)}`;
+                            statusDiv.className = 'alert alert-primary mb-3';
+                        } else if (record.note && record.note.toLowerCase().includes('manual')) {
+                            type = 'Manual Irrigation';
+                            details = `Duration: ${record.duration} minutes | Started at ${formatDateTime(record.startTime)}`;
+                            statusDiv.className = 'alert alert-success mb-3';
+                        } else if (record.note && record.note.toLowerCase().includes('scheduled')) {
+                            type = 'Schedule Irrigation';
+                            details = `Duration: ${record.duration} minutes | Started at ${formatDateTime(record.startTime)}`;
+                            statusDiv.className = 'alert alert-info mb-3';
+                        } else {
+                            // Default case if note doesn't match any known type
+                            type = 'Irrigation Running';
+                            details = `Started at ${formatDateTime(record.startTime)}`;
+                            statusDiv.className = 'alert alert-secondary mb-3';
+                        }
+                        
+                        typeSpan.textContent = type;
+                        detailsDiv.textContent = details;
+                        
+                        // Hide next irrigation info and show running status
+                        nextIrrigationInfo.style.display = 'none';
+                        
+                        // Update the time-value and time-label with running status
+                        document.getElementById('nextIrrigationTime').textContent = type;
+                        document.getElementById('nextIrrigationDate').textContent = details;
+                        document.getElementById('nextIrrigationProgress').style.width = '100%';
+                        document.getElementById('nextIrrigationStatus').textContent = 'Irrigation in Progress';
+                    } else {
+                        // Hide the status div if no irrigation is running
+                        statusDiv.style.display = 'none';
+                        
+                        // Show next irrigation info
+                        nextIrrigationInfo.style.display = 'block';
+                        
+                        // Update next irrigation information
+                        updateNextIrrigation();
+                    }
+                }
+
+                // Modify the Socket.IO connection to handle irrigation updates
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize Socket.IO connection
+                    const socket = io();
+                    
+                    // Listen for irrigation record updates
+                    socket.on('irrigationRecordUpdate', (record) => {
+                        // Update running irrigation status
+                        updateRunningIrrigationStatus(record);
+                        
+                        // Update irrigation history if on first page
+                        const currentPage = parseInt(document.getElementById('currentPageInfo').textContent);
+                        if (currentPage === 1) {
+                            updateIrrigationRecord(record);
+                        }
+                    });
+                    
+                    // Initial check for running irrigation
+                    checkRunningIrrigation();
+                });
+
+                // Function to check for running irrigation
+                async function checkRunningIrrigation() {
+                    try {
+                        const response = await fetch('/api/irrigation-history?page=1');
+                        const data = await response.json();
+                        
+                        if (data.success && data.records.length > 0) {
+                            // Check if the most recent record is still running
+                            const latestRecord = data.records[0];
+                            if (latestRecord.status === 'in_progress') {
+                                updateRunningIrrigationStatus(latestRecord);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking running irrigation:', error);
+                    }
+                }
+
+                // Add styles for the running irrigation status
+                const style = document.createElement('style');
+                style.textContent = `
+                    #runningIrrigationStatus {
+                        transition: all 0.3s ease;
+                        margin-bottom: 1rem;
+                        border-left: 4px solid;
+                    }
+                    
+                    #runningIrrigationStatus.alert-primary {
+                        background-color: #e3f2fd;
+                        border-color: #2196F3;
+                        color: #0d47a1;
+                    }
+                    
+                    #runningIrrigationStatus.alert-success {
+                        background-color: #e8f5e9;
+                        border-color: #4CAF50;
+                        color: #1b5e20;
+                    }
+                    
+                    #runningIrrigationStatus.alert-info {
+                        background-color: #e3f2fd;
+                        border-color: #2196F3;
+                        color: #0d47a1;
+                    }
+                    
+                    #runningIrrigationStatus.alert-secondary {
+                        background-color: #f5f5f5;
+                        border-color: #9e9e9e;
+                        color: #424242;
+                    }
+                    
+                    #runningIrrigationStatus .fa-spin {
+                        animation: fa-spin 2s infinite linear;
+                    }
+                    
+                    @keyframes fa-spin {
+                        0% {
+                            transform: rotate(0deg);
+                        }
+                        100% {
+                            transform: rotate(360deg);
+                        }
+                    }
+                    
+                    #runningIrrigationStatus .small {
+                        font-size: 0.875rem;
+                        opacity: 0.8;
+                    }
+                    
+                    #runningIrrigationStatus strong {
+                        font-size: 1.1rem;
+                        display: block;
+                        margin-bottom: 0.25rem;
+                    }
+                `;
+                document.head.appendChild(style);
+            </script>
         </div>
     </div>
     <!-- BEGIN THEME CONFIG PANEL-->
@@ -842,6 +2212,24 @@
             </div>
         </div>
     </div>
+    <!-- Pending Users Modal -->
+<div class="modal fade" id="pendingUsersModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pending Users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="pendingUsersList">
+                    <!-- Pending users will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- END THEME CONFIG PANEL-->
     <!-- BEGIN PAGA BACKDROPS-->
     <div class="sidenav-backdrop backdrop"></div>
@@ -855,6 +2243,8 @@
     <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
     <!-- PAGE LEVEL PLUGINS-->
     <script src="./assets/vendors/chart.js/dist/Chart.min.js" type="text/javascript"></script>
     <script src="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.min.js" type="text/javascript"></script>
@@ -868,9 +2258,845 @@
     <script src="assets/js/app.min.js" type="text/javascript"></script>
     <!-- PAGE LEVEL SCRIPTS-->
     <script src="./assets/js/scripts/dashboard_1_demo.js" type="text/javascript"></script>
-
     <script src="./assets/js/scripts/calendar-demo.js" type="text/javascript"></script>
 
+    <script>
+        // Initialize Socket.IO connection
+        const socket = io();
+
+        // Function to update sensor values
+        function updateSensorValues(data) {
+            // Update moisture
+            document.getElementById('moistureValue').textContent = `${data.moisture.value}%`;
+            const moistureStatus = document.getElementById('moistureStatus');
+            moistureStatus.textContent = data.moisture.status;
+            moistureStatus.className = `badge badge-${data.moisture.color}`;
+
+            // Update temperature
+            document.getElementById('temperatureValue').textContent = `${data.temperature.value}°C`;
+            const temperatureStatus = document.getElementById('temperatureStatus');
+            temperatureStatus.textContent = data.temperature.status;
+            temperatureStatus.className = `badge badge-${data.temperature.color}`;
+        }
+
+        // Listen for real-time updates
+        socket.on('sensorUpdate', (data) => {
+            updateSensorValues(data);
+        });
+
+        // Function to update crop information
+        function updateCropInfo(cropData) {
+            const noCropOverlay = document.getElementById('noCropOverlay');
+            const irrigationContent = document.getElementById('irrigationContent');
+            const noCropMessage = document.getElementById('noCropMessage');
+            const cropInfo = document.getElementById('cropInfo');
+
+            if (!cropData) {
+                // Show overlay and disable content
+                noCropOverlay.style.display = 'flex';
+                irrigationContent.classList.add('disabled');
+                noCropMessage.style.display = 'block';
+                cropInfo.style.display = 'none';
+                return;
+            }
+
+            // Hide overlay and enable content
+            noCropOverlay.style.display = 'none';
+            irrigationContent.classList.remove('disabled');
+            noCropMessage.style.display = 'none';
+            cropInfo.style.display = 'block';
+
+            // Update crop details
+            document.getElementById('cropName').textContent = cropData.name;
+            document.getElementById('plantedDate').textContent = formatDate(cropData.startDate);
+            document.getElementById('harvestDate').textContent = formatDate(cropData.expectedHarvest);
+            document.getElementById('growthStage').textContent = cropData.growthStage;
+            document.getElementById('healthScore').textContent = `${cropData.score}%`;
+
+            // Update optimal conditions
+            const optimal = cropData.optimalConditions;
+            document.getElementById('optimalMoisture').textContent = `${optimal.moisture}%`;
+            document.getElementById('optimalTemperature').textContent = `${optimal.temperature}°C`;
+        }
+
+        // Function to format date
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Initial load of soil status
+        function loadInitialSoilStatus() {
+            fetch('/api/soil-status')
+                .then(response => response.json())
+                .then(data => {
+                    updateSensorValues(data);
+                    updateCropInfo(data.currentCrop);
+                })
+                .catch(error => {
+                    console.error('Error fetching soil status:', error);
+                });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialSoilStatus();
+        });
+    </script>
+
+    <!-- Add this modal HTML before the closing body tag -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleModalLabel">
+                        <i class="fas fa-clock mr-2"></i>Add Irrigation Schedule
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="scheduleForm">
+                        <div class="form-group">
+                            <label for="scheduleTime">
+                                <i class="fas fa-clock mr-2"></i>Time
+                            </label>
+                            <input type="time" class="form-control" id="scheduleTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleDuration">
+                                <i class="fas fa-hourglass-half mr-2"></i>Duration
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="scheduleDuration" min="1" max="60" value="15" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-calendar-alt mr-2"></i>Days
+                            </label>
+                            <div class="days-container">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day0" value="0" class="form-check-input" checked>
+                                    <label for="day0" class="form-check-label">Sun</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day1" value="1" class="form-check-input" checked>
+                                    <label for="day1" class="form-check-label">Mon</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day2" value="2" class="form-check-input" checked>
+                                    <label for="day2" class="form-check-label">Tue</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day3" value="3" class="form-check-input" checked>
+                                    <label for="day3" class="form-check-label">Wed</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day4" value="4" class="form-check-input" checked>
+                                    <label for="day4" class="form-check-label">Thu</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day5" value="5" class="form-check-input" checked>
+                                    <label for="day5" class="form-check-label">Fri</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="day6" value="6" class="form-check-input" checked>
+                                    <label for="day6" class="form-check-label">Sat</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-2"></i>Close
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">
+                        <i class="fas fa-save mr-2"></i>Save Schedule
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this JavaScript code before the closing body tag -->
+    <script>
+    // Function to format days array into readable string
+    function formatDays(days) {
+        // Check if all days are selected (0-6)
+        if (days.length === 7) {
+            return 'Daily';
+        }
+        
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return days.map(day => dayNames[day]).join(', ');
+    }
+
+    // Function to load schedules
+    async function loadSchedules() {
+        try {
+            const response = await fetch('/api/irrigation-schedules');
+            const data = await response.json();
+            
+            if (data.success) {
+                const tbody = document.querySelector('#scheduleTable tbody');
+                tbody.innerHTML = '';
+                
+                data.schedules.forEach(schedule => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="schedule-time">${schedule.time}</td>
+                        <td class="schedule-duration">${schedule.duration} min</td>
+                        <td class="schedule-days">${formatDays(schedule.days)}</td>
+                        <td>
+                            <span class="schedule-status ${schedule.isActive ? 'active' : 'inactive'}">
+                                ${schedule.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="schedule-actions">
+                                ${schedule.isActive ? 
+                                    `<button class="schedule-btn deactivate" onclick="toggleScheduleStatus('${schedule.id}', false)" title="Disable Schedule">
+                                        <i class="fa fa-power-off"></i>
+                                    </button>` :
+                                    `<button class="schedule-btn activate" onclick="toggleScheduleStatus('${schedule.id}', true)" title="Activate Schedule">
+                                        <i class="fa fa-power-off"></i>
+                                    </button>`
+                                }
+                                <button class="schedule-btn edit" onclick="editSchedule('${schedule.id}', '${schedule.time}', ${schedule.duration}, ${JSON.stringify(schedule.days)})" title="Edit Schedule">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading schedules:', error);
+        }
+    }
+
+    // Function to save new schedule
+    async function saveSchedule() {
+        const time = document.getElementById('scheduleTime').value;
+        const duration = parseInt(document.getElementById('scheduleDuration').value);
+        const days = [];
+        
+        // Get selected days
+        for (let i = 0; i < 7; i++) {
+            if (document.getElementById(`day${i}`).checked) {
+                days.push(i);
+            }
+        }
+        
+        if (!time || !duration || days.length === 0) {
+            showErrorMessage('Validation Error', 'Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            showLoadingState('Saving schedule...');
+            
+            const response = await fetch('/api/irrigation-schedules', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ time, duration, days })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                $('#scheduleModal').modal('hide');
+                loadSchedules();
+                // Reset form
+                document.getElementById('scheduleForm').reset();
+                // Show success message
+                showSuccessMessage('Schedule Added', 'The irrigation schedule has been added successfully.');
+            } else {
+                showErrorMessage('Error', 'Failed to save schedule');
+            }
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+            showErrorMessage('Error', 'Failed to save schedule. Please try again.');
+        }
+    }
+
+    // Function to toggle schedule status
+    async function toggleScheduleStatus(scheduleId, newStatus) {
+        try {
+            // Show loading state
+            showLoadingState(`${newStatus ? 'Activating' : 'Disabling'} schedule...`);
+            
+            const response = await fetch(`/api/irrigation-schedules/${scheduleId}/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isActive: newStatus })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                loadSchedules();
+                showSuccessMessage(
+                    newStatus ? 'Schedule Activated' : 'Schedule Disabled',
+                    `The schedule has been ${newStatus ? 'activated' : 'disabled'} successfully.`
+                );
+            } else {
+                showErrorMessage('Error', 'Failed to update schedule status');
+            }
+        } catch (error) {
+            console.error('Error toggling schedule status:', error);
+            showErrorMessage('Error', 'Failed to update schedule status. Please try again.');
+        }
+    }
+
+    // Function to confirm schedule deletion
+    function confirmDeleteSchedule(scheduleId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This schedule will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteSchedule(scheduleId);
+            }
+        });
+    }
+
+    // Function to delete schedule
+    async function deleteSchedule(scheduleId) {
+        try {
+            // Show loading state
+            showLoadingState('Deleting schedule...');
+            
+            const response = await fetch(`/api/irrigation-schedules/${scheduleId}`, {
+                method: 'DELETE'
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                // Close the modal first
+                $('#editScheduleModal').modal('hide');
+                // Then update the table
+                loadSchedules();
+                showSuccessMessage('Schedule Deleted', 'The irrigation schedule has been deleted successfully.');
+            } else {
+                showErrorMessage('Error', 'Failed to delete schedule');
+            }
+        } catch (error) {
+            console.error('Error deleting schedule:', error);
+            showErrorMessage('Error', 'Failed to delete schedule. Please try again.');
+        }
+    }
+
+    // Load schedules when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSchedules();
+        // Reload schedules every minute
+        setInterval(loadSchedules, 60000);
+    });
+
+    // Function to open edit modal with schedule data
+    function editSchedule(id, time, duration, days) {
+        // Set the values in the form
+        document.getElementById('editScheduleId').value = id;
+        document.getElementById('editScheduleTime').value = time;
+        document.getElementById('editScheduleDuration').value = duration;
+        
+        // Reset all checkboxes
+        for (let i = 0; i < 7; i++) {
+            document.getElementById(`editDay${i}`).checked = days.includes(i);
+        }
+        
+        // Show the modal
+        $('#editScheduleModal').modal('show');
+    }
+
+    // Function to update schedule
+    async function updateSchedule() {
+        const id = document.getElementById('editScheduleId').value;
+        const time = document.getElementById('editScheduleTime').value;
+        const duration = parseInt(document.getElementById('editScheduleDuration').value);
+        const days = [];
+        
+        // Get selected days
+        for (let i = 0; i < 7; i++) {
+            if (document.getElementById(`editDay${i}`).checked) {
+                days.push(i);
+            }
+        }
+        
+        if (!time || !duration || days.length === 0) {
+            showErrorMessage('Validation Error', 'Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            showLoadingState('Updating schedule...');
+            
+            const response = await fetch(`/api/irrigation-schedules/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ time, duration, days })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                // Close the modal first
+                $('#editScheduleModal').modal('hide');
+                // Then update the table
+                loadSchedules();
+                showSuccessMessage('Schedule Updated', 'The irrigation schedule has been updated successfully.');
+            } else {
+                showErrorMessage('Error', data.error || 'Failed to update schedule');
+            }
+        } catch (error) {
+            console.error('Error updating schedule:', error);
+            showErrorMessage('Error', 'Failed to update schedule. Please try again.');
+        }
+    }
+    </script>
+
+    <!-- Add SweetAlert2 JS in the head section -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+
+    <!-- Add this right before the closing body tag -->
+    <div class="modal fade" id="editScheduleModal" tabindex="-1" role="dialog" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editScheduleModalLabel">
+                        <i class="fas fa-edit mr-2"></i>Edit Irrigation Schedule
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editScheduleForm">
+                        <input type="hidden" id="editScheduleId">
+                        <div class="form-group">
+                            <label for="editScheduleTime">
+                                <i class="fas fa-clock mr-2"></i>Time
+                            </label>
+                            <input type="time" class="form-control" id="editScheduleTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editScheduleDuration">
+                                <i class="fas fa-hourglass-half mr-2"></i>Duration
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="editScheduleDuration" min="1" max="60" value="15" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-calendar-alt mr-2"></i>Days
+                            </label>
+                            <div class="days-container">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay0" value="0" class="form-check-input">
+                                    <label for="editDay0">Sun</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay1" value="1" class="form-check-input">
+                                    <label for="editDay1">Mon</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay2" value="2" class="form-check-input">
+                                    <label for="editDay2">Tue</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay3" value="3" class="form-check-input">
+                                    <label for="editDay3">Wed</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay4" value="4" class="form-check-input">
+                                    <label for="editDay4">Thu</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay5" value="5" class="form-check-input">
+                                    <label for="editDay5">Fri</label>
+                                </div>
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="editDay6" value="6" class="form-check-input">
+                                    <label for="editDay6">Sat</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteSchedule(document.getElementById('editScheduleId').value)">
+                        <i class="fas fa-trash mr-2"></i>Delete Schedule
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateSchedule()">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this JavaScript code before the closing body tag -->
+    <script>
+    // Function to format date and time
+    function formatDateTime(date) {
+        if (!date) return 'N/A';
+        return new Date(date).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Function to get status badge class
+    function getStatusBadgeClass(status) {
+        switch (status.toLowerCase()) {
+            case 'completed':
+                return 'badge-success';
+            case 'in_progress':
+                return 'badge-warning';
+            case 'stopped':
+                return 'badge-danger';
+            default:
+                return 'badge-secondary';
+        }
+    }
+
+    // Function to create a table row from record data
+    function createTableRow(record) {
+        const row = document.createElement('tr');
+        row.id = `irrigation-record-${record.id}`;
+        
+        // Determine irrigation type from note
+        let irrigationType = 'Unknown';
+        if (record.note) {
+            if (record.note.toLowerCase().includes('automated')) {
+                irrigationType = 'Automation';
+            } else if (record.note.toLowerCase().includes('manual')) {
+                irrigationType = 'Manual';
+            } else if (record.note.toLowerCase().includes('scheduled')) {
+                irrigationType = 'Schedule';
+            }
+        }
+        
+        row.innerHTML = `
+            <td>${formatDateTime(record.startTime)}</td>
+            <td>${record.duration} min</td>
+            <td>${record.moistureBefore}%</td>
+            <td>${record.moistureAfter || '--'}%</td>
+            <td>${irrigationType}</td>
+            <td><span class="badge ${getStatusBadgeClass(record.status)}">${record.status}</span></td>
+        `;
+        return row;
+    }
+
+    // Function to update or add a record in the table
+    function updateIrrigationRecord(record) {
+        const existingRow = document.getElementById(`irrigation-record-${record.id}`);
+        const newRow = createTableRow(record);
+        
+        if (existingRow) {
+            // Update existing row
+            existingRow.replaceWith(newRow);
+        } else {
+            // Add new row at the top of the table
+            const tbody = document.getElementById('irrigationHistoryBody');
+            if (tbody.firstChild) {
+                tbody.insertBefore(newRow, tbody.firstChild);
+            } else {
+                tbody.appendChild(newRow);
+            }
+            
+            // If we have more than 10 rows, remove the last one
+            if (tbody.children.length > 10) {
+                tbody.removeChild(tbody.lastChild);
+            }
+        }
+    }
+
+    // Function to load irrigation history
+    async function loadIrrigationHistory(page = 1) {
+        try {
+            const response = await fetch(`/api/irrigation-history?page=${page}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update table body
+                const tbody = document.getElementById('irrigationHistoryBody');
+                tbody.innerHTML = '';
+                
+                data.records.forEach(record => {
+                    const row = createTableRow(record);
+                    tbody.appendChild(row);
+                });
+                
+                // Update pagination info
+                document.getElementById('currentPageInfo').textContent = data.pagination.currentPage;
+                document.getElementById('totalPagesInfo').textContent = data.pagination.totalPages;
+                
+                // Update pagination buttons
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                
+                // Disable previous button if on first page
+                prevBtn.classList.toggle('disabled', data.pagination.currentPage === 1);
+                prevBtn.querySelector('a').onclick = (e) => {
+                    e.preventDefault();
+                    if (data.pagination.currentPage > 1) {
+                        loadIrrigationHistory(data.pagination.currentPage - 1);
+                    }
+                };
+                
+                // Disable next button if on last page
+                nextBtn.classList.toggle('disabled', data.pagination.currentPage === data.pagination.totalPages);
+                nextBtn.querySelector('a').onclick = (e) => {
+                    e.preventDefault();
+                    if (data.pagination.currentPage < data.pagination.totalPages) {
+                        loadIrrigationHistory(data.pagination.currentPage + 1);
+                    }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading irrigation history:', error);
+        }
+    }
+
+    // Initialize Socket.IO connection and handle real-time updates
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load initial irrigation history
+        loadIrrigationHistory(1);
+        
+        // Listen for real-time updates
+        socket.on('irrigationRecordUpdate', (record) => {
+            // Only update if we're on the first page
+            const currentPage = parseInt(document.getElementById('currentPageInfo').textContent);
+            if (currentPage === 1) {
+                updateIrrigationRecord(record);
+            }
+        });
+    });
+    </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load pending users count
+        loadPendingUsersCount();
+    
+        // Handle pending users button click
+        document.getElementById('pendingUsersBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            loadPendingUsers();
+            $('#pendingUsersModal').modal('show');
+        });
+    
+        // Function to load pending users count
+        async function loadPendingUsersCount() {
+            try {
+                const response = await fetch('/api/users/pending/count');
+                const data = await response.json();
+                if (data.success) {
+                    const countBadge = document.getElementById('pendingUsersCount');
+                    if (data.count > 0) {
+                        countBadge.textContent = data.count;
+                        countBadge.style.display = 'inline';
+                    } else {
+                        countBadge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading pending users count:', error);
+            }
+        }
+    
+        // Function to load pending users
+        async function loadPendingUsers() {
+            try {
+                const response = await fetch('/api/users/pending');
+                const data = await response.json();
+    
+                if (data.success) {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = '';
+    
+                    if (!data.users || data.users.length === 0) {
+                        pendingUsersList.innerHTML = '<div class="alert alert-info">No pending users found.</div>';
+                        return;
+                    }
+    
+                    data.users.forEach(user => {
+                        const userCard = document.createElement('div');
+                        userCard.className = 'card mb-3';
+                        userCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                             class="img-fluid rounded-circle" 
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h5 class="card-title">${user.name}</h5>
+                                        <p class="card-text">
+                                            <strong>Email:</strong> ${user.email}<br>
+                                            <strong>Contact:</strong> ${user.contactNumber || 'N/A'}<br>
+                                            <strong>Role:</strong> ${user.role}<br>
+                                            <strong>Email Verification:</strong> ${user.isVerified ? 'Verified' : 'Not Verified'}<br>
+                                            <strong>Registered:</strong> ${user.createdAt}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-success btn-sm mb-2 approve-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-check"></i> Approve
+                                        </button>
+                                        <button class="btn btn-danger btn-sm reject-user" 
+                                                data-user-id="${user.id}">
+                                            <i class="fa fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        pendingUsersList.appendChild(userCard);
+                    });
+    
+                    // Add event listeners for approve/reject buttons
+                    document.querySelectorAll('.approve-user').forEach(button => {
+                        button.addEventListener('click', handleUserApproval);
+                    });
+                    document.querySelectorAll('.reject-user').forEach(button => {
+                        button.addEventListener('click', handleUserRejection);
+                    });
+                } else {
+                    const pendingUsersList = document.getElementById('pendingUsersList');
+                    pendingUsersList.innerHTML = `<div class="alert alert-danger">Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading pending users:', error);
+                const pendingUsersList = document.getElementById('pendingUsersList');
+                pendingUsersList.innerHTML = `<div class="alert alert-danger">Failed to load pending users: ${error.message}</div>`;
+            }
+        }
+    
+        // Handle user approval
+        async function handleUserApproval(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/approve`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User approved successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error approving user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error approving user');
+            }
+        }
+    
+        // Handle user rejection
+        async function handleUserRejection(e) {
+            const userId = e.target.closest('button').dataset.userId;
+            try {
+                const response = await fetch(`/api/users/${userId}/reject`, {
+                    method: 'PUT'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('success', 'User rejected successfully');
+                    loadPendingUsers();
+                    loadPendingUsersCount();
+                } else {
+                    showNotification('error', 'Error rejecting user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error rejecting user');
+            }
+        }
+    
+        // Show notification
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+    
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    });
+    </script>
+
+    <!-- Add styles for the next irrigation display -->
+    <style>
+        #nextIrrigationInfo {
+            transition: all 0.3s ease;
+        }
+        
+        #nextIrrigationInfo[style*="display: none"] {
+            opacity: 0;
+        }
+        
+        #nextIrrigationInfo[style*="display: block"] {
+            opacity: 1;
+        }
+        
+        .time-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2196F3;
+            transition: all 0.3s ease;
+        }
+        
+        .time-label {
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .progress {
+            height: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
 </body>
 
 </html>

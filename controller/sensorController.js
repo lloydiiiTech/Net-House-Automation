@@ -17,7 +17,7 @@ exports.initScheduledJobs = () => {
     });
 
     // Run daily at 11:59 PM to summarize the entire day's data
-    cron.schedule('08 2 * * *', async () => {
+    cron.schedule('59 23 * * *', async () => {
         try {
             await summarizeDailySensorData();
             console.log('✅ Daily sensor data summarized successfully');
@@ -116,7 +116,7 @@ async function summarizeDailySensorData() {
     startOfDay.setHours(0, 0, 0, 0); // Set to 12:00:00 AM today
     
     // Query Firestore for data from the entire day
-    const snapshot = await firestore.collection('sensors')
+    const snapshot = await firestore.collection('sensor_summaries')
         .where('timestamp', '>=', startOfDay)
         .where('timestamp', '<=', now)
         .get();

@@ -96,7 +96,8 @@ exports.recommendationsPage = async (req, res) => {
                 .get();
             hasActiveCrop = !plantedSnapshot.empty;
         }
-
+        const rolesession = req.session.user?.role;
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/recommendations', {
             user: userData || {
                 name: 'Admin',
@@ -106,9 +107,22 @@ exports.recommendationsPage = async (req, res) => {
             recommendations,
             registeredCrops,
             hasActiveCrop
-        });
+        });} else
+        {
+            res.render('recommendations', {
+                user: userData || {
+                    name: 'User',
+                    role: 'User',
+                    profilePicture: '/assets/img/default-avatar.png'
+                },
+                recommendations,
+                registeredCrops,
+                hasActiveCrop
+            });}
     } catch (error) {
         console.error('Error rendering recommendations page:', error);
+        if(rolesession.toUpperCase() === 'ADMIN'){
+
         res.render('admin/recommendations', {
             user: {
                 name: 'Admin',
@@ -119,6 +133,20 @@ exports.recommendationsPage = async (req, res) => {
             registeredCrops: [],
             hasActiveCrop: false
         });
+    }
+    else {
+        res.render('recommendations', {
+            user: {
+                name: 'User',
+                role: 'User',
+                profilePicture: '/assets/img/default-avatar.png'
+            },
+            recommendations: [],
+            registeredCrops: [],
+            hasActiveCrop: false
+        });
+    
+    }
     }
 };
 

@@ -3,7 +3,6 @@ const redisClient = require("../config/redis");
 
 const MAX_HISTORY = 500; // Store last 500 readings
 const SENSOR_CACHE_KEY = "sensor_data";
-
 // Cache sensor data in Redis
 const cacheSensorData = async (data) => {
     const timestamp = Date.now();
@@ -296,6 +295,9 @@ exports.Dashboard = async (req, res) => {
             hasUserData: !!userData
         });
         
+        const rolesession = req.session.user?.role;
+
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render("admin/home", { 
             user: userData || {
                 name: 'Admin',
@@ -313,6 +315,25 @@ exports.Dashboard = async (req, res) => {
                 projectId: process.env.FIREBASE_PROJECT_ID
             }
         }); 
+        } else{
+            res.render("home", { 
+                user: userData || {
+                    name: 'Admin',
+                    role: 'Admin',
+                    profilePicture: '/assets/img/default-avatar.png'
+                },
+                sensorData,
+                sensorHistory: JSON.stringify(history),
+                cropData: cropData,
+                recommendations: recommendations,
+                aiFertilizerAdvice,
+                aiDiseaseAdvice,
+                firebaseConfig: {
+                    apiKey: process.env.FIREBASE_API_KEY,
+                    projectId: process.env.FIREBASE_PROJECT_ID
+                }
+            }); 
+        }
     } catch (error) {
         console.error("Error in Dashboard:", error);
         res.status(500).send("Error loading dashboard");
@@ -539,23 +560,42 @@ exports.irrigationControll = async (req, res) => {
                 console.error('Error fetching user data:', error);
             }
         }
-
+        const rolesession = req.session.user?.role;
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render("admin/irrigation", {
             user: userData || {
                 name: 'Admin',
                 role: 'Admin',
                 profilePicture: '/assets/img/default-avatar.png'
             }
-        });
+        });} else {
+            res.render("irrigation", {
+                user: userData || {
+                    name: 'User',
+                    role: 'User',
+                    profilePicture: '/assets/img/default-avatar.png'
+                }
+            });
+        }
     } catch (error) {
         console.error('Error rendering irrigation page:', error);
-        res.render("admin/irrigation", {
-            user: {
-                name: 'Admin',
-                role: 'Admin',
-                profilePicture: '/assets/img/default-avatar.png'
-            }
-        });
+        if(rolesession.toUpperCase() === 'ADMIN'){
+            res.render("admin/irrigation", {
+                user: {
+                    name: 'Admin',
+                    role: 'Admin',
+                    profilePicture: '/assets/img/default-avatar.png'
+                }
+            });
+        }else{
+            res.render("irrigation", {
+                user: {
+                    name: 'User',
+                    role: 'User',
+                    profilePicture: '/assets/img/default-avatar.png'
+                }
+            });
+        }
     }
 };
 

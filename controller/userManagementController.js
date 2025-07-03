@@ -137,7 +137,7 @@ const userManagementController = {
         } catch (error) {
             console.error('Error fetching users:', error);
             req.flash('error', 'Failed to fetch user data. Please try again.');
-            res.redirect('/admin-user-management');
+            res.redirect('/user-management');
         }
     },
 

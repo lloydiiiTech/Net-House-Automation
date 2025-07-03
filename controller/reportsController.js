@@ -299,7 +299,8 @@ exports.reportsAnalytics = async (req, res) => {
             if (!a.startDate || !b.startDate) return 0;
             return b.startDate - a.startDate;
         });
-
+        const rolesession = req.session.user?.role;
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/reports', {
             user: userData || {
                 name: 'Admin',
@@ -309,9 +310,22 @@ exports.reportsAnalytics = async (req, res) => {
             sensorData,
             registeredCrops,
             plantedCrops
-        });
+        });}
+        else{
+            res.render('reports', {
+                user: userData || {
+                    name: 'User',
+                    role: 'User',
+                    profilePicture: '/assets/img/default-avatar.png'
+                },
+                sensorData,
+                registeredCrops,
+                plantedCrops
+            });
+        }
     } catch (error) {
         console.error('Error rendering reports page:', error);
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/reports', {
             user: {
                 name: 'Admin',
@@ -321,7 +335,18 @@ exports.reportsAnalytics = async (req, res) => {
             sensorData: {},
             registeredCrops: [],
             plantedCrops: []
-        });
+        });} else {
+            res.render('reports', {
+                user: {
+                    name: 'User',
+                    role: 'User',
+                    profilePicture: '/assets/img/default-avatar.png'
+                },
+                sensorData: {},
+                registeredCrops: [],
+                plantedCrops: []
+            });
+        }
     }
 };
 

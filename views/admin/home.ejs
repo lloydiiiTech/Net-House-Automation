@@ -36,7 +36,7 @@
 
         /* Dashboard Card Styles */
         .dashboard-card {
-            background: white;
+            background: rgb(250, 250, 250);
             border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
             transition: var(--transition);
@@ -561,7 +561,7 @@
         <!-- Header -->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="/admin-home">
+                <a class="link" href="/dashboard">
                     <span class="brand">NetHouse
                         <span class="brand-tip">AUTOMATION</span>
                     </span>
@@ -586,8 +586,8 @@
                             <img src="<%= user.profilePicture %>" />
                             <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="/admin-profile"><i class="fa fa-user"></i>Profile</a>
+                        <ul class="dropdown-menu dropdown-menu-right" style="width: 25%;">
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
                             <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
                         </ul>
@@ -610,33 +610,34 @@
                 </div>
                 <ul class="side-menu metismenu">
                     <li>
-                        <a class="active" href="/admin-home">
-                            <i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                        <a class="active" href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="/admin-plant-overview">
-                            <i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a class="active" href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-irrigation-controll">
-                            <i class="sidebar-item-icon fas fa-faucet"></i>
-                            <span class="nav-label">Irrigation Control</span>
+                        <a class="active" href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Controll</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-reports&analytics">
-                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a class="active" href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/admin-user-management">
-                            <i class="sidebar-item-icon fas fa-users-cog"></i>
+                        <a class="active" href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
                             <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
                 </ul>
@@ -693,9 +694,9 @@
                         <!-- NPK Chart -->
                         <div class="ibox mb-4">
                             <div class="ibox-body">
-                                <div class="flexbox mb-4">
+                                <div class="flexbox mb-3 mt-3">
                                     <div>
-                                        <h3 class="m-0">Daily NPK Data</h3>
+                                        <h3 class="m-0" style="font-family: 'Franklin Gothic Medium';">Daily NPK Data</h3>
                                     </div>
                                     <div class="d-inline-flex">
                                         <div class="px-3" style="border-right: 1px solid rgba(0,0,0,.1);">
@@ -908,7 +909,7 @@
                                         <i class="fas fa-seedling fa-4x text-muted mb-3"></i>
                                         <h3 class="mb-3">No Crop Planted</h3>
                                         <p class="text-muted mb-4">Start your farming journey by planting a new crop</p>
-                                        <a href="/admin-crop-recommendations" class="btn btn-primary btn-lg">
+                                        <a href="/crop-recommendations" class="btn btn-primary btn-lg">
                                             <i class="fas fa-arrow-right mr-2"></i>Go to Crop Recommendation
                                         </a>
                                     </div>
@@ -1203,7 +1204,7 @@
 
                                 <!-- Control Button -->
                                 <div class="text-center mt-4">
-                                    <a href="/admin-irrigation-controll" class="btn btn-primary btn-lg btn-block">
+                                    <a href="/irrigation-controll" class="btn btn-primary btn-lg btn-block">
                                         <i class="fas fa-faucet mr-2"></i>
                                         Go to Irrigation Control
                                     </a>

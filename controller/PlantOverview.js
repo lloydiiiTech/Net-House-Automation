@@ -4,6 +4,7 @@ const { realtimeDB } = require('../config/firebase');
 const axios = require('axios');
 
 exports.plantOverview = async (req, res) => {
+  const rolesession = req.session.user?.role;
     try {
       // Get user data from session
       const userId = req.session.user?.uid;
@@ -27,9 +28,11 @@ exports.plantOverview = async (req, res) => {
         .orderBy('timestamp', 'desc')
         .limit(1)
         .get();
-  
+        const rolesession = req.session.user?.role;
+
       if (snapshot.empty) {
-        return res.render("admin/plants", { 
+        if(rolesession.toUpperCase() === 'ADMIN'){
+          return res.render("admin/plants", { 
           user: userData || {
             name: 'Admin',
             role: 'Admin',
@@ -40,6 +43,20 @@ exports.plantOverview = async (req, res) => {
           aiFertilizerAdvice: null,
           aiDiseaseAdvice: null
         });
+        } else {
+          return res.render("plants", { 
+            user: userData || {
+              name: 'User',
+              role: 'User',
+              profilePicture: '/assets/img/default-avatar.png'
+            },
+            recommendations: [],
+            sensorData: {},
+            aiFertilizerAdvice: null,
+            aiDiseaseAdvice: null
+          });
+        }
+        
       }
   
       const doc = snapshot.docs[0];
@@ -232,32 +249,66 @@ exports.plantOverview = async (req, res) => {
         diseaseAdvice: aiDiseaseAdvice
       });
 
-      res.render("admin/plants", { 
-        user: userData || {
-          name: 'Admin',
-          role: 'Admin',
-          profilePicture: '/assets/img/default-avatar.png'
-        },
-        recommendations,
-        sensorData,
-        currentCrop,
-        aiFertilizerAdvice,
-        aiDiseaseAdvice
-      });
+      if(rolesession.toUpperCase() === 'ADMIN'){
+        
+        res.render("admin/plants", { 
+          user: userData || {
+            name: 'Admin',
+            role: 'Admin',
+            profilePicture: '/assets/img/default-avatar.png'
+          },
+          recommendations,
+          sensorData,
+          currentCrop,
+          aiFertilizerAdvice,
+          aiDiseaseAdvice
+        });
+      } else{
+        res.render("plants", { 
+          user: userData || {
+            name: 'User',
+            role: 'User',
+            profilePicture: '/assets/img/default-avatar.png'
+          },
+          recommendations,
+          sensorData,
+          currentCrop,
+          aiFertilizerAdvice,
+          aiDiseaseAdvice
+        });
+      }
+
   
     } catch (error) {
       console.error("Error:", error);
-      res.render("admin/plants", { 
-        user: {
-          name: 'Admin',
-          role: 'Admin',
-          profilePicture: '/assets/img/default-avatar.png'
-        },
-        recommendations: [],
-        sensorData: {},
-        aiFertilizerAdvice: null,
-        aiDiseaseAdvice: null
-      });
+      const rolesession = req.session.user?.role;
+
+      if(rolesession.toUpperCase() === 'ADMIN'){
+        res.render("admin/plants", { 
+          user: {
+            name: 'Admin',
+            role: 'Admin',
+            profilePicture: '/assets/img/default-avatar.png'
+          },
+          recommendations: [],
+          sensorData: {},
+          aiFertilizerAdvice: null,
+          aiDiseaseAdvice: null
+        });
+      } else {
+        res.render("plants", { 
+          user: {
+            name: 'User',
+            role: 'User',
+            profilePicture: '/assets/img/default-avatar.png'
+          },
+          recommendations: [],
+          sensorData: {},
+          aiFertilizerAdvice: null,
+          aiDiseaseAdvice: null
+        });
+      }
+
     }
   };
 
@@ -809,6 +860,9 @@ exports.cancellationPreview = async (req, res) => {
         cropData.id = cropDoc.id;
 
         // Render the preview page
+        const rolesession = req.session.user?.role;
+
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/cancellation-preview', {
             crop: cropData,
             user: req.session.user || {
@@ -816,6 +870,19 @@ exports.cancellationPreview = async (req, res) => {
                 role: 'Admin'
             }
         });
+      } else {
+        res.render('cancellation-preview', {
+          crop: cropData,
+          user: req.session.user || {
+              name: 'User',
+              role: 'User'
+          }
+      });
+
+      }
+
+
+        
 
     } catch (error) {
         console.error("Error rendering cancellation preview:", error);
@@ -841,8 +908,10 @@ exports.harvestPreview = async (req, res) => {
 
         const cropData = cropDoc.data();
         cropData.id = cropDoc.id;
+        const rolesession = req.session.user?.role;
 
         // Render the preview page
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/harvest-preview', {
             crop: cropData,
             user: req.session.user || {
@@ -850,6 +919,15 @@ exports.harvestPreview = async (req, res) => {
                 role: 'Admin'
             }
         });
+      } else {
+        res.render('harvest-preview', {
+          crop: cropData,
+          user: req.session.user || {
+              name: 'User',
+              role: 'User'
+          }
+      });
+      }
 
     } catch (error) {
         console.error("Error rendering harvest preview:", error);

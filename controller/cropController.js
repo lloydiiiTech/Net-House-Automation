@@ -36,7 +36,6 @@ exports.getRecommendations = async (req, res) => {
 };
 
 
-
 exports.addCrop = async (req, res) => {
   try {
     const cropData = req.body;
@@ -82,5 +81,8 @@ exports.trainModel = async (req, res) => {
     });
   }
 };
+
+
+
 
 

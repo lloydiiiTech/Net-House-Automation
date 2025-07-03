@@ -15,6 +15,7 @@ const path = require('path');
 const irrigationController = require('./controller/irrigationController');
 const initializeSocket = require('./config/socket');
 const { initAIScheduledJobs } = require('./controller/aiController');
+const { initPlantedCropsListener } = require('./services/plantedCropsListener');
 
 // Configure Socket.IO with CORS
 const io = new Server(server, {
@@ -65,6 +66,9 @@ const initializeServices = async () => {
     await CropPredictionService.initialize();
     predictionServiceReady = true;
     console.log('✅ All services initialized');
+    
+    // Start Firestore listener for harvested crops
+    initPlantedCropsListener();
     
     setInterval(async () => {
       try {

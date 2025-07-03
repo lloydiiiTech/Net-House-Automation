@@ -7,7 +7,7 @@ const crypto = require("crypto");
 exports.register = async (req, res) => {
     // If already logged in, redirect to dashboard
     if (req.session.user) {
-        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+        return res.redirect(req.session.user.role === "Admin" ? "/dashboard" : "/dashboard");
     }
     res.render("register", {
         Data: {
@@ -131,7 +131,7 @@ exports.registerUser = async (req, res) => {
 exports.login = async (req, res) => {
     // If already logged in, redirect to dashboard
     if (req.session.user) {
-        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+        return res.redirect(req.session.user.role === "Admin" ? "/dashboard" : "/dashboard");
     }
     res.render("login", {
         Data: {
@@ -262,7 +262,7 @@ const loginSuccess = async (req, res, userData, userId, email) => {
             return res.redirect("/login");
         }
 
-        return res.redirect(userData.Role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+        return res.redirect("/dashboard");
     });
 };
 
@@ -518,7 +518,7 @@ exports.handleNewPassword = async (req, res) => {
 
 exports.preventIfAuthenticated = (req, res, next) => {
     if (req.session.user) {
-        return res.redirect(req.session.user.role === "Admin" ? "/admin-dashboard" : "/user-dashboard");
+        return res.redirect(req.session.user.role === "Admin" ? "/dashboard" : "/dashboard");
     }
     next();
 };

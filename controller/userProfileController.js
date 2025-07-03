@@ -92,17 +92,25 @@ const userProfileController = {
                 profilePicture: userData.profilePicture || '/assets/img/default-avatar.png',
                 lastLogin: formatDate(userData.lastLogin)
             };
+            const rolesession = req.session.user?.role;
 
-            res.render('user/profile', {
+            if(rolesession.toUpperCase() === 'ADMIN'){
+            res.render('admin/profile', {
                 user,
                 title: 'My Profile',
                 success: req.flash('success'),
                 error: req.flash('error')
-            });
+            });} else {
+                res.render('profile', {
+                    user,
+                    title: 'My Profile',
+                    success: req.flash('success'),
+                    error: req.flash('error')
+                });}
         } catch (error) {
             console.error('Error fetching user profile:', error);
             req.flash('error', 'Failed to load profile. Please try again.');
-            res.redirect('/user-dashboard');
+            res.redirect('/dashboard');
         }
     },
 

@@ -5,6 +5,17 @@ const admin = require('firebase-admin');
 const { normalizeData } = require('../utils/dataNormalizer');
 const { generateTrainingChart } = require('../utils/trainingVisualizer');
 
+function extractSeasonalityFeatures(startDate, endDate) {
+  let month = 0, duration = 0;
+  if (startDate instanceof Date && !isNaN(startDate)) {
+    month = startDate.getMonth() / 11; // Normalize to 0-1
+    if (endDate instanceof Date && !isNaN(endDate)) {
+      duration = Math.max(0, Math.min(1, (endDate - startDate) / (1000 * 60 * 60 * 24 * 120))); // Normalize to 0-1 for up to 120 days
+    }
+  }
+  return { month, duration };
+}
+
 class CropPredictionService {
   constructor() {
     this.model = null;
@@ -35,12 +46,12 @@ class CropPredictionService {
     }
   }
 
-  createModel() {
+  createModel(inputShape = 10) {
     const model = tf.sequential();
     model.add(tf.layers.dense({
       units: 64,
       activation: 'relu',
-      inputShape: [8],
+      inputShape: [inputShape],
       kernelInitializer: 'heNormal'
     }));
     model.add(tf.layers.dropout({ rate: 0.2 }));
@@ -76,56 +87,77 @@ class CropPredictionService {
     console.log('🔍 Model loaded from', modelLoadPath);
     
     // Warm up the model
-    const warmupTensor = tf.tensor2d([Array(8).fill(0.5)]);
+    const warmupTensor = tf.tensor2d([Array(10).fill(0.5)]);
     await this.model.predict(warmupTensor).data();
     tf.dispose(warmupTensor);
     
     this.modelTrained = true;
   }
 
-  async getHistoricalTrainingData(limit = 200) {
-    // Get past predictions with actual outcomes
-    const snapshot = await firestore.collection('prediction_history')
-      .where('hasActualOutcome', '==', true)
-      .orderBy('timestamp', 'desc')
-      .limit(limit)
-      .get();
-    
-    if (snapshot.empty) {
-      console.warn('⚠️ No historical training data available');
+  async getPlantedCropsTrainingData(limit = 300) {
+    try {
+      const snapshot = await firestore.collection('planted_crops')
+        .where('status', '==', 'harvested')
+        .orderBy('endDate', 'desc')
+        .limit(limit)
+        .get();
+  
+      if (snapshot.empty) {
+        console.warn('⚠️ No harvested crops available for training');
+        return [];
+      }
+  
+      const trainingData = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (
+          typeof data.harvestSuccessRate !== 'number' ||
+          data.harvestSuccessRate < 10 || data.harvestSuccessRate > 100 || // filter out outliers
+          !data.finalSensorSummary
+        ) return;
+  
+        const s = data.finalSensorSummary;
+  
+        const features = [
+          s.nitrogen ?? 0,
+          s.phosphorus ?? 0,
+          s.potassium ?? 0,
+          s.temperature ?? 0,
+          s.humidity ?? 0,
+          s.moistureAve ?? 0,
+          s.ph ?? 0,
+          s.light ?? 0
+        ];
+  
+        const startDate = data.startDate?.toDate ? data.startDate.toDate() : null;
+        const endDate = data.endDate?.toDate ? data.endDate.toDate() : null;
+        const { month, duration } = extractSeasonalityFeatures(startDate, endDate);
+        features.push(month, duration);
+  
+        trainingData.push({
+          features,
+          label: Math.min(1, Math.max(0, data.harvestSuccessRate / 100))
+        });
+      });
+  
+      console.log(`📊 Retrieved ${trainingData.length} training samples from planted_crops`);
+      return trainingData;
+    } catch (err) {
+      // Handle missing index error
+      if (err.code === 9 && err.details?.includes('The query requires an index')) {
+        console.error('❌ Firestore query failed: Composite index required.');
+        console.error('👉 Visit this link to create it:');
+        const match = err.details.match(/https:\/\/console\.firebase\.google\.com\/[^\s"]+/);
+        if (match) {
+          console.error(match[0]); // Log the URL to create the index
+        }
+      } else {
+        console.error('🔥 Unexpected error while fetching training data:', err);
+      }
       return [];
     }
-    
-    const trainingData = [];
-    const usedTimestamps = new Set();
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (!data.sensorData || !data.actualOutcome) return;
-      
-      // Ensure we don't have duplicate timestamps
-      const timeKey = data.timestamp.toDate().toISOString();
-      if (usedTimestamps.has(timeKey)) return;
-      usedTimestamps.add(timeKey);
-      
-      trainingData.push({
-        features: [
-          data.sensorData.nitrogen || 0,
-          data.sensorData.phosphorus || 0,
-          data.sensorData.potassium || 0,
-          data.sensorData.temperature || 0,
-          data.sensorData.humidity || 0,
-          data.sensorData.moisture || 0,
-          data.sensorData.ph || 0,
-          data.sensorData.light || 0
-        ],
-        label: Math.min(1, Math.max(0, data.actualOutcome.score / 100)) // Normalized 0-1
-      });
-    });
-    
-    console.log(`📊 Retrieved ${trainingData.length} training samples`);
-    return trainingData;
   }
+  
 
   async get31DaysSensorData() {
     const now = new Date();
@@ -274,7 +306,7 @@ class CropPredictionService {
     };
   }
 
-  createInputTensor(sensorData) {
+  createInputTensor(sensorData, startDate = null, endDate = null) {
     const normalized = normalizeData({
       n: sensorData.nitrogen,
       p: sensorData.phosphorus,
@@ -285,7 +317,18 @@ class CropPredictionService {
       ph: sensorData.ph,
       light: sensorData.light
     });
-    
+    // Add seasonality features (use current date if not provided)
+    let month = 0, duration = 0;
+    if (startDate instanceof Date && !isNaN(startDate)) {
+      month = startDate.getMonth() / 11;
+      if (endDate instanceof Date && !isNaN(endDate)) {
+        duration = Math.max(0, Math.min(1, (endDate - startDate) / (1000 * 60 * 60 * 24 * 120)));
+      }
+    } else {
+      const now = new Date();
+      month = now.getMonth() / 11;
+      duration = 0; // unknown
+    }
     return tf.tensor2d([[
       normalized.n,
       normalized.p,
@@ -294,9 +337,12 @@ class CropPredictionService {
       normalized.humidity,
       normalized.moisture,
       normalized.ph,
-      normalized.light
+      normalized.light,
+      month,
+      duration
     ]]);
   }
+
   calculateScore(sensorData, crop) {
     const parameterMatches = {
       nitrogen: this.calculateMatch(crop.optimal_n, sensorData.nitrogen, 'nitrogen'),
@@ -345,7 +391,6 @@ class CropPredictionService {
     ph: 0.13,       // Increased from 0.10
     light: 0.08     // Increased from 0.05
   };
-
 
     let totalScore = 0;
     let totalWeight = 0;
@@ -459,57 +504,81 @@ class CropPredictionService {
   async trainModel() {
     if (!this.backendReady) throw new Error('TensorFlow backend not ready');
     if (this.currentTraining) throw new Error('Training already in progress');
-    
     this.currentTraining = true;
     try {
       console.log('⏳ Loading training data...');
-      const trainingData = await this.getHistoricalTrainingData();
-      
-      if (trainingData.length < 50) {
-        throw new Error(`Insufficient training data (${trainingData.length} samples). Need at least 50.`);
+      const trainingData = await this.getPlantedCropsTrainingData();
+      if (trainingData.length < 5) {
+        throw new Error(`Insufficient training data (${trainingData.length} samples). Need at least 5.`);
       }
-
-      console.log(`📊 Training with ${trainingData.length} samples...`);
-      
-      // Prepare tensors
       const features = trainingData.map(d => d.features);
       const labels = trainingData.map(d => d.label);
-      
       const featureTensor = tf.tensor2d(features);
       const labelTensor = tf.tensor1d(labels);
-      
-      // Train model with callbacks
-      const history = await this.model.fit(featureTensor, labelTensor, {
-        epochs: 100,
-        batchSize: 32,
-        validationSplit: 0.2,
-        callbacks: {
-          onEpochEnd: (epoch, logs) => {
-            process.stdout.write(`\rEpoch ${epoch + 1}: loss=${logs.loss.toFixed(4)} val_loss=${logs.val_loss.toFixed(4)}`);
+      // Split into train/val
+      const valSplit = 0.2;
+      const numTrain = Math.floor(features.length * (1 - valSplit));
+      const xTrain = featureTensor.slice([0,0], [numTrain, features[0].length]);
+      const yTrain = labelTensor.slice([0], [numTrain]);
+      const xVal = featureTensor.slice([numTrain,0], [features.length - numTrain, features[0].length]);
+      const yVal = labelTensor.slice([numTrain], [features.length - numTrain]);
+      // Recreate model for new input shape
+      this.model = this.createModel(features[0].length);
+      // Early stopping
+      let bestValLoss = Infinity, bestWeights = null, patience = 10, wait = 0;
+      const history = { loss: [], val_loss: [] };
+      for (let epoch = 0; epoch < 100; epoch++) {
+        const h = await this.model.fit(xTrain, yTrain, {
+          epochs: 1,
+          batchSize: 16,
+          validationData: [xVal, yVal],
+          shuffle: true
+        });
+        const loss = h.history.loss[0];
+        const valLoss = h.history.val_loss[0];
+        history.loss.push(loss);
+        history.val_loss.push(valLoss);
+        process.stdout.write(`\rEpoch ${epoch+1}: loss=${loss.toFixed(4)} val_loss=${valLoss.toFixed(4)}`);
+        if (valLoss < bestValLoss) {
+          bestValLoss = valLoss;
+          bestWeights = this.model.getWeights().map(w => w.clone());
+          wait = 0;
+        } else {
+          wait++;
+          if (wait >= patience) {
+            console.log(`\nEarly stopping at epoch ${epoch+1}`);
+            break;
           }
         }
-      });
-      
+      }
+      if (bestWeights) this.model.setWeights(bestWeights);
       console.log('\n✅ Training completed');
-      
-      // Save the trained model
       await this.saveModel();
       this.modelTrained = true;
-      
+      // Validation metrics
+      const preds = this.model.predict(xVal).dataSync();
+      const actuals = yVal.dataSync();
+      let mae = 0, mse = 0;
+      for (let i = 0; i < preds.length; i++) {
+        const pred = Math.max(0, Math.min(1, preds[i]));
+        const actual = actuals[i];
+        mae += Math.abs(pred - actual);
+        mse += (pred - actual) ** 2;
+      }
+      mae /= preds.length;
+      mse /= preds.length;
+      console.log(`Validation MAE: ${(mae*100).toFixed(2)}% | MSE: ${(mse*10000).toFixed(2)}`);
       // Generate training chart
       const chartPath = await generateTrainingChart(history);
-      
-      // Calculate final metrics
-      const finalLoss = history.history.loss[history.history.loss.length - 1];
-      const finalValLoss = history.history.val_loss[history.history.val_loss.length - 1];
-      
       return { 
         success: true, 
         samples: trainingData.length,
-        finalLoss,
-        finalValLoss,
+        finalLoss: history.loss[history.loss.length-1],
+        finalValLoss: history.val_loss[history.val_loss.length-1],
         trainingChart: chartPath,
-        trainingTime: `${history.history.loss.length * 2}s`
+        trainingTime: `${history.loss.length * 2}s`,
+        valMAE: mae,
+        valMSE: mse
       };
     } finally {
       this.currentTraining = false;
