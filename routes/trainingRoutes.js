@@ -7,7 +7,7 @@
 
     // Training management
     router.get('/training/status', trainingController.getTrainingStatus);
-    router.post('/training/train', trainingController.trainModel);
+    router.get('/training/train', trainingController.trainModel);
     router.get('/training/validate', trainingController.validateModel);
     router.get('/training/chart', trainingController.getTrainingChart);
 

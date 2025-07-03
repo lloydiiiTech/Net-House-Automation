@@ -136,13 +136,13 @@ router.post('/api/profile/upload-picture', aController.isAuthenticated, userProf
 
 
 
-// const cropController = require('../controller/cropController');
+const cropController = require('../controller/cropController');
 
-// // Add these routes
-// router.get('/crops/recommend', cropController.getRecommendations);
-// router.get('/crops/train', cropController.trainModel);
+// Add these routes
+router.get('/crops/recommend', cropController.getRecommendations);
+router.get('/crops/train', cropController.trainModel);
 
-// router.post('/crops', cropController.addCrop);
+router.post('/crops', cropController.addCrop);
 
 router.get('/admin-crop-recommendations', aController.isAuthenticated, aController.isAdmin, recommendationController.recommendationsPage);
 
