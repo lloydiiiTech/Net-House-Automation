@@ -82,7 +82,21 @@ async function checkAndStartAutomatedIrrigation(moisture, optimalMoisture) {
         } catch (error) {
             console.error('Error starting automated irrigation:', error);
         }
+    }else if (optimalMoisture -2 < moisture) {
+        try {
+            
+            // Set automation trigger to true to start irrigation
+            await realtimeDB.ref('/automation').set({
+                enabled: false,
+                optimalMoisture: optimalMoisture
+            });
+
+            console.log('Automated irrigation triggered - Moisture below threshold');
+        } catch (error) {
+            console.error('Error starting automated irrigation:', error);
+        }
     }
+
 }
 
 // Add function to handle automation state changes

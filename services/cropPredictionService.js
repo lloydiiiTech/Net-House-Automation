@@ -370,7 +370,7 @@ class CropPredictionService {
     }
     
     // Special handling for pH (logarithmic scale)
-    if (key === 'light') {
+    if (paramName === 'light') {
       const difference = Math.abs(optimal - actual);
       return Math.max(0, 100 - (difference / optimal * 50)); // 50% tolerance
     }
@@ -503,7 +503,10 @@ class CropPredictionService {
 
   async trainModel() {
     if (!this.backendReady) throw new Error('TensorFlow backend not ready');
-    if (this.currentTraining) throw new Error('Training already in progress');
+    if (this.currentTraining) {
+      console.warn('⚠️ Training already in progress, skipping this request.');
+      return { success: false, message: 'Training already in progress' };
+    }
     this.currentTraining = true;
     try {
       console.log('⏳ Loading training data...');
