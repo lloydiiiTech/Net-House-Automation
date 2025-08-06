@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>NetHouseAutomation Reports & Analytics</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="./assets/vendors/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #5b9bd5;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 16px;
+            --box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            --header-gradient: linear-gradient(90deg, #5b9bd5 0%, #b3c6e2 100%);
+        }
+        html, body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #eaf0f7 100%);
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 2px solid var(--accent-color);
+            font-size: 2.2rem;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .page-title i {
+            color: var(--accent-color);
+            font-size: 2.1rem;
+        }
+        .summary-bar {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            background: var(--header-gradient);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 1.1rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+            font-size: 1.13rem;
+            flex-wrap: wrap;
+        }
+        .summary-bar .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        .summary-bar .badge {
+            font-size: 1.08rem;
+            padding: 0.5rem 1.1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            background: #fff;
+            color: var(--accent-color);
+            box-shadow: 0 1px 4px rgba(44,62,80,0.08);
+        }
+        .main-card {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto 2.2rem auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: #fff;
+            border: 1.5px solid #e3eefd;
+            overflow: hidden;
+            transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+            backdrop-filter: blur(1.5px);
+        }
+        .main-card:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.99);
+        }
+        .filter-section {
+            background: #fafdff;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            padding: 1.5rem 1.5rem 1.1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1.5px solid #e3eefd;
+        }
+            .section-label {
+            font-size: 1.08rem;
+            color: #7a8ca3;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+        }
+        .custom-input-lg {
+            border-radius: 12px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.9rem 1.1rem;
+            font-size: 1.08rem;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-input-lg:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .custom-table {
+            border-radius: 18px;
+            overflow: hidden;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(44,62,80,0.06);
+        }
+        .custom-table thead th {
+            background: #e3eefd;
+            color: #2c3e50;
+            font-weight: 700;
+            border-bottom: 2px solid #b3c6e2;
+            padding: 1.1rem 0.75rem;
+            text-align: center;
+            font-size: 1.08rem;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.18s;
+        }
+        .custom-table thead th.sortable:hover {
+            background: #d6e6fa;
+            color: var(--accent-color);
+        }
+        .custom-table thead th .sort-arrows {
+            font-size: 1.1em;
+            margin-left: 0.3em;
+            color: #b3c6e2;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+        }
+        .custom-table thead th.sorted-asc .sort-arrows {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+        .custom-table thead th.sorted-desc .sort-arrows {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+        .custom-table tbody td {
+            padding: 1.05rem 0.75rem;
+            border-bottom: 1px solid #f2f6fa;
+            vertical-align: middle;
+            text-align: center;
+            background: #fff;
+            transition: background 0.18s;
+            font-size: 1.07rem;
+        }
+        .custom-table tbody tr:nth-child(even) td {
+            background: #f7fafd;
+        }
+        .custom-table tbody tr:hover td {
+            background: #e3eefd;
+        }
+        .custom-table td .badge {
+            font-size: 1em;
+            padding: 0.4em 0.9em;
+            border-radius: 10px;
+            font-weight: 600;
+            background: #e3eefd;
+            color: var(--accent-color);
+        }
+        .custom-table td .badge.not-planted {
+            background: #fbeee6;
+            color: #b26a00;
+        }
+        .custom-table td .badge.planted {
+            background: #eaffea;
+            color: #27ae60;
+        }
+        .alert {
+            margin-top: 2rem;
+        }
+        @media (max-width: 900px) {
+            .main-card, .summary-bar {
+                max-width: 100%;
+                padding: 1.2rem 0.7rem;
+            }
+            .custom-table thead th, .custom-table tbody td {
+                padding: 0.7rem 0.3rem;
+                font-size: 0.97rem;
+            }
+            .summary-bar {
+                flex-direction: column;
+                gap: 0.7rem;
+                padding: 1rem 0.7rem;
+            }
+        }
+        .btn.btn-sm {
+            padding: 0.35rem 0.7rem;
+            font-size: 1.01rem;
+            border-radius: 8px;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-color 0.18s;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+            margin-right: 0.2rem;
+        }
+        .btn-outline-primary {
+            border-color: #5b9bd5;
+            color: #5b9bd5;
+            background: #fff;
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background: #e3eefd;
+            color: #4178b8;
+            border-color: #4178b8;
+        }
+        .btn-outline-danger {
+            border-color: #e57373;
+            color: #e57373;
+            background: #fff;
+        }
+        .btn-outline-danger:hover, .btn-outline-danger:focus {
+            background: #fbeee6;
+            color: #c0392b;
+            border-color: #c0392b;
+        }
+    </style>
+</head>
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->
+        <header class="header">
+            <div class="page-brand">
+                <a class="link" href="/dashboard">
+                    <span class="brand">Demo
+                        <span class="brand-tip">FARM</span>
+                    </span>
+                    <span class="brand-mini">DF</span>
+                </a>
+            </div>
+            <div class="flexbox flex-1">
+                <!-- START TOP-LEFT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+                    </li>
+                </ul>
+                <!-- END TOP-LEFT TOOLBAR-->
+                <!-- START TOP-RIGHT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="dropdown dropdown-user">
+                        <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
+                            <li class="dropdown-divider"></li>
+                            <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- END TOP-RIGHT TOOLBAR-->
+            </div>
+        </header>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <nav class="page-sidebar" id="sidebar">
+            <div id="sidebar-collapse">
+                <div class="admin-block d-flex">
+                    <div>
+                        <img src="<%= user.profilePicture %>" width="45px" />
+                    </div>
+                    <div class="admin-info">
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
+                </div>
+                <ul class="side-menu metismenu">
+                    <li>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                            <span class="nav-label">Plant Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                            <span class="nav-label">Reports & Analytics</span>
+                            <i class="fa fa-caret-down ml-1"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
+                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
+                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
+                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-fertilizer">AI Fertilizer</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                            <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="content-wrapper">
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="page-title"><i class="fa fa-leaf"></i> Registered Crops Report</h1>
+                        <div class="summary-bar mb-4">
+                            <div class="summary-item"><i class="fa fa-seedling"></i> Total Crops: <span class="badge"><%= cropSummary.length %></span></div>
+                            <div class="summary-item"><i class="fa fa-check-circle"></i> Planted: <span class="badge planted"><%= cropSummary.filter(c=>c.numberPlanted>0).length %></span></div>
+                            <div class="summary-item"><i class="fa fa-times-circle"></i> Never Planted: <span class="badge not-planted"><%= cropSummary.filter(c=>!c.lastPlanted).length %></span></div>
+                        </div>
+                        <!-- Filter Card -->
+                        <div class="filter-section mb-4">
+                            <div class="section-label mb-3"><i class="fa fa-filter me-2"></i> <span>Search</span></div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-12">
+                                    <label for="searchCropName" class="form-label mb-1">Search Crop Name</label>
+                                    <input type="text" class="form-control custom-input-lg" id="searchCropName" placeholder="Type to search...">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Filter Card -->
+                        <div class="main-card premium-table-card mb-5">
+                            <div class="card-header bg-primary text-white d-flex align-items-center" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                <i class="fa fa-leaf fa-lg me-2"></i>
+                                <h3 class="mb-0 flex-grow-1">Registered Crops</h3>
+                                <span class="badge bg-light text-primary ms-2">Total: <%= cropSummary.length %></span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped align-middle mb-0 custom-table" id="registeredCropsTable">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th class="sortable" data-col="name">Crop Name <span class="sort-arrows">▲▼</span></th>
+                                                <th class="sortable" data-col="successRate">Success Rate (%) <span class="sort-arrows">▲▼</span></th>
+                                                <th class="sortable" data-col="numberPlanted">Number Planted <span class="sort-arrows">▲▼</span></th>
+                                                <th class="sortable" data-col="numberFailed">Number Failed <span class="sort-arrows">▲▼</span></th>
+                                                <th class="sortable" data-col="lastPlanted">Last Planted <span class="sort-arrows">▲▼</span></th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% let filteredCrops = cropSummary; %>
+                                            <% if (filteredCrops && filteredCrops.length > 0) { %>
+                                                <% filteredCrops.forEach(function(crop) { %>
+                                                    <tr>
+                                                        <td><%= crop.name %></td>
+                                                        <td><%= crop.successRate %></td>
+                                                        <td><%= crop.numberPlanted %></td>
+                                                        <td><%= crop.numberFailed %></td>
+                                                        <td>
+                                                            <% if (crop.lastPlanted) { %>
+                                                                <span class="badge planted"><%= new Date(crop.lastPlanted).toLocaleDateString() %></span>
+                                                            <% } else { %>
+                                                                <span class="badge not-planted">Not yet planted</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit" onclick="openEditModal('<%= encodeURIComponent(crop.name) %>', this)"><i class="fa fa-edit"></i></button>
+                                                            <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteCrop('<%= encodeURIComponent(crop.name) %>')"><i class="fa fa-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr><td colspan="6" class="text-center">No registered crops found.</td></tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+    <!-- Edit Crop Name Modal -->
+    <div class="modal fade" id="editCropModal" tabindex="-1" role="dialog" aria-labelledby="editCropModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editCropModalLabel">Edit Crop Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form id="editCropForm" autocomplete="off">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="editCropNameInput">Crop Name</label>
+                <input type="text" class="form-control" id="editCropNameInput" name="newCropName" required>
+                <input type="hidden" id="oldCropNameInput" name="oldCropName">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchCropName');
+        const table = document.getElementById('registeredCropsTable');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        let rows = Array.from(tbody.getElementsByTagName('tr'));
+
+        // Real-time search
+        searchInput.addEventListener('input', function() {
+            const filter = searchInput.value.toLowerCase();
+            rows.forEach(row => {
+                const cropNameCell = row.getElementsByTagName('td')[0];
+                if (cropNameCell) {
+                    const txtValue = cropNameCell.textContent || cropNameCell.innerText;
+                    row.style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+                }
+            });
+        });
+
+        // Sorting
+        let currentSort = { col: null, dir: 1 };
+        const getCellValue = (row, idx) => {
+            let val = row.children[idx].textContent.trim();
+            if (idx === 1 || idx === 2 || idx === 3) return parseFloat(val) || 0;
+            if (idx === 4) return val === 'Not yet planted' ? 0 : new Date(val).getTime();
+            return val.toLowerCase();
+        };
+        function sortTable(colIdx, colName) {
+            let dir = 1;
+            if (currentSort.col === colIdx) dir = -currentSort.dir;
+            currentSort = { col: colIdx, dir };
+            rows.sort((a, b) => {
+                let vA = getCellValue(a, colIdx);
+                let vB = getCellValue(b, colIdx);
+                if (vA < vB) return -1 * dir;
+                if (vA > vB) return 1 * dir;
+                return 0;
+            });
+            // Remove all rows and re-append in sorted order
+            rows.forEach(row => tbody.appendChild(row));
+            // Update sort arrows
+            document.querySelectorAll('.sortable .sort-arrows').forEach(el => el.textContent = '▲▼');
+            document.querySelectorAll('.sortable').forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+            const arrow = dir === 1 ? '▲' : '▼';
+            const th = document.querySelectorAll('.sortable')[colIdx];
+            th.querySelector('.sort-arrows').textContent = arrow;
+            th.classList.add(dir === 1 ? 'sorted-asc' : 'sorted-desc');
+        }
+        document.querySelectorAll('.sortable').forEach((th, idx) => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => sortTable(idx, th.dataset.col));
+        });
+    });
+
+    function deleteCrop(cropName) {
+        if (confirm('Are you sure you want to unregister this crop?')) {
+            fetch('/unregister-crop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ cropName: decodeURIComponent(cropName) })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Option 1: Remove the row from the table
+                    const row = document.querySelector(`button[onclick=\"deleteCrop('${cropName}')\"]`).closest('tr');
+                    if (row) row.remove();
+                    alert('Crop unregistered successfully.');
+                } else {
+                    alert('Failed to unregister crop: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                alert('Error: ' + err.message);
+            });
+        }
+    }
+
+    function openEditModal(cropName, btn) {
+        const decodedName = decodeURIComponent(cropName);
+        document.getElementById('editCropNameInput').value = decodedName;
+        document.getElementById('oldCropNameInput').value = decodedName;
+        // Store reference to the row for later update
+        document.getElementById('editCropForm')._rowToUpdate = btn.closest('tr');
+        $('#editCropModal').modal('show');
+    }
+
+    document.getElementById('editCropForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const oldCropName = document.getElementById('oldCropNameInput').value;
+        const newCropName = document.getElementById('editCropNameInput').value;
+        fetch('/edit-crop-name', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ oldCropName, newCropName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update the row in the table
+                const row = document.getElementById('editCropForm')._rowToUpdate;
+                if (row) {
+                    row.children[0].textContent = newCropName;
+                    // Also update the edit/delete button handlers
+                    row.querySelector('.btn-outline-primary').setAttribute('onclick', `openEditModal('${encodeURIComponent(newCropName)}', this)`);
+                    row.querySelector('.btn-outline-danger').setAttribute('onclick', `deleteCrop('${encodeURIComponent(newCropName)}')`);
+                }
+                $('#editCropModal').modal('hide');
+                alert('Crop name updated successfully.');
+            } else {
+                alert('Failed to update crop name: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+    });
+    </script>
+</body>
+</html>

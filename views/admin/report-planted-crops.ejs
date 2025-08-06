@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>NetHouseAutomation Planted Crops Report</title>
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <link href="./assets/vendors/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 16px;
+            --box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+        }
+        html, body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #eaf0f7 100%);
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 2px solid var(--accent-color);
+            font-size: 2.2rem;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .summary-bar {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            background: linear-gradient(90deg, #5b9bd5 0%, #b3c6e2 100%);
+            color: #fff;
+            border-radius: var(--border-radius);
+            padding: 1.1rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+            font-size: 1.13rem;
+            flex-wrap: wrap;
+        }
+        .summary-bar .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        .summary-bar .badge {
+            font-size: 1.08rem;
+            padding: 0.5rem 1.1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            background: #fff;
+            color: var(--accent-color);
+            box-shadow: 0 1px 4px rgba(44,62,80,0.08);
+        }
+        .main-card {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto 2.2rem auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: #fff;
+            border: 1.5px solid #e3eefd;
+            overflow: hidden;
+            transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+            backdrop-filter: blur(1.5px);
+        }
+        .main-card:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.99);
+        }
+        .filter-download-card-pro {
+            background: rgba(255,255,255,0.85);
+            border-radius: 28px;
+            box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            overflow: hidden;
+            position: relative;
+            border: 1.5px solid #e3eefd;
+            transition: box-shadow 0.22s, border-color 0.22s, background 0.22s;
+            backdrop-filter: blur(2.5px);
+            margin-bottom: 2rem;
+        }
+        .filter-download-grid {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            min-height: 180px;
+            position: relative;
+        }
+        .accent-bar {
+            width: 8px;
+            background: linear-gradient(180deg, #5b9bd5 0%, #b3c6e2 100%);
+            border-radius: 0 12px 12px 0;
+            margin-right: 0.5rem;
+            min-height: 100%;
+        }
+        .divider {
+            width: 1.5px;
+            background: linear-gradient(180deg, #e3eefd 0%, #b3c6e2 100%);
+            margin: 0 0.5rem;
+            border-radius: 2px;
+            min-height: 100%;
+            align-self: stretch;
+        }
+        .section-label {
+            font-size: 1.08rem;
+            color: #7a8ca3;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+        }
+        .custom-input-lg {
+            border-radius: 12px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.9rem 1.1rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+        }
+        .custom-input-lg:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .btn-primary-pro {
+            background: #5b9bd5;
+            border-color: #5b9bd5;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-primary-pro:hover, .btn-primary-pro:focus {
+            background: #4178b8;
+            border-color: #4178b8;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-outline-secondary-pro {
+            border-color: #bfc9d1;
+            color: #34495e;
+            background: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-outline-secondary-pro:hover, .btn-outline-secondary-pro:focus {
+            background: #f2f6fa;
+            color: #4178b8;
+            border-color: #4178b8;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-success-pro {
+            background: #4bbf73;
+            border-color: #4bbf73;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-success-pro:hover, .btn-success-pro:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-danger-pro {
+            background: #e57373;
+            border-color: #e57373;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-danger-pro:hover, .btn-danger-pro:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        @media (max-width: 900px) {
+            .filter-download-grid {
+                flex-direction: column;
+            }
+            .divider, .accent-bar {
+                display: none !important;
+            }
+            .filter-section, .export-section {
+                padding: 1.2rem 1.1rem 1.1rem 1.1rem !important;
+            }
+            .export-section {
+                min-width: 0 !important;
+                width: 100%;
+                align-items: stretch !important;
+            }
+            .btn-success-pro, .btn-danger-pro {
+                margin-bottom: 0.7rem !important;
+            }
+        }
+        /* Flash/Toast redesign */
+        .custom-toast {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 320px;
+            max-width: 90vw;
+            padding: 1.1rem 1.7rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(44,62,80,0.18), 0 2px 8px rgba(44,62,80,0.10);
+            font-size: 1.13rem;
+            font-weight: 500;
+            position: fixed;
+            top: 2.5rem;
+            right: 2.5rem;
+            z-index: 9999;
+            background: #fff;
+            color: #2c3e50;
+            border: 1.5px solid #e3eefd;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .custom-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .custom-toast .toast-icon {
+            font-size: 1.7rem;
+            margin-right: 0.7rem;
+        }
+        .custom-toast-warning {
+            border-left: 6px solid #f1c40f;
+            background: linear-gradient(90deg, #fffbe6 0%, #f9f6e7 100%);
+        }
+        .custom-toast-danger {
+            border-left: 6px solid #e74c3c;
+            background: linear-gradient(90deg, #ffeaea 0%, #fbeeee 100%);
+        }
+        .custom-toast-success {
+            border-left: 6px solid #2ecc71;
+            background: linear-gradient(90deg, #eaffea 0%, #f6fdf6 100%);
+        }
+        .custom-toast .close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            margin-left: 1.2rem;
+            opacity: 0.7;
+            cursor: pointer;
+            transition: color 0.2s, opacity 0.2s;
+        }
+        .custom-toast .close:hover {
+            color: #2c3e50;
+            opacity: 1;
+        }
+        @media (max-width: 600px) {
+            .custom-toast {
+                min-width: 90vw;
+                right: 50%;
+                transform: translateX(50%);
+                top: 1.2rem;
+                padding: 0.8rem 1rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->
+        <header class="header">
+            <div class="page-brand">
+                <a class="link" href="/dashboard">
+                    <span class="brand">AgriNet
+                        <span class="brand-tip">Automation</span>
+                    </span>
+                    <span class="brand-mini"></span>
+                </a>
+            </div>
+            <div class="flexbox flex-1">
+                <!-- START TOP-LEFT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+                    </li>
+                </ul>
+                <!-- END TOP-LEFT TOOLBAR-->
+                <!-- START TOP-RIGHT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="dropdown dropdown-user">
+                        <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
+                            <li class="dropdown-divider"></li>
+                            <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- END TOP-RIGHT TOOLBAR-->
+            </div>
+        </header>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <nav class="page-sidebar" id="sidebar">
+            <div id="sidebar-collapse">
+                <div class="admin-block d-flex">
+                    <div>
+                        <img src="<%= user.profilePicture %>" width="45px" />
+                    </div>
+                    <div class="admin-info">
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
+                </div>
+                <ul class="side-menu metismenu">
+                    <li>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                            <span class="nav-label">Plant Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                            <span class="nav-label">Reports & Analytics</span>
+                            <i class="fa fa-caret-down ml-1"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
+                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
+                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
+                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-fertilizer">AI Fertilizer</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                            <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="content-wrapper">
+            <div id="crops-data" data-crops='<%- JSON.stringify(plantedCrops) %>' data-filters='<%- JSON.stringify(currentFilters) %>'></div>
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="page-title">Planted Crops Report</h1>
+                        <!-- Filter & Download Card -->
+                        <div class="main-card filter-download-card-pro card mb-4 p-0 border-0">
+                            <div class="filter-download-grid d-flex flex-wrap flex-md-nowrap align-items-stretch position-relative">
+                                <div class="accent-bar d-none d-md-block"></div>
+                                <div class="filter-section flex-grow-1 p-4 pb-3 pe-md-4">
+                                    <div class="section-label mb-3"><i class="fa fa-filter me-2"></i> <span>Filter</span></div>
+                                    <form method="get" action="/report-planted-crops" autocomplete="off">
+                                        <div class="row g-3">
+                                            <!-- Row 1: Main Filters -->
+                                            <div class="col-md-4">
+                                                <label for="filterCropName" class="form-label mb-1">Crop Name</label>
+                                                <select class="form-control custom-input-lg" id="filterCropName" name="cropName">
+                                                    <option value="">All Crops</option>
+                                                    <% let queryCropName = typeof cropName !== 'undefined' ? cropName : ''; %>
+                                                    <% let uniqueCropNames = [...new Set(allCrops.map(c => c.name))]; %>
+                                                    <% uniqueCropNames.forEach(function(name) { %>
+                                                        <option value="<%= name %>" <%= queryCropName === name ? 'selected' : '' %>><%= name %></option>
+                                                    <% }); %>
+                                                </select>
+                            </div>
+                                            <div class="col-md-4">
+                                                <label for="filterStatus" class="form-label mb-1">Status</label>
+                                                <select class="form-control custom-input-lg" id="filterStatus" name="status">
+                                                    <% let statusVal = typeof status !== 'undefined' ? status : ''; %>
+                                                    <option value="">All</option>
+                                                    <option value="harvested" <%= statusVal === 'harvested' ? 'selected' : '' %>>Successful</option>
+                                                    <option value="failed" <%= statusVal === 'failed' ? 'selected' : '' %>>Failed</option>
+                                                    <option value="cancelled" <%= statusVal === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                </select>
+                                </div>
+                                            <div class="col-md-4">
+                                                <label for="filterYear" class="form-label mb-1">Year</label>
+                                                <select class="form-control custom-input-lg" id="filterYear" name="year">
+                                                    <% 
+                                                        let yearVal = typeof year !== 'undefined' && year !== '' ? year : new Date().getFullYear(); 
+                                                    %>
+                                                    <option value="">All</option>
+                                                    <% 
+                                                        const minYear = 2000;
+                                                        const maxYear = new Date().getFullYear() + 1;
+                                                        for (let y = maxYear; y >= minYear; y--) { 
+                                                    %>
+                                                        <option value="<%= y %>" <%= yearVal == y ? 'selected' : '' %>><%= y %></option>
+                                                    <% } %>
+                                                </select>
+                            </div>
+                                            <!-- Row 2: Date Filters -->
+                                            <div class="col-md-4">
+                                                <label for="filterMonth" class="form-label mb-1">Month</label>
+                                                <select class="form-control custom-input-lg" id="filterMonth" name="month">
+                                                    <% let monthVal = typeof month !== 'undefined' ? month : ''; %>
+                                                    <option value="">All</option>
+                                                    <% const months = ["January","February","March","April","May","June","July","August","September","October","November","December"]; %>
+                                                    <% months.forEach((m, idx) => { %>
+                                                        <option value="<%= idx+1 %>" <%= monthVal == (idx+1) ? 'selected' : '' %>><%= m %></option>
+                                                    <% }); %>
+                                                </select>
+                                    </div>
+                                            <div class="col-md-4">
+                                                <label for="filterStartDate" class="form-label mb-1">Start Date</label>
+                                                <input type="date" class="form-control custom-input-lg" id="filterStartDate" name="startDate" value="<%= typeof startDate !== 'undefined' ? startDate : '' %>">
+                                </div>
+                                            <div class="col-md-4">
+                                                <label for="filterEndDate" class="form-label mb-1">End Date</label>
+                                                <input type="date" class="form-control custom-input-lg" id="filterEndDate" name="endDate" value="<%= typeof endDate !== 'undefined' ? endDate : '' %>">
+                            </div>
+                            </div>
+                                        <!-- Row 3: Buttons -->
+                                        <div class="row mt-3">
+                                            <div class="col-12 d-flex gap-2 flex-wrap">
+                                                <button type="submit" class="btn btn-primary-pro d-flex align-items-center gap-2" id="filterBtn"><i class="fa fa-search"></i> <span>Filter</span></button>
+                                                <a href="/report-planted-crops" class="btn btn-outline-secondary-pro d-flex align-items-center gap-2" id="resetBtn"><i class="fa fa-undo"></i> <span>Reset</span></a>
+                                </div>
+                                    </div>
+                                    </form>
+                                    </div>
+                                <div class="divider d-none d-md-block"></div>
+                                <div class="export-section p-4 pb-3 ps-md-4 d-flex flex-column align-items-center justify-content-center" style="min-width: 220px;">
+                                    <div class="section-label mb-3"><i class="fa fa-download me-2"></i> <span>Export</span></div>
+                                    <form id="exportExcelForm" method="get" action="/report-planted-crops/export/excel" style="width:100%;">
+                                        <input type="hidden" name="cropName">
+                                        <input type="hidden" name="status">
+                                        <input type="hidden" name="month">
+                                        <input type="hidden" name="year">
+                                        <input type="hidden" name="startDate">
+                                        <input type="hidden" name="endDate">
+                                        <button type="submit" class="btn btn-success-pro mb-2 w-100 d-flex align-items-center justify-content-center gap-2" id="exportExcelBtn"><i class="fa fa-file-excel"></i> <span>Excel</span></button>
+                                    </form>
+                                    <form id="exportPdfForm" method="get" action="/report-planted-crops/export/pdf" style="width:100%;">
+                                        <input type="hidden" name="cropName">
+                                        <input type="hidden" name="status">
+                                        <input type="hidden" name="month">
+                                        <input type="hidden" name="year">
+                                        <input type="hidden" name="startDate">
+                                        <input type="hidden" name="endDate">
+                                        <button type="submit" class="btn btn-danger-pro w-100 d-flex align-items-center justify-content-center gap-2" id="exportPdfBtn"><i class="fa fa-file-pdf"></i> <span>PDF</span></button>
+                                    </form>
+                                    </div>
+                                </div>
+                            <div id="exportToast"></div>
+                            </div>
+                        <div class="summary-bar mb-4">
+                            <div class="summary-item"><i class="fa fa-leaf"></i> Total: <span class="badge"><%= plantedCrops.length %></span></div>
+                            <div class="summary-item"><i class="fa fa-play-circle"></i> Active: <span class="badge" style="background:#eaffea;color:#27ae60;"><%= plantedCrops.filter(c=>!c.endDate).length %></span></div>
+                            <div class="summary-item"><i class="fa fa-check-circle"></i> Harvested: <span class="badge" style="background:#e3eefd;color:#5b9bd5;"><%= plantedCrops.filter(c=>c.status==='harvested').length %></span></div>
+                            <div class="summary-item"><i class="fa fa-times-circle"></i> Failed: <span class="badge" style="background:#fbeee6;color:#b26a00;"><%= plantedCrops.filter(c=>c.status==='failed').length %></span></div>
+                            <div class="summary-item"><i class="fa fa-ban"></i> Cancelled: <span class="badge" style="background:#f8d7da;color:#721c24;"><%= plantedCrops.filter(c=>c.status==='cancelled').length %></span></div>
+                        </div>
+                        <div class="main-card premium-table-card mb-5">
+                            <div class="card-header bg-primary text-white d-flex align-items-center" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                <i class="fa fa-seedling fa-lg me-2"></i>
+                                <h3 class="mb-0 flex-grow-1">Planted Crops History</h3>
+                                <span class="badge bg-light text-primary ms-2">Total: <%= plantedCrops.length %></span>
+                                </div>
+                            <div class="card-body p-0">
+                            <div class="table-responsive">
+                                    <table class="table table-hover table-striped align-middle mb-0 custom-table" id="plantedCropsTable">
+                                        <thead class="table-primary">
+                                        <tr>
+                                            <th>Crop Name</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                                <th>User</th>
+                                                <th>End User</th>
+                                            <th>Status</th>
+                                                <th>Remark</th>
+                                                <th>Harvest Quality</th>
+                                                <th>Harvest Quantity</th>
+                                                <th>Harvest Success Rate</th>
+                                        </tr>
+                                    </thead>
+                                        <tbody id="plantedCropsTbody">
+                                            <!-- Rows will be rendered by JS -->
+                                        </tbody>
+                                </table>
+                        </div>
+                                <nav aria-label="Planted Crops Pagination" class="mt-3">
+                                    <ul class="pagination justify-content-center pagination-lg" id="paginationControls"></ul>
+                                </nav>
+                    </div>
+                                </div>
+                            </div>
+                </div>
+            </div>
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+    <!-- Modal for crop details -->
+    <div class="modal fade" id="cropDetailModal" tabindex="-1" role="dialog" aria-labelledby="cropDetailModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius: 18px; box-shadow: 0 8px 36px rgba(44,62,80,0.18), 0 2px 8px rgba(44,62,80,0.10);">
+          <div class="modal-header" style="background: linear-gradient(90deg, #5b9bd5 0%, #b3c6e2 100%); color: #fff; border-top-left-radius: 18px; border-top-right-radius: 18px; align-items: center; min-height: 80px;">
+            <div style="display: flex; align-items: center; gap: 1.2rem; width: 100%;">
+              <span id="modalHeaderIcon" style="font-size: 2.5rem; background: rgba(255,255,255,0.18); border-radius: 50%; padding: 0.5rem 0.7rem; display: flex; align-items: center; justify-content: center;"><i class="fa fa-leaf"></i></span>
+              <h4 class="modal-title mb-0" id="cropDetailModalLabel" style="font-weight: 700; letter-spacing: 0.01em; flex: 1;">Crop Details</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff; opacity: 1; font-size: 2rem;">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          </div>
+          <div class="modal-body" id="cropDetailModalBody" style="background: #f8f9fa; padding: 2.2rem 2.5rem; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; min-height: 220px; font-size: 1.08rem; box-shadow: 0 2px 12px rgba(44,62,80,0.10); border: 1.5px solid #e3eefd;">
+            <!-- Details will be injected here -->
+            <div id="modalPreviewBtnContainer" class="text-center mt-4"></div>
+          </div>
+          <div class="modal-footer" style="background: #f8f9fa; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script>
+    // Helper to render an object as a key-value table
+    function renderKeyValueTable(obj) {
+        if (!obj || typeof obj !== 'object') return '<span>0</span>';
+        let html = '<table class="table table-sm table-bordered" style="background:#fff; border-radius:8px; overflow:hidden; margin-bottom:0;">';
+        Object.entries(obj).forEach(([key, value]) => {
+            let displayValue = value;
+            if (value === null) displayValue = 0;
+            if (typeof displayValue === 'object' && displayValue !== null) {
+                displayValue = renderKeyValueTable(displayValue);
+            }
+            html += `<tr><th style='background:#f2f6fa; font-weight:600; width: 40%; text-transform:capitalize;'>${key.replace(/_/g, ' ')}</th><td>${displayValue}</td></tr>`;
+        });
+        html += '</table>';
+        return html;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[DEBUG] DOM Content Loaded. Script is running.');
+        const cropsDataEl = document.getElementById('crops-data');
+        const crops = JSON.parse(cropsDataEl.dataset.crops);
+        const cropsById = {};
+        crops.forEach(crop => {
+            if (crop.cropId) cropsById[crop.cropId] = crop;
+        });
+        const currentFilters = JSON.parse(cropsDataEl.dataset.filters);
+        console.log('[DEBUG] Parsed crops data:', crops);
+        console.log('[DEBUG] Guaranteed Filters:', currentFilters);
+
+        // Ensure year dropdown has a value
+        var yearSelect = document.getElementById('filterYear');
+        if (yearSelect && !yearSelect.value && currentFilters.year) {
+            yearSelect.value = currentFilters.year;
+        }
+        
+        const rowsPerPage = 10;
+        let currentPage = 1;
+
+        function renderTable(page = 1) {
+            const tbody = document.getElementById('plantedCropsTbody');
+            tbody.innerHTML = '';
+            const startIdx = (page - 1) * rowsPerPage;
+            const endIdx = Math.min(startIdx + rowsPerPage, crops.length);
+            if (crops.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center">No planted crops found.</td></tr>';
+                renderPagination(1, 1);
+                return;
+            }
+            for (let i = startIdx; i < endIdx; i++) {
+                const crop = crops[i];
+                let statusBadge = '';
+                if (crop.status === 'harvested') {
+                    statusBadge = '<span class="badge" style="background:#eaffea;color:#27ae60;"><i class="fa fa-check-circle"></i> ' + crop.status + '</span>';
+                } else if (crop.status === 'cancelled') {
+                    statusBadge = '<span class="badge" style="background:#f8d7da;color:#c0392b;"><i class="fa fa-ban"></i> ' + crop.status + '</span>';
+                } else if (crop.status === 'failed') {
+                    statusBadge = '<span class="badge" style="background:#fff3cd;color:#b26a00;"><i class="fa fa-times-circle"></i> ' + crop.status + '</span>';
+                } else {
+                    statusBadge = '<span class="badge" style="background:#e3eefd;color:#2c3e50;"><i class="fa fa-info-circle"></i> ' + crop.status + '</span>';
+                }
+                tbody.innerHTML += `
+                <tr class="clickable-crop-row" data-crop-id="${crop.cropId}">
+                    <td>${crop.name}</td>
+                    <td>${crop.startDate ? new Date(crop.startDate).toLocaleDateString() : 'N/A'}</td>
+                    <td>${crop.endDate ? new Date(crop.endDate).toLocaleDateString() : 'Current'}</td>
+                    <td>${crop.userName}</td>
+                    <td>${crop.endUserName}</td>
+                    <td>${statusBadge}</td>
+                    <td>${crop.cancelRemark ? crop.cancelRemark : (crop.harvestChallenges || crop.harvestNotes ? (crop.harvestChallenges || '') + '<br>' + (crop.harvestNotes || '') : '-')}</td>
+                    <td>${crop.harvestQuality || '-'}</td>
+                    <td>${crop.harvestQuantity || '-'}</td>
+                    <td>${crop.harvestSuccessRate || '-'}</td>
+                </tr>
+                `;
+            }
+            renderPagination(page, Math.ceil(crops.length / rowsPerPage));
+            // Attach modal logic to new rows
+            document.querySelectorAll('.clickable-crop-row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const cropId = this.getAttribute('data-crop-id');
+                    const crop = cropsById[cropId];
+                    if (!crop) return;
+                    let html = '';
+                    document.getElementById('cropDetailModalLabel').textContent = crop.name || 'Crop Details';
+                    // Build a card-like layout for details
+                    let detailHtml = `<div class='container-fluid'>`;
+                    detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#2c3e50; margin-bottom:0.7rem;'><i class='fa fa-leaf'></i> Crop Info</h5></div></div>`;
+                    detailHtml += `<div class='row mb-2'>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Crop Name:</span> ${crop.name || 'N/A'}</div>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Status:</span> <span class='badge' style='background:#e3eefd;color:#2c3e50;font-size:1rem;'>${crop.status || 'N/A'}</span></div>`;
+                    detailHtml += `</div><div class='row mb-2'>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Start Date:</span> ${crop.startDate ? new Date(crop.startDate).toLocaleString() : 'N/A'}</div>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>End Date:</span> ${crop.endDate ? new Date(crop.endDate).toLocaleString() : 'N/A'}</div>`;
+                    detailHtml += `</div><div class='row mb-2'>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>User Email:</span> ${crop.userEmail || 'N/A'}</div>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>User Name:</span> ${crop.userName || 'N/A'}</div>`;
+                    detailHtml += `</div><div class='row mb-2'>`;
+                    detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Score:</span> ${crop.score != null ? crop.score : 'N/A'}</div>`;
+                    detailHtml += `</div>`;
+                    detailHtml += `<hr style='margin:1.2rem 0;'/>`;
+                    if (crop.status === 'harvested') {
+                        detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#4bbf73; margin-bottom:0.7rem;'><i class='fa fa-tractor'></i> Harvest Details</h5></div></div>`;
+                        detailHtml += `<div class='row mb-2'>`;
+                        detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Harvest Date:</span> ${crop.harvestDate ? new Date(crop.harvestDate).toLocaleString() : 'N/A'}</div>`;
+                        detailHtml += `<div class='col-md-6 mb-2'><span style='font-weight:500;'>Harvest Method:</span> ${crop.harvestMethod || 'N/A'}</div>`;
+                        detailHtml += `</div><div class='row mb-2'>`;
+                        detailHtml += `<div class='col-md-4 mb-2'><span style='font-weight:500;'>Harvest Quality:</span> ${crop.harvestQuality || 'N/A'}</div>`;
+                        detailHtml += `<div class='col-md-4 mb-2'><span style='font-weight:500;'>Harvest Quantity:</span> ${crop.harvestQuantity || 'N/A'}</div>`;
+                        detailHtml += `<div class='col-md-4 mb-2'><span style='font-weight:500;'>Harvest Success Rate:</span> ${crop.harvestSuccessRate || 'N/A'}</div>`;
+                        detailHtml += `</div><div class='row mb-2'>`;
+                        detailHtml += `<div class='col-md-12 mb-2'><span style='font-weight:500;'>Harvest Notes:</span> ${crop.harvestNotes || 'N/A'}</div>`;
+                        detailHtml += `</div>`;
+                        detailHtml += `<div class='row mb-2'><div class='col-md-12 mb-2'><span style='font-weight:500;'>Harvest Challenges:</span> ${crop.harvestChallenges || 'N/A'}</div></div>`;
+                        detailHtml += `<hr style='margin:1.2rem 0;'/>`;
+                        detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#5b9bd5; margin-bottom:0.7rem;'><i class='fa fa-thermometer-half'></i> Sensor Summary</h5></div></div>`;
+                        detailHtml += `<div class='row mb-2'><div class='col-md-12 mb-2'>` +
+                            (crop.finalSensorSummary ? renderKeyValueTable(crop.finalSensorSummary) : '<span>N/A</span>') +
+                            `</div></div>`;
+                    } else if (crop.status === 'failed' || crop.status === 'cancelled') {
+                        detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#e57373; margin-bottom:0.7rem;'><i class='fa fa-ban'></i> Cancellation Details</h5></div></div>`;
+                        detailHtml += `<div class='row mb-2'><div class='col-md-12 mb-2'><span style='font-weight:500;'>Cancel Remark:</span> ${crop.cancelRemark || 'N/A'}</div></div>`;
+                    }
+                    detailHtml += `<hr style='margin:1.2rem 0;'/>`;
+                    detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#3498db; margin-bottom:0.7rem;'><i class='fa fa-bullseye'></i> Parameter Matches</h5></div></div>`;
+                    detailHtml += `<div class='row mb-2'><div class='col-md-12 mb-2'>` +
+                        (crop.parameterMatches ? renderKeyValueTable(crop.parameterMatches) : '<span>N/A</span>') +
+                        `</div></div>`;
+                    detailHtml += `<hr style='margin:1.2rem 0;'/>`;
+                    detailHtml += `<div class='row mb-3'><div class='col-12'><h5 style='font-weight:600; color:#2c3e50; margin-bottom:0.7rem;'><i class='fa fa-cogs'></i> Optimal Conditions</h5></div></div>`;
+                    detailHtml += `<div class='row mb-2'><div class='col-md-12 mb-2'>` +
+                        (crop.optimalConditions ? renderKeyValueTable(crop.optimalConditions) : '<span>N/A</span>') +
+                        `</div></div>`;
+                    detailHtml += `</div>`;
+                    document.getElementById('cropDetailModalBody').innerHTML = detailHtml + '<div id="modalPreviewBtnContainer" class="text-center mt-4"></div>';
+                    // Update modal header icon and title
+                    var modalHeaderIcon = document.getElementById('modalHeaderIcon');
+                    var modalTitle = document.getElementById('cropDetailModalLabel');
+                    if (modalHeaderIcon) {
+                        if (crop.status === 'harvested') {
+                            modalHeaderIcon.innerHTML = '<i class="fa fa-tractor"></i>';
+                        } else if (crop.status === 'failed' || crop.status === 'cancelled') {
+                            modalHeaderIcon.innerHTML = '<i class="fa fa-ban"></i>';
+                        } else {
+                            modalHeaderIcon.innerHTML = '<i class="fa fa-leaf"></i>';
+                        }
+                    }
+                    if (modalTitle) {
+                        modalTitle.textContent = crop.name || 'Crop Details';
+                    }
+                    // Add preview button logic
+                    var previewBtnContainer = document.getElementById('modalPreviewBtnContainer');
+                    if (crop.cropId) {
+                        let previewUrl = '';
+                        let btnText = '';
+                        let btnIcon = '';
+                        if (crop.status === 'harvested') {
+                            previewUrl = '/harvest-preview/' + crop.cropId;
+                            btnText = 'Preview Harvest Document';
+                            btnIcon = '<i class="fa fa-file-pdf"></i>';
+                        } else if (crop.status === 'failed' || crop.status === 'cancelled') {
+                            previewUrl = '/cancellation-preview/' + crop.cropId;
+                            btnText = 'Preview Cancellation Document';
+                            btnIcon = '<i class="fa fa-file-pdf"></i>';
+                        }
+                        if (previewUrl) {
+                            previewBtnContainer.innerHTML = `<a href="${previewUrl}" target="_blank" class="btn btn-lg btn-primary-pro preview-doc-btn" style="margin-top: 10px; font-size: 1.13rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(44,62,80,0.10); display: inline-flex; align-items: center; gap: 0.6rem; font-weight:600; letter-spacing:0.01em;">${btnIcon} ${btnText}</a>`;
+                        }
+                    }
+                    // Add hover effect to preview button
+                    var style = document.createElement('style');
+                    style.innerHTML = `.preview-doc-btn:hover { background: #4178b8 !important; color: #fff !important; box-shadow: 0 4px 16px rgba(44,62,80,0.13); transform: translateY(-2px) scale(1.04); }`;
+                    document.head.appendChild(style);
+                    // Use jQuery to show the modal (Bootstrap 4 style)
+                    $('#cropDetailModal').modal('show');
+                });
+            });
+        }
+
+        function renderPagination(current, total) {
+            const controls = document.getElementById('paginationControls');
+            controls.innerHTML = '';
+            if (total <= 1) return;
+            controls.innerHTML += `<li class="page-item${current === 1 ? ' disabled' : ''}"><a class="page-link" href="#" data-page="1">First</a></li>`;
+            controls.innerHTML += `<li class="page-item${current === 1 ? ' disabled' : ''}"><a class="page-link" href="#" data-page="${current - 1}">Previous</a></li>`;
+            controls.innerHTML += `<li class="page-item disabled"><span class="page-link">Page ${current} of ${total}</span></li>`;
+            controls.innerHTML += `<li class="page-item${current === total ? ' disabled' : ''}"><a class="page-link" href="#" data-page="${current + 1}">Next</a></li>`;
+            controls.innerHTML += `<li class="page-item${current === total ? ' disabled' : ''}"><a class="page-link" href="#" data-page="${total}">Last</a></li>`;
+            Array.from(controls.querySelectorAll('a.page-link')).forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = parseInt(this.getAttribute('data-page'));
+                    if (!isNaN(page) && page >= 1 && page <= total) {
+                        currentPage = page;
+                        renderTable(currentPage);
+                    }
+                });
+            });
+        }
+        
+        // REMOVED client-side filtering logic
+        
+        // Export logic: update to use startDate/endDate from the form
+        function showExportToast(msg, type = 'warning') {
+            const toast = document.getElementById('exportToast');
+            let toastTypeClass = 'custom-toast-warning';
+            let icon = '<i class="fa fa-exclamation-triangle toast-icon"></i>';
+            if (type === 'danger') { toastTypeClass = 'custom-toast-danger'; icon = '<i class="fa fa-times-circle toast-icon"></i>'; }
+            if (type === 'success') { toastTypeClass = 'custom-toast-success'; icon = '<i class="fa fa-check-circle toast-icon"></i>'; }
+            toast.innerHTML = `<div class="custom-toast ${toastTypeClass} show">${icon}<span>${msg}</span><button class="close" onclick="hideExportToast()" aria-label="Close">&times;</button></div>`;
+            toast.classList.add('show');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                if (toast.querySelector('.custom-toast')) {
+                    toast.querySelector('.custom-toast').classList.remove('show');
+                }
+                toast.classList.remove('show');
+            }, 2600);
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        window.hideExportToast = function() {
+            const toast = document.getElementById('exportToast');
+            if (toast.querySelector('.custom-toast')) {
+                toast.querySelector('.custom-toast').classList.remove('show');
+            }
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 400);
+        };
+        async function checkDataExists() {
+            const params = new URLSearchParams(currentFilters);
+            console.log('[DEBUG] Export Check Params:', params.toString());
+            try {
+                const resp = await fetch(`/report-planted-crops/export/check?${params.toString()}`);
+                if (!resp.ok) return false;
+                const data = await resp.json();
+                return data && data.hasData;
+            } catch (e) { return false; }
+        }
+        function getExportQueryString() {
+            const params = new URLSearchParams(currentFilters);
+            return `?${params.toString()}`;
+        }
+        function copyFiltersToExportForm(formId) {
+            var form = document.getElementById(formId);
+            if (!form) return;
+            form.cropName.value = document.getElementById('filterCropName').value;
+            form.status.value = document.getElementById('filterStatus').value;
+            form.month.value = document.getElementById('filterMonth').value;
+            form.year.value = document.getElementById('filterYear').value;
+            form.startDate.value = document.getElementById('filterStartDate').value;
+            form.endDate.value = document.getElementById('filterEndDate').value;
+        }
+        document.getElementById('exportExcelBtn').addEventListener('click', async function(e) {
+            copyFiltersToExportForm('exportExcelForm');
+            console.log('[DEBUG] Exporting with filters:', currentFilters);
+            if (!(await checkDataExists())) {
+                showExportToast(`No records found for the selected filter.`, 'danger');
+                e.preventDefault && e.preventDefault();
+                return;
+            }
+            showExportToast('Your download will start soon...', 'success');
+            setTimeout(function() {
+                window.location.href = '/report-planted-crops/export/excel' + getExportQueryString();
+            }, 1200);
+        });
+        document.getElementById('exportPdfBtn').addEventListener('click', async function(e) {
+            // Check for single crop preview logic
+            if (crops.length === 1) {
+                const crop = crops[0];
+                if (crop.status === 'harvested') {
+                    window.open(`/harvest-preview/${crop.cropId}`, '_blank');
+                    e.preventDefault();
+                    return;
+                } else if (crop.status === 'failed' || crop.status === 'cancelled') {
+                    window.open(`/cancellation-preview/${crop.cropId}`, '_blank');
+                    e.preventDefault();
+                    return;
+                }
+            }
+            copyFiltersToExportForm('exportPdfForm');
+            console.log('[DEBUG] Exporting with filters:', currentFilters);
+            if (!(await checkDataExists())) {
+                showExportToast(`No records found for the selected filter.`, 'danger');
+                e.preventDefault && e.preventDefault();
+                return;
+            }
+            showExportToast('Your download will start soon...', 'success');
+            setTimeout(function() {
+                window.location.href = '/report-planted-crops/export/pdf' + getExportQueryString();
+            }, 1200);
+        });
+        // Initial render
+        renderTable(currentPage);
+    });
+    </script>
+</body>
+</html>

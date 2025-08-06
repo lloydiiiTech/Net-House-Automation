@@ -244,3 +244,40 @@ exports.plantCrop = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error. Please try again.' });
     }
 }; 
+
+exports.registerCropById = async (req, res) => {
+    try {
+        const { cropId } = req.params;
+        if (!cropId) return res.status(400).json({ success: false, message: 'Crop ID required.' });
+
+        // Update in crops collection
+        await firestore.collection('crops').doc(cropId).update({ isRegistered: true });
+
+        // Update in latest prediction_history
+        const snapshot = await firestore.collection('prediction_history')
+            .orderBy('timestamp', 'desc')
+            .limit(1)
+            .get();
+        if (!snapshot.empty) {
+            const doc = snapshot.docs[0];
+            const data = doc.data();
+            let updated = false;
+            ['top5Registered', 'top5Unregistered'].forEach(listKey => {
+                if (Array.isArray(data.predictions?.[listKey])) {
+                    data.predictions[listKey] = data.predictions[listKey].map(crop =>
+                        crop.id === cropId ? { ...crop, isRegistered: true } : crop
+                    );
+                    updated = true;
+                }
+            });
+            if (updated) {
+                await doc.ref.update({ predictions: data.predictions });
+            }
+        }
+
+        res.json({ success: true, message: 'Crop registered successfully.' });
+    } catch (error) {
+        console.error('Error registering crop by ID:', error);
+        res.status(500).json({ success: false, message: 'Server error.' });
+    }
+}; 

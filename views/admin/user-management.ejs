@@ -309,10 +309,10 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">NetHouse
+                    <span class="brand">AgriNet
                         <span class="brand-tip">Automation</span>
                     </span>
-                    <span class="brand-mini">NHA</span>
+                    <span class="brand-mini"></span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -330,7 +330,7 @@
                     </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                            <img src="<%= user.profilePicture %>" />
+                            <img src="<%= user.profilePicture || '/assets/img/admin-avatar.png' %>" />
                             <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
@@ -347,7 +347,7 @@
             <div id="sidebar-collapse">
                 <div class="admin-block d-flex">
                     <div>
-                        <img src="<%= user.profilePicture %>" width="45px" />
+                        <img src="<%= user.profilePicture || './assets/img/admin-avatar.png' %>" width="45px" />
                     </div>
                     <div class="admin-info">
                         <div class="font-strong"><%= user.name %></div><small><%= user.role %></small>
@@ -460,7 +460,7 @@
                                     <tr>
                                             <td>
                                                 <div class="user-info">
-                                                    <img src="<%= user.profilePicture %>" class="user-avatar" alt="<%= user.name %>">
+                                                    <img src="<%= user.profilePicture || './assets/img/admin-avatar.png' %>" class="user-avatar" alt="<%= user.name %>">
                                                     <div class="user-details">
                                                         <div class="user-name"><%= user.name %></div>
                                                         <div class="user-contact"><%= user.contactNumber %></div>
@@ -695,7 +695,7 @@
             
             if (data.success) {
                 const user = data.user;
-                document.getElementById('modalUserAvatar').src = user.profilePicture || '/assets/img/default-avatar.png';
+                document.getElementById('modalUserAvatar').src = user.profilePicture || './assets/img/admin-avatar.png';
                 document.getElementById('modalUserName').textContent = user.name;
                 document.getElementById('modalUserEmail').textContent = user.email;
                 document.getElementById('modalUserRole').textContent = user.Role || 'User';
@@ -868,7 +868,7 @@
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 text-center">
-                                        <img src="${user.profilePicture || '/assets/img/default-avatar.png'}" 
+                                        <img src="${user.profilePicture || './assets/img/admin-avatar.png'}" 
                                              class="pending-user-avatar" 
                                              alt="${user.name}">
                                     </div>

@@ -133,58 +133,21 @@ exports.plantOverview = async (req, res) => {
           currentCrop.healthStatus = healthStatus;
 
           // Debug: Fetch all AI advice documents to see what's available
-          try {
-            console.log('=== DEBUG: Fetching all AI advice documents ===');
-            
-            const allFertilizerSnapshot = await firestore.collection('ai_fertilizer_advice').get();
-            console.log('Total fertilizer advice documents:', allFertilizerSnapshot.size);
-            allFertilizerSnapshot.docs.forEach((doc, index) => {
-              const data = doc.data();
-              console.log(`Fertilizer doc ${index + 1}:`, {
-                id: doc.id,
-                cropId: data.cropId,
-                cropName: data.cropName,
-                timestamp: data.timestamp,
-                fertilizersCount: data.fertilizers?.length || 0
-              });
-            });
-            
-            const allDiseaseSnapshot = await firestore.collection('ai_disease_advice').get();
-            console.log('Total disease advice documents:', allDiseaseSnapshot.size);
-            allDiseaseSnapshot.docs.forEach((doc, index) => {
-              const data = doc.data();
-              console.log(`Disease doc ${index + 1}:`, {
-                id: doc.id,
-                cropId: data.cropId,
-                cropName: data.cropName,
-                timestamp: data.timestamp,
-                diseasesCount: data.diseases?.length || 0
-              });
-            });
-            
-            console.log('=== END DEBUG ===');
-          } catch (error) {
-            console.error('Error in debug section:', error);
-          }
+          
 
           // Fetch latest AI fertilizer advice for the current crop
           try {
             console.log('Fetching AI fertilizer advice for crop ID:', currentCrop.id);
+            // Calculate yesterday's date range
+            const now = new Date();
+            const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+            const yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
             let fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
-              .where('cropId', '==', currentCrop.id)
+              .where('id', '==', currentCrop.id)
+              .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(yesterdayStart))
+              .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(yesterdayEnd))
               .get();
-            
             console.log('Fertilizer snapshot size:', fertilizerSnapshot.size);
-            
-            // If no results found by cropId, try by crop name
-            if (fertilizerSnapshot.empty) {
-              console.log('No fertilizer advice found by cropId, trying by crop name:', currentCrop.name);
-              fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
-                .where('cropName', '==', currentCrop.name)
-                .get();
-              console.log('Fertilizer snapshot size by crop name:', fertilizerSnapshot.size);
-            }
-            
             if (!fertilizerSnapshot.empty) {
               // Sort by timestamp in JavaScript to get the latest
               const fertilizerDocs = fertilizerSnapshot.docs;
@@ -196,7 +159,7 @@ exports.plantOverview = async (req, res) => {
               aiFertilizerAdvice = fertilizerDocs[0].data();
               console.log('Found fertilizer advice:', aiFertilizerAdvice);
             } else {
-              console.log('No fertilizer advice found for crop ID:', currentCrop.id, 'or crop name:', currentCrop.name);
+              console.log('No fertilizer advice found for crop ID:', currentCrop.id, 'for yesterday.');
             }
           } catch (error) {
             console.error('Error fetching AI fertilizer advice:', error);
@@ -204,22 +167,16 @@ exports.plantOverview = async (req, res) => {
 
           // Fetch latest AI disease advice for the current crop
           try {
+            const now = new Date();
+            const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+            const yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
             console.log('Fetching AI disease advice for crop ID:', currentCrop.id);
             let diseaseSnapshot = await firestore.collection('ai_disease_advice')
-              .where('cropId', '==', currentCrop.id)
+              .where('id', '==', currentCrop.id)
+              .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(yesterdayStart))
+              .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(yesterdayEnd))
               .get();
-            
             console.log('Disease snapshot size:', diseaseSnapshot.size);
-            
-            // If no results found by cropId, try by crop name
-            if (diseaseSnapshot.empty) {
-              console.log('No disease advice found by cropId, trying by crop name:', currentCrop.name);
-              diseaseSnapshot = await firestore.collection('ai_disease_advice')
-                .where('cropName', '==', currentCrop.name)
-                .get();
-              console.log('Disease snapshot size by crop name:', diseaseSnapshot.size);
-            }
-            
             if (!diseaseSnapshot.empty) {
               // Sort by timestamp in JavaScript to get the latest
               const diseaseDocs = diseaseSnapshot.docs;
@@ -231,7 +188,7 @@ exports.plantOverview = async (req, res) => {
               aiDiseaseAdvice = diseaseDocs[0].data();
               console.log('Found disease advice:', aiDiseaseAdvice);
             } else {
-              console.log('No disease advice found for crop ID:', currentCrop.id, 'or crop name:', currentCrop.name);
+              console.log('No disease advice found for crop ID:', currentCrop.id, 'for yesterday.');
             }
           } catch (error) {
             console.error('Error fetching AI disease advice:', error);
@@ -444,7 +401,6 @@ exports.harvestCurrentCrop = async (req, res) => {
 
     // Find active crop
     const snapshot = await firestore.collection('planted_crops')
-      .where('userId', '==', req.session.user.uid)
       .where('endDate', '==', null)
       .limit(1)
       .get();
@@ -498,7 +454,9 @@ exports.harvestCurrentCrop = async (req, res) => {
       harvestMethod: harvestMethod,
       harvestDate: harvestTimestamp,
       harvestNotes: harvestNotes || null,
-      harvestChallenges: harvestChallenges || null
+      harvestChallenges: harvestChallenges || null,
+      endUserID: req.session.user.uid || null,
+      endUserName: req.session.user.name || null
     });
 
     // Summarize daily_sensor_summaries for this crop between startDate and endDate
@@ -781,7 +739,9 @@ exports.cancelCurrentCrop = async (req, res) => {
         await cropRef.update({
             endDate: endDate,
             status,
-            cancelRemark: remark
+            cancelRemark: remark,
+            endUserID: req.session.user.uid || null,
+            endUserName: req.session.user.name || null
         });
 
         // Summarize daily_sensor_summaries for this crop between startDate and endDate

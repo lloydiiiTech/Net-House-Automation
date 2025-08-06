@@ -33,6 +33,12 @@
             --transition: all 0.3s ease;
         }
 
+        html, body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #eaf0f7 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+        }
+
         body {
             background-color: #f5f6fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -81,21 +87,61 @@
         }
 
         .btn {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
+            border-radius: 10px !important;
             font-weight: 500;
-            transition: var(--transition);
+            padding: 0.55rem 1.3rem;
+            font-size: 1rem;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-color 0.18s;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            outline: none !important;
+        }
+
+        .btn:focus {
+            box-shadow: 0 0 0 3px #e3eefd;
+            border-color: #5b9bd5;
         }
 
         .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
+            background: #5b9bd5;
+            border-color: #5b9bd5;
         }
 
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-            transform: translateY(-2px);
+        .btn-primary:hover, .btn-primary:focus {
+            background: #4178b8;
+            border-color: #4178b8;
+            color: #fff;
+        }
+
+        .btn-outline-secondary {
+            border-color: #bfc9d1;
+            color: #34495e;
+            background: #fff;
+        }
+
+        .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+            background: #f2f6fa;
+            color: #4178b8;
+            border-color: #4178b8;
+        }
+
+        .btn-success {
+            background: #4bbf73;
+            border-color: #4bbf73;
+        }
+
+        .btn-success:hover, .btn-success:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+        }
+
+        .btn-danger {
+            background: #e57373;
+            border-color: #e57373;
+        }
+
+        .btn-danger:hover, .btn-danger:focus {
+            background: #c0392b;
+            border-color: #c0392b;
         }
 
         .search-box {
@@ -317,6 +363,432 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #2980b9;
         }
+
+        .custom-toast {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.1rem 1.7rem 1.1rem 0.7rem;
+            margin: 0;
+            border-radius: 16px;
+            font-weight: 500;
+            box-shadow: none;
+            width: 100%;
+            border-left: 7px solid #5b9bd5;
+            background: #f4f7fa;
+            color: #2c3e50;
+            position: relative;
+            gap: 1rem;
+        }
+        .custom-toast-warning {
+            border-left-color: #ffb300;
+            background: linear-gradient(90deg, #fffbe6 0%, #ffe082 100%);
+            color: #b26a00;
+        }
+        .custom-toast-danger {
+            border-left-color: #e74c3c;
+            background: linear-gradient(90deg, #ffeaea 0%, #ffb3b3 100%);
+            color: #a94442;
+        }
+        .custom-toast-success {
+            border-left-color: #27ae60;
+            background: linear-gradient(90deg, #eaffea 0%, #b3ffb3 100%);
+            color: #207d2a;
+        }
+        .custom-toast .toast-icon {
+            font-size: 1.5rem;
+            margin-right: 0.7rem;
+            opacity: 0.85;
+        }
+        .custom-toast .close {
+            background: none;
+            border: none;
+            font-size: 1.7rem;
+            color: inherit;
+            opacity: 0.7;
+            margin-left: auto;
+            cursor: pointer;
+            transition: opacity 0.2s, color 0.2s;
+            padding: 0 0.5rem;
+            border-radius: 50%;
+            line-height: 1;
+        }
+        .custom-toast .close:hover {
+            opacity: 1;
+            color: #e74c3c;
+            background: #fff0f0;
+        }
+        .custom-input {
+            border-radius: 10px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.7rem 1rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+        }
+        .custom-input:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .custom-table {
+            border-radius: 14px;
+            overflow: hidden;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(44,62,80,0.06);
+        }
+        .custom-table thead th {
+            background: #f4f7fa;
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #d1d5db;
+            padding: 1rem 0.75rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .custom-table tbody td {
+            padding: 0.85rem 0.75rem;
+            border-bottom: 1px solid #f2f6fa;
+            vertical-align: middle;
+            text-align: center;
+            background: #fff;
+            transition: background 0.18s;
+        }
+        .custom-table tbody tr:nth-child(even) td {
+            background: #f7fafd;
+        }
+        .custom-table tbody tr:hover td {
+            background: #e3eefd;
+        }
+        .card.shadow-sm, .card.shadow-lg {
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.10), 0 1.5px 4px rgba(44,62,80,0.04);
+            border: 1.5px solid #e3eefd;
+        }
+        .card-header {
+            border-radius: 16px 16px 0 0 !important;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+        }
+        .page-title {
+            font-family: 'Segoe UI Semibold', 'Segoe UI', Arial, sans-serif;
+            font-size: 2.1rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #5b9bd5;
+            letter-spacing: 0.01em;
+        }
+        /* Enhanced Toast/Flash */
+        #exportToast {
+            position: fixed;
+            left: 50%;
+            top: 80px;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 340px;
+            max-width: 95vw;
+            box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+            border-radius: 16px;
+            font-size: 1.13rem;
+            padding: 0;
+            overflow: hidden;
+            display: none;
+            transition: opacity 0.5s, top 0.5s;
+            opacity: 0;
+        }
+        #exportToast.show {
+            display: block;
+            opacity: 1;
+            top: 100px;
+            animation: slideDownFade 0.5s cubic-bezier(.4,2,.6,1) 1;
+        }
+        @keyframes slideDownFade {
+            from { opacity: 0; top: 60px; }
+            to { opacity: 1; top: 100px; }
+        }
+        .info-message {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: #e3eefd;
+            color: #4178b8;
+            border-radius: 10px;
+            padding: 0.7rem 1.2rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+        }
+        .info-message .fa-info-circle {
+            font-size: 1.3rem;
+            opacity: 0.85;
+        }
+        @media (max-width: 768px) {
+            .custom-table thead th, .custom-table tbody td {
+                padding: 0.5rem 0.3rem;
+                font-size: 0.95rem;
+            }
+            .custom-input {
+                font-size: 0.95rem;
+                padding: 0.5rem 0.7rem;
+            }
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.45rem 1rem;
+            }
+            .info-message {
+                font-size: 0.97rem;
+                padding: 0.5rem 0.7rem;
+            }
+        }
+
+        .filter-download-card {
+            transition: box-shadow 0.22s, border-color 0.22s;
+            border: 1.5px solid #e3eefd;
+            background: #fafdff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.10), 0 1.5px 4px rgba(44,62,80,0.04);
+        }
+        .filter-download-card:hover {
+            box-shadow: 0 8px 32px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            border-color: #b3c6e2;
+        }
+        .filter-download-form {
+            gap: 1.5rem 1rem;
+        }
+        .filter-fields .form-group {
+            margin-bottom: 0 !important;
+        }
+        .action-buttons .btn {
+            min-width: 110px;
+            font-size: 1.04rem;
+            padding: 0.55rem 1.1rem;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-color 0.18s;
+        }
+        .action-buttons .btn span {
+            display: inline-block;
+        }
+        .action-buttons .btn-success {
+            background: #4bbf73;
+            border-color: #4bbf73;
+        }
+        .action-buttons .btn-success:hover, .action-buttons .btn-success:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+        }
+        .action-buttons .btn-danger {
+            background: #e57373;
+            border-color: #e57373;
+        }
+        .action-buttons .btn-danger:hover, .action-buttons .btn-danger:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+        @media (max-width: 900px) {
+            .filter-download-form {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.2rem 0;
+            }
+            .action-buttons {
+                justify-content: flex-start !important;
+                min-width: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        .filter-download-card-pro {
+            background: rgba(255,255,255,0.85);
+            border-radius: 28px;
+            box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            overflow: hidden;
+            position: relative;
+            border: 1.5px solid #e3eefd;
+            transition: box-shadow 0.22s, border-color 0.22s, background 0.22s;
+            backdrop-filter: blur(2.5px);
+        }
+        .filter-download-card-pro:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.97);
+        }
+        .filter-download-grid {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            min-height: 180px;
+            position: relative;
+        }
+        .accent-bar {
+            width: 8px;
+            background: linear-gradient(180deg, #5b9bd5 0%, #b3c6e2 100%);
+            border-radius: 0 12px 12px 0;
+            margin-right: 0.5rem;
+            min-height: 100%;
+        }
+        .divider {
+            width: 1.5px;
+            background: linear-gradient(180deg, #e3eefd 0%, #b3c6e2 100%);
+            margin: 0 0.5rem;
+            border-radius: 2px;
+            min-height: 100%;
+            align-self: stretch;
+        }
+        .section-label {
+            font-size: 1.08rem;
+            color: #7a8ca3;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+        }
+        .custom-input-lg {
+            border-radius: 12px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.9rem 1.1rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+        }
+        .custom-input-lg:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .btn-primary-pro {
+            background: #5b9bd5;
+            border-color: #5b9bd5;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-primary-pro:hover, .btn-primary-pro:focus {
+            background: #4178b8;
+            border-color: #4178b8;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-outline-secondary-pro {
+            border-color: #bfc9d1;
+            color: #34495e;
+            background: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-outline-secondary-pro:hover, .btn-outline-secondary-pro:focus {
+            background: #f2f6fa;
+            color: #4178b8;
+            border-color: #4178b8;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-success-pro {
+            background: #4bbf73;
+            border-color: #4bbf73;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-success-pro:hover, .btn-success-pro:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-danger-pro {
+            background: #e57373;
+            border-color: #e57373;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-danger-pro:hover, .btn-danger-pro:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        @media (max-width: 900px) {
+            .filter-download-grid {
+                flex-direction: column;
+            }
+            .divider, .accent-bar {
+                display: none !important;
+            }
+            .filter-section, .export-section {
+                padding: 1.2rem 1.1rem 1.1rem 1.1rem !important;
+            }
+            .export-section {
+                min-width: 0 !important;
+                width: 100%;
+                align-items: stretch !important;
+            }
+            .btn-success-pro, .btn-danger-pro {
+                margin-bottom: 0.7rem !important;
+            }
+        }
+        .main-content-premium {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 3rem 1.5rem;
+            animation: fadeInMain 0.7s cubic-bezier(.4,2,.6,1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.2rem;
+        }
+        .main-card {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto 2.2rem auto;
+            border-radius: 24px;
+            box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            background: rgba(255,255,255,0.96);
+            border: 1.5px solid #e3eefd;
+            overflow: hidden;
+            transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+            backdrop-filter: blur(1.5px);
+        }
+        .main-card:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.99);
+        }
+        @media (max-width: 1100px) {
+            .main-content-premium {
+                max-width: 100%;
+                padding: 1.2rem 0.2rem 2rem 0.2rem;
+            }
+            .main-card {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -326,10 +798,10 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">AgriNet
-                        <span class="brand-tip">Automation</span>
+                    <span class="brand">Demo
+                        <span class="brand-tip">FARM</span>
                     </span>
-                    <span class="brand-mini"></span>
+                    <span class="brand-mini">DF</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -390,9 +862,20 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
+                            <i class="fa fa-caret-down ml-1"></i>
                         </a>
+                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
+                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
+                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
+                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-fertilizer">AI Fertilizer</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease</a></li>
+                        </ul>
                     </li>
                     <li>
                         <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
@@ -411,313 +894,178 @@
             <div class="page-content fade-in-up">
                 <div class="row">
                     <div class="col-12">
-                        <h1 class="page-title">Reports & Analytics</h1>
-                        
-                        <!-- Export Controls -->
-                        <div class="export-buttons">
-                            <button class="btn btn-primary" onclick="exportToPDF()">
-                                <i class="fa fa-file-pdf-o"></i> Export to PDF
-                            </button>
-                            <button class="btn btn-success" onclick="exportToExcel()">
-                                <i class="fa fa-file-excel-o"></i> Export to Excel
-                            </button>
-                            <button class="btn btn-info" onclick="exportToWord()">
-                                <i class="fa fa-file-word-o"></i> Export to Word
-                            </button>
-                            </div>
-
-                        <!-- Daily Sensor Summary Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Daily Sensor Summary</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printSensorData()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                    <button class="btn btn-outline-success" onclick="showDownloadModal('sensor')">
-                                        <i class="fa fa-download"></i> Download
-                                    </button>
+                        <h1 class="page-title">AI Disease & Fertilizer Advice Report</h1>
+                        <!-- Filter & Download Card -->
+                        <div class="main-card filter-download-card-pro card mb-4 p-0 border-0">
+                            <div class="filter-download-grid d-flex flex-wrap flex-md-nowrap align-items-stretch position-relative">
+                                <div class="accent-bar d-none d-md-block"></div>
+                                <div class="filter-section flex-grow-1 p-4 pb-3 pe-md-4">
+                                    <div class="section-label mb-3"><i class="fa fa-filter me-2"></i> <span>Filter</span></div>
+                                    <form class="row g-3 align-items-end" method="get" action="" autocomplete="off">
+                                        <div class="col-md-4 col-12">
+                                            <label for="filterCropName" class="form-label mb-1">Crop Name</label>
+                                            <select class="form-control custom-input-lg" id="filterCropName" name="cropName">
+                                                <option value="">All Crops</option>
+                                                <% if (cropNames && cropNames.length > 0) { %>
+                                                    <% cropNames.forEach(function(name) { %>
+                                                        <option value="<%= name %>" <%= filter && filter.cropName === name ? 'selected' : '' %>><%= name %></option>
+                                                    <% }); %>
+                                                <% } %>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="filterDateFrom" class="form-label mb-1">Date From</label>
+                                            <input type="date" class="form-control custom-input-lg" id="filterDateFrom" name="dateFrom" value="<%= typeof filter !== 'undefined' && filter.dateFrom ? filter.dateFrom : '' %>">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="filterDateTo" class="form-label mb-1">Date To</label>
+                                            <input type="date" class="form-control custom-input-lg" id="filterDateTo" name="dateTo" value="<%= typeof filter !== 'undefined' && filter.dateTo ? filter.dateTo : '' %>">
+                                        </div>
+                                        <div class="col-12 mt-2 d-flex gap-2 flex-wrap">
+                                            <button type="submit" class="btn btn-primary-pro d-flex align-items-center gap-2"><i class="fa fa-search"></i> <span>Filter</span></button>
+                                            <a href="/report-ai-disease" class="btn btn-outline-secondary-pro d-flex align-items-center gap-2"><i class="fa fa-undo"></i> <span>Reset</span></a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="divider d-none d-md-block"></div>
+                                <div class="export-section p-4 pb-3 ps-md-4 d-flex flex-column align-items-center justify-content-center" style="min-width: 220px;">
+                                    <div class="section-label mb-3"><i class="fa fa-download me-2"></i> <span>Export</span></div>
+                                    <button type="button" class="btn btn-success-pro mb-2 w-100 d-flex align-items-center justify-content-center gap-2" id="exportExcelBtn"><i class="fa fa-file-excel"></i> <span>Excel</span></button>
+                                    <button type="button" class="btn btn-danger-pro w-100 d-flex align-items-center justify-content-center gap-2" id="exportPdfBtn"><i class="fa fa-file-pdf"></i> <span>PDF</span></button>
                                 </div>
                             </div>
-                            
-                            <div class="search-box mb-3">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="sensorSearch" placeholder="Search sensor data...">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="clearSensorSearch()">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                            <!-- Toast for messages -->
+                            <div id="exportToast"></div>
+                        </div>
+                        <!-- AI Disease Advice Table -->
+                        <div class="main-card premium-table-card mb-5">
+                            <div class="card-header bg-primary text-white d-flex align-items-center" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                <i class="fa fa-virus fa-lg me-2"></i>
+                                <h3 class="mb-0 flex-grow-1">AI Disease Advice</h3>
+                                <span class="badge bg-light text-primary ms-2">Total: <%= diseasePagination.totalRecords %></span>
                             </div>
-
-                            <div class="chart-container mb-4">
-                                <canvas id="sensorChart"></canvas>
-                            </div>
-
-                            <div class="table-container">
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-striped" id="sensorTable">
-                                        <thead>
+                                    <table class="table table-hover table-striped align-middle mb-0 custom-table" id="diseaseAdviceTable">
+                                        <thead class="table-primary">
                                             <tr>
-                                                <th>Date</th>
-                                                <th>Temperature (°C)</th>
-                                                <th>Humidity (%)</th>
-                                                <th>Soil Moisture (%)</th>
-                                                <th>Light (lux)</th>
-                                                <th>pH Level</th>
-                                                <th>NPK Values</th>
-                                                <th>Status</th>
+                                                <th style="min-width:120px;"><i class="fa fa-leaf"></i> Crop Name</th>
+                                                <th style="min-width:120px;"><i class="fa fa-seedling"></i> Growth Stage</th>
+                                                <th style="min-width:160px;"><i class="fa fa-clock"></i> Timestamp</th>
+                                                <th><i class="fa fa-bug"></i> Disease</th>
+                                                <th><i class="fa fa-shield-virus"></i> Prevention</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- Data will be populated dynamically -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="pagination-info">
-                                    <div class="page-size-selector">
-                                        <label for="pageSize">Show:</label>
-                                        <select class="form-control form-control-sm" id="pageSize" onchange="changePageSize()">
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
-                                        </select>
-                                        <span>entries</span>
-                                    </div>
-                                    
-                                    <div class="text-muted">
-                                        Showing <span id="startEntry">1</span> to <span id="endEntry">10</span> of <span id="totalEntries">0</span> entries
-                                    </div>
-
-                                    <div class="pagination-controls">
-                                        <button class="btn btn-outline-primary btn-sm" onclick="loadFirstPage()" id="firstPageBtn">
-                                            <i class="fa fa-angle-double-left"></i>
-                                        </button>
-                                        <button class="btn btn-outline-primary btn-sm" onclick="loadPreviousPage()" id="prevPageBtn" disabled>
-                                            <i class="fa fa-angle-left"></i>
-                                        </button>
-                                        <span class="mx-2">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
-                                        <button class="btn btn-outline-primary btn-sm" onclick="loadNextPage()" id="nextPageBtn">
-                                            <i class="fa fa-angle-right"></i>
-                                        </button>
-                                        <button class="btn btn-outline-primary btn-sm" onclick="loadLastPage()" id="lastPageBtn">
-                                            <i class="fa fa-angle-double-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Planted Crops Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Planted Crops History</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printPlantedCrops()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="search-box">
-                                <input type="text" class="form-control" id="plantedCropSearch" placeholder="Search planted crops...">
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover" id="plantedCropsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Crop Name</th>
-                                            <th>Start Date</th>
-                                            <th>End Date</th>
-                                            <th>Status</th>
-                                            <th>Success Rate</th>
-                                            <th>Score</th>
+                                            <% if (aiDiseaseAdvice && aiDiseaseAdvice.length > 0) { %>
+                                                <% aiDiseaseAdvice.forEach(function(advice) { %>
+                                                    <% var arr = advice.diseases && advice.diseases.length > 0 ? advice.diseases : [{disease:'No disease advice', prevention:'-'}]; %>
+                                                    <% arr.forEach(function(disease, idx) { %>
+                                                        <tr>
+                                                            <% if (idx === 0) { %>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light border-start border-3 border-primary"><%= advice.cropName %></td>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light"><%= advice.growthStage %></td>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light"><%= advice.timestamp %></td>
+                                                            <% } %>
+                                                            <td><span class="badge bg-danger bg-opacity-75"><%= disease.disease %></span></td>
+                                                            <td><%= disease.prevention %></td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data will be populated dynamically -->
+                                                    <% }); %>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr><td colspan="5" class="text-center">No AI disease advice data available.</td></tr>
+                                            <% } %>
                                     </tbody>
                                 </table>
                         </div>
-                    </div>
-
-                        <!-- Registered Crops Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Registered Crops</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printRegisteredCrops()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="search-box">
-                                <input type="text" class="form-control" id="registeredCropSearch" placeholder="Search registered crops...">
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped" id="registeredCropsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Crop Name</th>
-                                            <th>Optimal Temperature</th>
-                                            <th>Optimal Humidity</th>
-                                            <th>Optimal Moisture</th>
-                                            <th>Optimal Light</th>
-                                            <th>Optimal pH</th>
-                                            <th>Optimal NPK</th>
-                                            <th>Priority</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data will be populated dynamically -->
-                                    </tbody>
-                                </table>
+                                <!-- Pagination Controls for Disease Advice -->
+                                <nav aria-label="Disease Advice Pagination" class="mt-3">
+                                    <ul class="pagination justify-content-center pagination-lg">
+                                        <li class="page-item <%= diseasePagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=1&fertilizerPage=<%= fertilizerPagination.currentPage %>" tabindex="-1">First</a>
+                                        </li>
+                                        <li class="page-item <%= diseasePagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage - 1 %>&fertilizerPage=<%= fertilizerPagination.currentPage %>">Previous</a>
+                                        </li>
+                                        <li class="page-item disabled"><span class="page-link">Page <%= diseasePagination.currentPage %> of <%= diseasePagination.totalPages %></span></li>
+                                        <li class="page-item <%= diseasePagination.currentPage === diseasePagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage + 1 %>&fertilizerPage=<%= fertilizerPagination.currentPage %>">Next</a>
+                                        </li>
+                                        <li class="page-item <%= diseasePagination.currentPage === diseasePagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.totalPages %>&fertilizerPage=<%= fertilizerPagination.currentPage %>">Last</a>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center text-muted mb-2">Showing <%= (diseasePagination.currentPage - 1) * 10 + 1 %> to <%= Math.min(diseasePagination.currentPage * 10, diseasePagination.totalRecords) %> of <%= diseasePagination.totalRecords %> entries</div>
+                                </nav>
                     </div>
                 </div>
-
-                        <!-- Disease Monitoring Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Disease Monitoring</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printDiseaseData()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
+                        <!-- AI Fertilizer Advice Table -->
+                        <div class="main-card premium-table-card mb-5">
+                            <div class="card-header bg-success text-white d-flex align-items-center" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                <i class="fa fa-flask-vial fa-lg me-2"></i>
+                                <h3 class="mb-0 flex-grow-1">AI Fertilizer Advice</h3>
+                                <span class="badge bg-light text-success ms-2">Total: <%= fertilizerPagination.totalRecords %></span>
                                 </div>
-                            </div>
-                            <div class="search-box">
-                                <input type="text" class="form-control" id="diseaseSearch" placeholder="Search disease records...">
-                            </div>
+                            <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-striped" id="diseaseTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Disease Name</th>
-                                            <th>Affected Crop</th>
-                                            <th>Detection Date</th>
-                                            <th>Severity</th>
-                                            <th>Treatment Status</th>
-                                            <th>Actions</th>
+                                    <table class="table table-hover table-striped align-middle mb-0 custom-table" id="fertilizerAdviceTable">
+                                        <thead class="table-success">
+                                            <tr>
+                                                <th style="min-width:120px;"><i class="fa fa-leaf"></i> Crop Name</th>
+                                                <th style="min-width:120px;"><i class="fa fa-seedling"></i> Growth Stage</th>
+                                                <th style="min-width:160px;"><i class="fa fa-clock"></i> Timestamp</th>
+                                                <th><i class="fa fa-flask"></i> Fertilizer Name</th>
+                                                <th><i class="fa fa-vial"></i> Application</th>
+                                                <th><i class="fa fa-bolt"></i> Effect</th>
+                                                <th><i class="fa fa-info-circle"></i> Reason</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Data will be populated dynamically -->
-                                    </tbody>
-                                </table>
-                                            </div>
-                                        </div>
-
-                        <!-- Nutrient Analysis Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Nutrient Analysis</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printNutrientData()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="nutrientChart"></canvas>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped" id="nutrientTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Nitrogen (N)</th>
-                                            <th>Phosphorus (P)</th>
-                                            <th>Potassium (K)</th>
-                                            <th>Status</th>
-                                            <th>Recommendations</th>
+                                            <% if (aiFertilizerAdvice && aiFertilizerAdvice.length > 0) { %>
+                                                <% aiFertilizerAdvice.forEach(function(advice) { %>
+                                                    <% var arr = advice.fertilizers && advice.fertilizers.length > 0 ? advice.fertilizers : [{name:'No fertilizer advice', application:'-', effect:'-', reason:'-'}]; %>
+                                                    <% arr.forEach(function(fertilizer, idx) { %>
+                                                        <tr>
+                                                            <% if (idx === 0) { %>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light border-start border-3 border-success"><%= advice.cropName %></td>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light"><%= advice.growthStage %></td>
+                                                                <td rowspan="<%= arr.length %>" class="align-middle bg-light"><%= advice.timestamp %></td>
+                                                            <% } %>
+                                                            <td><span class="badge bg-success bg-opacity-75"><%= fertilizer.name %></span></td>
+                                                            <td><%= fertilizer.application %></td>
+                                                            <td><%= fertilizer.effect %></td>
+                                                            <td><%= fertilizer.reason %></td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data will be populated dynamically -->
+                                                    <% }); %>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr><td colspan="7" class="text-center">No AI fertilizer advice data available.</td></tr>
+                                            <% } %>
                                     </tbody>
                                 </table>
                             </div>
+                                <!-- Pagination Controls for Fertilizer Advice -->
+                                <nav aria-label="Fertilizer Advice Pagination" class="mt-3">
+                                    <ul class="pagination justify-content-center pagination-lg">
+                                        <li class="page-item <%= fertilizerPagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage %>&fertilizerPage=1">First</a>
+                                        </li>
+                                        <li class="page-item <%= fertilizerPagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage %>&fertilizerPage=<%= fertilizerPagination.currentPage - 1 %>">Previous</a>
+                                        </li>
+                                        <li class="page-item disabled"><span class="page-link">Page <%= fertilizerPagination.currentPage %> of <%= fertilizerPagination.totalPages %></span></li>
+                                        <li class="page-item <%= fertilizerPagination.currentPage === fertilizerPagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage %>&fertilizerPage=<%= fertilizerPagination.currentPage + 1 %>">Next</a>
+                                        </li>
+                                        <li class="page-item <%= fertilizerPagination.currentPage === fertilizerPagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?<%= Object.entries(filter).map(([k,v]) => v ? `${k}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&') %>&diseasePage=<%= diseasePagination.currentPage %>&fertilizerPage=<%= fertilizerPagination.totalPages %>">Last</a>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center text-muted mb-2">Showing <%= (fertilizerPagination.currentPage - 1) * 10 + 1 %> to <%= Math.min(fertilizerPagination.currentPage * 10, fertilizerPagination.totalRecords) %> of <%= fertilizerPagination.totalRecords %> entries</div>
+                                </nav>
                         </div>
-
-                        <!-- Irrigation Schedule Section -->
-                        <div class="report-section">
-                            <div class="section-header">
-                                <h3>Irrigation Schedule</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printIrrigationData()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
                                 </div>
                             </div>
-                            <div class="search-box">
-                                <input type="text" class="form-control" id="irrigationSearch" placeholder="Search irrigation records...">
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-striped" id="irrigationTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Schedule ID</th>
-                                            <th>Crop</th>
-                                            <th>Start Time</th>
-                                            <th>Duration</th>
-                                            <th>Water Amount</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data will be populated dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Current Crop Analysis Section -->
-                        <div class="report-section" id="currentCropSection" style="display: none;">
-                            <div class="section-header">
-                                <h3>Current Crop Analysis</h3>
-                                <div class="section-actions">
-                                    <button class="btn btn-outline-primary" onclick="printCurrentCropAnalysis()">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="parameter-grid">
-                                        <div class="parameter-item">
-                                            <h5>Current Conditions</h5>
-                                            <div id="currentConditions"></div>
-                                        </div>
-                                        <div class="parameter-item">
-                                            <h5>Optimal Conditions</h5>
-                                            <div id="optimalConditions"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="parameter-grid">
-                                        <div class="parameter-item">
-                                            <h5>Parameter Matching</h5>
-                                            <div id="parameterMatching"></div>
-                                        </div>
-                                        <div class="parameter-item">
-                                            <h5>Health Analysis</h5>
-                                            <div id="healthAnalysis"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <div class="chart-container">
-                                        <canvas id="parameterMatchChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <footer class="page-footer">
@@ -1930,6 +2278,104 @@
             
             console.log('Initialization complete');
         });
+
+        async function checkDataExists() {
+            const cropName = document.getElementById('filterCropName').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            const params = new URLSearchParams({ cropName, dateFrom, dateTo });
+            try {
+                const resp = await fetch(`/report-ai-disease/export/check?${params.toString()}`);
+                if (!resp.ok) return false;
+                const data = await resp.json();
+                return data && data.hasData;
+            } catch (e) { return false; }
+        }
+
+        function getExportQueryString() {
+            const cropName = document.getElementById('filterCropName').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            return `?cropName=${encodeURIComponent(cropName)}&dateFrom=${encodeURIComponent(dateFrom)}&dateTo=${encodeURIComponent(dateTo)}`;
+        }
+        function getExportFileName(ext) {
+            const cropSelect = document.getElementById('filterCropName');
+            const cropText = cropSelect.options[cropSelect.selectedIndex].text || 'All Crops';
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            return `${cropText.replace(/[^a-zA-Z0-9\- ]/g, '_')} from ${dateFrom} - ${dateTo}.${ext}`;
+        }
+
+        document.getElementById('exportExcelBtn').addEventListener('click', async function() {
+            const cropName = document.getElementById('filterCropName').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            if (!dateFrom || !dateTo) {
+                showExportToast('Please fill in Date From and Date To before downloading.');
+                return;
+            }
+            if (dateFrom > dateTo) {
+                showExportToast('Date From should not be later than Date To.', 'danger');
+                return;
+            }
+            if (!(await checkDataExists())) {
+                const cropSelect = document.getElementById('filterCropName');
+                const cropText = cropSelect.options[cropSelect.selectedIndex].text || 'All Crops';
+                showExportToast(`No records found for ${cropText} from ${dateFrom} to ${dateTo}.`, 'danger');
+                return;
+            }
+            window.location.href = '/report-ai-disease/export/excel' + getExportQueryString();
+        });
+        document.getElementById('exportPdfBtn').addEventListener('click', async function() {
+            const cropName = document.getElementById('filterCropName').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            if (!dateFrom || !dateTo) {
+                showExportToast('Please fill in Date From and Date To before downloading.');
+                return;
+            }
+            if (dateFrom > dateTo) {
+                showExportToast('Date From should not be later than Date To.', 'danger');
+                return;
+            }
+            if (!(await checkDataExists())) {
+                const cropSelect = document.getElementById('filterCropName');
+                const cropText = cropSelect.options[cropSelect.selectedIndex].text || 'All Crops';
+                showExportToast(`No records found for ${cropText} from ${dateFrom} to ${dateTo}.`, 'danger');
+                return;
+            }
+            window.location.href = '/report-ai-disease/export/pdf' + getExportQueryString();
+        });
+
+        function showExportToast(msg, type = 'warning') {
+            const toast = document.getElementById('exportToast');
+            let toastTypeClass = 'custom-toast-warning';
+            let icon = '<i class="fa fa-exclamation-triangle toast-icon"></i>';
+            if (type === 'danger') { toastTypeClass = 'custom-toast-danger'; icon = '<i class="fa fa-times-circle toast-icon"></i>'; }
+            if (type === 'success') { toastTypeClass = 'custom-toast-success'; icon = '<i class="fa fa-check-circle toast-icon"></i>'; }
+            toast.innerHTML = `<div class="custom-toast ${toastTypeClass} show">${icon}<span>${msg}</span><button class="close" onclick="hideExportToast()" aria-label="Close">&times;</button></div>`;
+            toast.classList.add('show');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                if (toast.querySelector('.custom-toast')) {
+                    toast.querySelector('.custom-toast').classList.remove('show');
+                }
+                toast.classList.remove('show');
+            }, 2600);
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        function hideExportToast() {
+            const toast = document.getElementById('exportToast');
+            if (toast.querySelector('.custom-toast')) {
+                toast.querySelector('.custom-toast').classList.remove('show');
+            }
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 400);
+        }
     </script>
     
 <script>

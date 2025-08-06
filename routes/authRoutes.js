@@ -10,6 +10,12 @@ const irrigationController = require('../controller/irrigationController.js');
 const userManagementController = require('../controller/userManagementController.js');
 const userProfileController = require('../controller/userProfileController.js');
 const recommendationController = require('../controller/recommendationController.js');
+const reportCropsController = require('../controller/reportCropsController');
+const reportDailySensorsController = require('../controller/reportDailySensorsController');
+const reportIrrigationController = require('../controller/reportIrrigationController');
+const reportPlantedCropsController = require('../controller/reportPlantedCropsController');
+const reportPredictionHistoryController = require('../controller/reportPredictionHistoryController');
+const reportAIDiseaseController = require('../controller/reportAIDiseaseController');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -102,6 +108,7 @@ router.get('/api/crop-data', aController.isAuthenticated, reportsController.getC
 router.get('/api/planted-crops', aController.isAuthenticated, reportsController.getPlantedCrops);
 router.get('/api/historical-sensor-data', aController.isAuthenticated, reportsController.getHistoricalSensorData);
 router.get('/api/crop-performance', aController.isAuthenticated, reportsController.getCropPerformance);
+router.get('/api/sensor-data/check', aController.isAuthenticated, reportsController.checkSensorData);
 
 // Add new routes for user management actions
 // Add routes for pending users (must come before /api/users/:userId)
@@ -150,9 +157,31 @@ router.post('/api/crops/register', aController.isAuthenticated, recommendationCo
 
 router.put('/api/crops/:cropId', aController.isAuthenticated, recommendationController.updateCrop);
 router.delete('/api/crops/:cropId', aController.isAuthenticated, recommendationController.deleteCrop);
+router.post('/api/crops/:cropId/register', aController.isAuthenticated, recommendationController.registerCropById);
 
 router.post('/cancelCrop', plantOverview.cancelCurrentCrop);
 router.get('/cancellation-preview/:cropId', plantOverview.cancellationPreview);
 router.get('/harvest-preview/:cropId', plantOverview.harvestPreview);
+
+// Reports & Analytics - Individual Report Pages
+router.get('/report-crops', aController.isAuthenticated, reportCropsController.cropsReport);
+router.get('/report-daily-sensors', aController.isAuthenticated, reportDailySensorsController.dailySensorsReport);
+router.get('/report-irrigation', aController.isAuthenticated, reportIrrigationController.irrigationReport);
+router.get('/report-planted-crops', aController.isAuthenticated, reportPlantedCropsController.plantedCropsReport);
+router.get('/report-prediction-history', aController.isAuthenticated, reportPredictionHistoryController.predictionHistoryReport);
+router.get('/report-ai-disease', aController.isAuthenticated, reportAIDiseaseController.aiDiseaseFertilizerReport);
+
+// Export endpoints for AI Disease & Fertilizer report
+router.get('/report-ai-disease/export/excel', aController.isAuthenticated, reportAIDiseaseController.exportExcel);
+router.get('/report-ai-disease/export/pdf', aController.isAuthenticated, reportAIDiseaseController.exportPdf);
+router.get('/report-ai-disease/export/check', aController.isAuthenticated, reportAIDiseaseController.exportCheck);
+
+// Crop edit and unregister routes for report-crops
+router.get('/edit-crop/:cropName', reportCropsController.editCrop);
+router.post('/unregister-crop', reportCropsController.unregisterCrop);
+router.post('/edit-crop-name', reportCropsController.editCropName);
+
+router.get('/report-planted-crops/export/excel', aController.isAuthenticated, reportPlantedCropsController.exportExcel);
+router.get('/report-planted-crops/export/pdf', aController.isAuthenticated, reportPlantedCropsController.exportPdf);
 
 module.exports = router;

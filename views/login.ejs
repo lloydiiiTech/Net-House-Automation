@@ -3,339 +3,1417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Demo Farm Net House Automation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <title>AgriNet Automation - Premium Login Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Premium Green Palette */
+            --emerald-50: #ecfdf5;
+            --emerald-100: #d1fae5;
+            --emerald-200: #a7f3d0;
+            --emerald-300: #6ee7b7;
+            --emerald-400: #34d399;
+            --emerald-500: #10b981;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+            --emerald-800: #065f46;
+            --emerald-900: #064e3b;
+            --emerald-950: #022c22;
+
+            /* Forest Green Palette */
+            --forest-50: #f0fdf4;
+            --forest-100: #dcfce7;
+            --forest-200: #bbf7d0;
+            --forest-300: #86efac;
+            --forest-400: #4ade80;
+            --forest-500: #22c55e;
+            --forest-600: #16a34a;
+            --forest-700: #15803d;
+            --forest-800: #166534;
+            --forest-900: #14532d;
+            --forest-950: #052e16;
+
+            /* Premium Gradients */
+            --gradient-primary: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+            --gradient-secondary: linear-gradient(135deg, #14532d 0%, #166534 25%, #15803d 50%, #16a34a 75%, #22c55e 100%);
+            --gradient-accent: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+            --gradient-hero: linear-gradient(135deg, #022c22 0%, #064e3b 20%, #065f46 40%, #047857 60%, #059669 80%, #10b981 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%);
+            --gradient-mesh: radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 20%, rgba(52, 211, 153, 0.15) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 40%, rgba(110, 231, 183, 0.1) 0%, transparent 50%);
+
+            /* Advanced Shadows */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-3xl: 0 35px 60px -12px rgba(0, 0, 0, 0.35);
+            --shadow-emerald: 0 20px 40px -12px rgba(16, 185, 129, 0.4);
+            --shadow-emerald-lg: 0 35px 60px -12px rgba(16, 185, 129, 0.6);
+
+            /* Premium Blur Effects */
+            --blur-xs: blur(2px);
+            --blur-sm: blur(4px);
+            --blur-md: blur(8px);
+            --blur-lg: blur(16px);
+            --blur-xl: blur(24px);
+            --blur-2xl: blur(40px);
+            --blur-3xl: blur(64px);
+
+            /* Precisely Calculated Spacing for 1000x700 Container */
+            --space-1: 0.25rem;   /* 4px */
+            --space-2: 0.5rem;    /* 8px */
+            --space-3: 0.75rem;   /* 12px */
+            --space-4: 1rem;      /* 16px */
+            --space-5: 1.25rem;   /* 20px */
+            --space-6: 1.5rem;    /* 24px */
+            --space-8: 2rem;      /* 32px */
+            --space-10: 2.5rem;   /* 40px */
+            --space-12: 3rem;     /* 48px */
+
+            /* Color Tokens */
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-tertiary: #64748b;
+            --text-quaternary: #94a3b8;
+            --text-light: #cbd5e1;
+            --text-white: #ffffff;
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-3xl: 2rem;
+            --radius-full: 9999px;
+
+            /* Animation Curves */
+            --ease-in: cubic-bezier(0.4, 0, 1, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
         }
 
         body {
-            background-color: #1f6637;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--gradient-hero);
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            width: 100vw;
-            padding: 20px;
+            justify-content: center;
+            padding: var(--space-6);
+            overflow-x: hidden;
+            position: relative;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
-        .login-container {
-            display: flex;
-            width: 90%;
-            max-width: 1200px;
-            border-radius: 15px;
+        /* Ultra-Premium Background System */
+        .background-system {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
             overflow: hidden;
-            background: #ffffff;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            height: 90%;
-            max-height: 100vh;
         }
 
-        .left-column {
-            flex: 1;
-            background: url('images/Farm.jpg') center/cover no-repeat;
+        .bg-mesh {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-mesh);
+            animation: meshFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            25% { 
+                transform: translate(-2%, -1%) rotate(0.5deg) scale(1.02);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translate(1%, 2%) rotate(-0.5deg) scale(0.98);
+                opacity: 1;
+            }
+            75% { 
+                transform: translate(2%, -1%) rotate(0.3deg) scale(1.01);
+                opacity: 0.9;
+            }
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridDrift 30s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .bg-orbs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: var(--radius-full);
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--emerald-400), transparent);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--forest-400), transparent);
+            top: 60%;
+            right: 20%;
+            animation-delay: 7s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--emerald-300), transparent);
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 14s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.6;
+            }
+            33% { 
+                transform: translate(30px, -20px) scale(1.1);
+                opacity: 0.4;
+            }
+            66% { 
+                transform: translate(-20px, 30px) scale(0.9);
+                opacity: 0.8;
+            }
+        }
+
+        /* Premium Particle System */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: var(--radius-full);
+            pointer-events: none;
+            opacity: 0;
+            animation: particleLife 12s ease-in-out infinite;
+        }
+
+        .particle-emerald { background: var(--emerald-400); }
+        .particle-forest { background: var(--forest-400); }
+        .particle-light { background: var(--emerald-200); }
+
+        .particle-1 { width: 4px; height: 4px; top: 15%; left: 15%; animation-delay: 0s; }
+        .particle-2 { width: 3px; height: 3px; top: 25%; left: 85%; animation-delay: 2s; }
+        .particle-3 { width: 5px; height: 5px; top: 75%; left: 25%; animation-delay: 4s; }
+        .particle-4 { width: 2px; height: 2px; top: 85%; left: 75%; animation-delay: 6s; }
+        .particle-5 { width: 4px; height: 4px; top: 45%; left: 95%; animation-delay: 8s; }
+        .particle-6 { width: 3px; height: 3px; top: 65%; left: 5%; animation-delay: 10s; }
+
+        @keyframes particleLife {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-40px) translateX(20px) scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        /* Main Container - EXACTLY 1000x700px */
+        .main-container {
+            background: var(--gradient-glass);
+            backdrop-filter: var(--blur-3xl);
+            -webkit-backdrop-filter: var(--blur-3xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-3xl);
+            box-shadow: 
+                var(--shadow-3xl),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 0 1px rgba(16, 185, 129, 0.1);
+            overflow: hidden;
+            width: 1000px;
+            height: 700px;
+            display: grid;
+            grid-template-columns: 600px 400px;
             position: relative;
+            animation: containerEntrance 1.2s var(--ease-spring);
+        }
+
+        @keyframes containerEntrance {
+            from { 
+                opacity: 0; 
+                transform: translateY(60px) scale(0.95);
+                filter: blur(20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        /* Hero Section - Left Panel (600px width × 700px height) */
+        .hero-panel {
+            background: var(--gradient-secondary);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            color: white;
             text-align: center;
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+            width: 600px;
+            height: 700px;
         }
 
-        .left-column::before {
-            content: "";
+        .hero-background {
             position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+                linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%);
+            animation: heroBackgroundShift 35s ease-in-out infinite;
         }
 
-        .left-column h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+        @keyframes heroBackgroundShift {
+            0%, 100% { 
+                transform: rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: rotate(2deg) scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .hero-content {
             position: relative;
-            z-index: 1;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            padding: 10px 20px;
-            border-radius: 25px;
-            transition: background 0.3s, color 0.3s;
-            border: 2px solid white;
-        }
-
-        .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .right-column {
-            flex: 1.2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Center vertically */
-            align-items: center; /* Center horizontally */
-            padding: 40px;
-        }
-
-        .logo {
-            width: 120px;
-            border-radius: 50%;
-            margin-bottom: 15px;
-        }
-
-        form {
+            z-index: 5;
             width: 100%;
             max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            background: #f9f9f9;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-title {
-            color: #1f6637;
-            font-family: "Oswald", sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: 500;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 2px solid #1f6637;
-            border-radius: 8px;
-            outline: none;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: #0c702d;
-            box-shadow: 0 0 5px rgba(12, 112, 45, 0.4);
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .login-btn {
-            background-color: #0c702d;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1rem;
-            width: 48%;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover {
-            background-color: #1f6637;
-            transform: scale(1.05);
-        }
-
-        .link {
-            color: #1f6637;
-            font-weight: 500;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
-        }
-
-        .link:hover {
-            color: #0c702d;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 900px) {
-            .login-container {
-                flex-direction: column;
-                height: auto;
-            }
-
-            .left-column {
-                width: 100%;
-                height: 200px;
-                padding: 20px;
-            }
-
-            .right-column {
-                padding: 30px;
-            }
-
-            .left-column h2 {
-                font-size: 2rem; /* Adjust font size for smaller screens */
-            }
-
-            .nav-links a {
-                font-size: 1rem; /* Adjust font size for smaller screens */
-            }
-
-            .form-title {
-                font-size: 1.5rem; /* Adjust font size for smaller screens */
-            }
-
-            .login-btn {
-                font-size: 0.9rem; /* Adjust button font size for smaller screens */
-            }
-
-            .link {
-                font-size: 0.8rem; /* Adjust link font size for smaller screens */
-            }
-        }
-        .right-column {
-            flex: 1.2;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            position: relative; /* Set position to relative for absolute positioning of notification */
         }
-        .notification {
+
+        /* Hero Logo - Perfectly Sized */
+        .logo-hero-wrapper {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .logo-hero {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-glass);
+            backdrop-filter: var(--blur-lg);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 
+                var(--shadow-emerald-lg),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            animation: logoLevitate 8s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-hero::before {
+            content: '';
             position: absolute;
-            width: 80%;
-            left: 50%;
-            top: 20%;
-            transform: translateX(-50%);
-            padding: 15px;
-            font-size: 14px;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: conic-gradient(
+                from 0deg,
+                var(--emerald-400) 0deg,
+                var(--forest-400) 90deg,
+                var(--emerald-300) 180deg,
+                var(--forest-500) 270deg,
+                var(--emerald-400) 360deg
+            );
+            border-radius: var(--radius-full);
+            z-index: -1;
+            animation: logoHalo 10s linear infinite;
+        }
+
+        .logo-hero::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: var(--gradient-secondary);
+            border-radius: var(--radius-full);
+            z-index: -1;
+        }
+
+        @keyframes logoLevitate {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+                box-shadow: 
+                    var(--shadow-emerald-lg),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            }
+            50% { 
+                transform: translateY(-6px) scale(1.02);
+                box-shadow: 
+                    0 35px 60px -12px rgba(16, 185, 129, 0.7),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        @keyframes logoHalo {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-hero img {
+            width: 90px;
+            height: 90px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hero Typography - Perfectly Fitted */
+        .hero-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 30%, #dcfce7 60%, #bbf7d0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: titleGlow 4s ease-in-out infinite;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { 
+                filter: brightness(1);
+                transform: scale(1);
+            }
+            50% { 
+                filter: brightness(1.1);
+                transform: scale(1.01);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            font-weight: 400;
+            color: rgba(240, 253, 244, 0.95);
+            line-height: 1.5;
+            margin-bottom: 40px;
+            letter-spacing: -0.01em;
+            max-width: 400px;
             text-align: center;
-            border-radius: 8px;
-            font-weight: bold;
-            display: none; /* Initially hidden */
-            z-index: 100;
-            opacity: 0; /* Start fully transparent */
-            transition: opacity 0.5s ease-in-out; /* Smooth fade effect */
+        }
+
+        /* Feature Grid - Perfectly Sized */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: var(--blur-md);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-xl);
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            color: var(--forest-50);
+            font-weight: 500;
+            transition: all 0.5s var(--ease-spring);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        /* Login Panel - Right Side (400px width × 700px height) */
+        .login-panel {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: var(--blur-xl);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            width: 400px;
+            height: 700px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Login Logo - Perfectly Sized */
+        .logo-login-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .logo-login {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-2xl);
+            margin: 0 auto;
+            box-shadow: 
+                var(--shadow-emerald),
+                inset 0 2px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.5s var(--ease-spring);
+            overflow: hidden;
+            border: 2px solid var(--emerald-200);
+            position: relative;
+        }
+
+        .logo-login::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-secondary);
+            border-radius: var(--radius-2xl);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo-login:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: var(--shadow-emerald-lg);
+            border-color: var(--emerald-400);
+        }
+
+        .logo-login:hover::before {
+            opacity: 1;
+        }
+
+        .logo-login img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: calc(var(--radius-2xl) - 2px);
+        }
+
+        /* Login Typography - Perfectly Fitted */
+        .login-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+
+        .login-description {
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        /* Premium Notification System - Overlay Design */
+        .notification {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            z-index: 1000;
+            padding: 16px 24px;
+            border-radius: var(--radius-2xl);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.6s var(--ease-spring);
+            backdrop-filter: var(--blur-xl);
+            border: 1px solid transparent;
+            position: fixed;
+            overflow: hidden;
+            min-width: 320px;
+            max-width: 500px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 1s ease;
         }
 
         .notification.success {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.9));
             color: white;
-            border: 1px solid #3e8e41;
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 
+                0 20px 40px rgba(16, 185, 129, 0.3),
+                0 8px 16px rgba(16, 185, 129, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .notification.error {
-            background-color: #f44336;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.9));
             color: white;
-            border: 1px solid #d32f2f;
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 
+                0 20px 40px rgba(239, 68, 68, 0.3),
+                0 8px 16px rgba(239, 68, 68, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.show::before {
+            left: 100%;
+        }
+
+        /* Add subtle animation for the notification icon */
+        .notification::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-full);
+            opacity: 0.3;
+        }
+
+        .notification.success::after {
+            background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+        }
+
+        .notification.error::after {
+            background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+        }
+
+        /* Form System - Perfectly Fitted */
+        .form-container {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--emerald-200);
+            border-radius: var(--radius-xl);
+            font-size: 0.85rem;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: var(--blur-sm);
+            transition: all 0.4s var(--ease-spring);
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            height: 48px;
+        }
+
+        .form-input:focus {
+            border-color: var(--emerald-500);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 
+                0 0 0 3px rgba(16, 185, 129, 0.15),
+                0 8px 20px rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-quaternary);
+            font-weight: 400;
+        }
+
+        /* Floating Labels - Perfectly Positioned */
+        .form-label {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            pointer-events: none;
+            transition: all 0.3s var(--ease-spring);
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                transparent 40%, 
+                rgba(255,255,255,0.95) 40%, 
+                rgba(255,255,255,0.95) 60%, 
+                transparent 60%);
+            padding: 0 4px;
+        }
+
+        .form-input:focus + .form-label,
+        .form-input:not(:placeholder-shown) + .form-label {
+            top: -8px;
+            left: 12px;
+            font-size: 0.7rem;
+            color: var(--emerald-600);
+            font-weight: 600;
+            transform: scale(0.9);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            padding: 4px;
+            border-radius: var(--radius-md);
+        }
+
+        .password-toggle:hover {
+            color: var(--emerald-600);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 24px;
+        }
+
+        .forgot-password a {
+            color: var(--emerald-600);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .forgot-password a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-secondary);
+            transition: width 0.4s var(--ease-spring);
+        }
+
+        .forgot-password a:hover {
+            color: var(--emerald-700);
+        }
+
+        .forgot-password a:hover::after {
+            width: 100%;
+        }
+
+        /* Button - Perfectly Sized */
+        .login-button {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--gradient-secondary);
+            color: var(--text-white);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s var(--ease-spring);
+            box-shadow: var(--shadow-emerald);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            margin-bottom: 24px;
+            height: 48px;
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-emerald-lg);
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button:active {
+            transform: translateY(-1px);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Register Section - Perfectly Fitted */
+        .register-section {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--emerald-100);
+        }
+
+        .register-text {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .register-link {
+            color: var(--emerald-600);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: var(--radius-lg);
+        }
+
+        .register-link:hover {
+            color: var(--emerald-700);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius-full);
+            border-top-color: var(--text-white);
+            animation: spin 1s var(--ease-in-out) infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                width: 900px;
+                height: 650px;
+                grid-template-columns: 540px 360px;
+            }
+            
+            .hero-panel {
+                width: 540px;
+                height: 650px;
+                padding: 50px 40px;
+            }
+            
+            .login-panel {
+                width: 360px;
+                height: 650px;
+                padding: 40px 30px;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .logo-hero {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-hero img {
+                width: 75px;
+                height: 75px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                width: 450px;
+                height: auto;
+                min-height: 600px;
+            }
+
+            .hero-panel {
+                display: none;
+            }
+
+            .login-panel {
+                width: 450px;
+                padding: 40px 35px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .main-container {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .login-panel {
+                width: 100%;
+                padding: 30px 25px;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .form-input {
+                padding: 12px 14px;
+                height: 44px;
+            }
+
+            .form-label {
+                top: 12px;
+                left: 14px;
+            }
+
+            .form-input:focus + .form-label,
+            .form-input:not(:placeholder-shown) + .form-label {
+                top: -6px;
+                left: 10px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-panel {
+                padding: 25px 20px;
+            }
+
+            .logo-login {
+                width: 70px;
+                height: 70px;
+            }
+
+            .login-title {
+                font-size: 1.375rem;
+            }
+        }
+
+        /* Accessibility & Performance */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            .main-container {
+                border: 3px solid var(--emerald-600);
+            }
+            
+            .form-input {
+                border-width: 3px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="left-column">
-            <h2>Demo Farm Net House Automation</h2>
-            <div class="nav-links">
-                <a href="#" class="active">Login</a>
-                <a href="/register">Register</a>
-            </div>
-        </div>
-        <div class="right-column">
-            <form action="/login" method="post">
-                <center><img src="images/logo.png" alt="Demo Farm Logo" class="logo"></center>
-                <h1 class="form-title">LOGIN</h1>
-                <div id="notification" class="notification"
-                    style="<%= Data && (Data.error || Data.success) ? 'display: block;' : 'display: none;' %>">
-                </div>
+    <!-- Overlay Notification System -->
+    <div id="notification" class="notification" style="display: none;">
+    </div>
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter Admin Email" required value="<%= typeof Data !== 'undefined' ? Data.email : '' %>">
-                
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter Password" required>
-                
-                <div class="form-actions">
-                    <a href="/forgotpassword" class="link">Forgot Password?</a>
-                    <button type="submit" class="login-btn">LOG IN</button>
-                </div>
-            </form>
-            <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
-
-            <script>
-                function showNotification(message, isSuccess) {
-                const notification = document.getElementById('notification');
-
-                if (!notification) {
-                    console.error('Notification element not found in the DOM.');
-                    return;
-                }
-
-                // Set message and class
-                notification.textContent = message;
-                notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
-
-                // Make visible first
-                notification.style.display = 'block';
-
-                // Force reflow before applying opacity
-                setTimeout(() => {
-                    notification.style.opacity = '1';
-                }, 10); // Small delay to ensure transition works
-
-                // Fade out after 3 seconds
-                setTimeout(() => {
-                    notification.style.opacity = '0'; // Start fade-out
-                }, 3000);
-
-                // Hide after fade-out completes
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3500);
-            }
-
-
-
-            document.addEventListener("DOMContentLoaded", () => {
-                // Retrieve message from server-side EJS variables
-                const message = "<%= Data && (Data.error || Data.success) ? (Data.error || Data.success) : '' %>";
-                const isSuccess = <%= Data && Data.success ? 'true' : 'false' %>;
-
-                if (message.trim() !== '') {
-                    showNotification(message, isSuccess);
-                }
-            });
-            
-            </script>
-
+    <!-- Ultra-Premium Background System -->
+    <div class="background-system">
+        <div class="bg-mesh"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
         </div>
     </div>
+    
+    <!-- Premium Particle System -->
+    <div class="particles-container">
+        <div class="particle particle-1 particle-emerald"></div>
+        <div class="particle particle-2 particle-forest"></div>
+        <div class="particle particle-3 particle-light"></div>
+        <div class="particle particle-4 particle-emerald"></div>
+        <div class="particle particle-5 particle-forest"></div>
+        <div class="particle particle-6 particle-light"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Panel - Left Side -->
+        <div class="hero-panel">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <div class="logo-hero-wrapper">
+                    <div class="logo-hero">
+                        <img src="images/logo.png" alt="Oriental Mindoro Official Seal">
+                    </div>
+                </div>
+                
+                <h1 class="hero-title">AgriNet</h1>
+                <p class="hero-subtitle">Province of Oriental Mindoro's premier agricultural automation platform. Revolutionizing farming through intelligent technology and sustainable practices.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">🌾 Smart Agriculture</div>
+                    <div class="feature-card">🐃 Livestock Management</div>
+                    <div class="feature-card">📊 Data Analytics</div>
+                    <div class="feature-card">🌱 Sustainability</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Panel - Right Side -->
+        <div class="login-panel">
+            <div class="login-header">
+                <div class="logo-login-wrapper">
+                    <div class="logo-login">
+                        <img src="images/logo.png" alt="Oriental Mindoro Official Seal">
+                    </div>
+                </div>
+                
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Access Your AgriNet Dashboard</p>
+                <p class="login-description">Sign in to manage your agricultural operations and access real-time insights.</p>
+            </div>
+
+            <div class="form-container">
+                <form action="/login" method="post">
+                    <div class="form-group">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            class="form-input" 
+                            placeholder=""
+                            required
+                            value="<%= typeof Data !== 'undefined' ? Data.email : '' %>"
+                        >
+                        <label for="email" class="form-label">Email Address</label>
+                    </div>
+
+                    <div class="form-group">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            class="form-input" 
+                            placeholder=""
+                            required
+                        >
+                        <label for="password" class="form-label">Password</label>
+                        <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">👁️</button>
+                    </div>
+
+                    <div class="forgot-password">
+                        <a href="/forgotpassword">Forgot your password?</a>
+                    </div>
+
+                    <button type="submit" class="login-button" id="loginBtn">
+                        <span id="btnText">Sign In Securely</span>
+                        <span id="btnLoader" class="loading" style="display: none;"></span>
+                    </button>
+                </form>
+
+                <div class="register-section">
+                    <p class="register-text">Don't have an account?</p>
+                    <a href="/register" class="register-link">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
+    <script>
+        // World-Class Overlay Notification System
+        function showNotification(message, isSuccess) {
+            const notification = document.getElementById('notification');
+            if (!notification) {
+                console.error('Notification element not found in the DOM.');
+                return;
+            }
+            
+            // Set message and class
+            notification.textContent = message;
+            notification.className = 'notification ' + (isSuccess ? 'success' : 'error');
+            
+            // Show with premium animation
+            notification.style.display = 'block';
+            
+            // Trigger entrance animation
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+            
+            // Auto-hide with smooth exit
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5600);
+        }
+
+        // Add close button to notification
+        function addCloseButton(notification) {
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 8px;
+                right: 12px;
+                background: none;
+                border: none;
+                color: rgba(255,255,255,0.8);
+                font-size: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 0;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.3s ease;
+            `;
+            
+            closeBtn.addEventListener('mouseenter', () => {
+                closeBtn.style.background = 'rgba(255,255,255,0.2)';
+                closeBtn.style.color = 'white';
+            });
+            
+            closeBtn.addEventListener('mouseleave', () => {
+                closeBtn.style.background = 'none';
+                closeBtn.style.color = 'rgba(255,255,255,0.8)';
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 600);
+            });
+            
+            notification.appendChild(closeBtn);
+        }
+
+        // Premium Password Toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+                toggleBtn.setAttribute('aria-label', 'Hide password');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+                toggleBtn.setAttribute('aria-label', 'Show password');
+            }
+        }
+
+        // Advanced Form System
+        document.addEventListener("DOMContentLoaded", () => {
+            // Server-side message handling
+            const message = "<%= Data && (Data.error || Data.success) ? (Data.error || Data.success) : '' %>";
+            const isSuccess = <%= Data && Data.success ? 'true' : 'false' %>;
+            
+            if (message.trim() !== '') {
+                showNotification(message, isSuccess);
+            }
+
+            // Premium floating label system
+            document.querySelectorAll('.form-input').forEach(input => {
+                // Check initial state
+                if (input.value !== '') {
+                    input.classList.add('has-value');
+                }
+
+                input.addEventListener('input', function() {
+                    if (this.value !== '') {
+                        this.classList.add('has-value');
+                    } else {
+                        this.classList.remove('has-value');
+                    }
+                });
+
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+
+            // Ultra-smooth parallax system
+            let ticking = false;
+            
+            function updateParallax(e) {
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        const particles = document.querySelectorAll('.particle');
+                        const orbs = document.querySelectorAll('.orb');
+                        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+                        
+                        particles.forEach((particle, index) => {
+                            const speed = (index + 1) * 0.2;
+                            const xPos = x * speed * 8;
+                            const yPos = y * speed * 8;
+                            
+                            particle.style.transform = `translate(${xPos}px, ${yPos}px)`;
+                        });
+
+                        orbs.forEach((orb, index) => {
+                            const speed = (index + 1) * 0.1;
+                            const xPos = x * speed * 15;
+                            const yPos = y * speed * 15;
+                            
+                            orb.style.transform = `translate(${xPos}px, ${yPos}px)`;
+                        });
+                        
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }
+
+            // Only add parallax on desktop devices
+            if (window.innerWidth > 1024 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.addEventListener('mousemove', updateParallax);
+            }
+
+            // Premium form submission
+            const form = document.querySelector('form');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+
+            form.addEventListener('submit', function(e) {
+                // Show premium loading state
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline-block';
+                loginBtn.disabled = true;
+                loginBtn.style.opacity = '0.8';
+            });
+
+            // Feature card interactions
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Initialize notification close button
+            const notificationElement = document.getElementById('notification');
+            if (notificationElement) {
+                addCloseButton(notificationElement);
+            }
+        });
+
+        // Performance optimization
+        if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
+            document.documentElement.style.setProperty('--animation-duration', '0.3s');
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        // Observe animated elements
+        document.querySelectorAll('.logo-hero, .feature-card, .orb').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>

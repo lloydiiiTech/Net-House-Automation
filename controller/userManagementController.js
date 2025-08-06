@@ -15,7 +15,7 @@ const userManagementController = {
                         userData = userDoc.data();
                         userData.id = userDoc.id;
                         // Set default profile picture if none exists
-                        userData.profilePicture = userData.profilePicture || '/assets/img/default-avatar.png';
+                        userData.profilePicture = userData.profilePicture || './assets/img/admin-avatar.png';
                     }
                 } catch (error) {
                     console.error('Error fetching user data:', error);
@@ -102,7 +102,7 @@ const userManagementController = {
                     createdAt: formatDate(userData.createdAt),
                     lastPasswordUpdate: formatDate(userData.lastPasswordUpdate),
                     lastLogin: formatDate(userData.lastLogin),
-                    profilePicture: userData.profilePicture || '/assets/img/default-avatar.png'
+                    profilePicture: userData.profilePicture || './assets/img/admin-avatar.png'
                 });
             });
 
@@ -115,7 +115,7 @@ const userManagementController = {
                 user: userData || {
                     name: 'Admin',
                     role: 'Admin',
-                    profilePicture: '/assets/img/default-avatar.png'
+                    profilePicture: './assets/img/admin-avatar.png'
                 },
                 users,
                 pagination: {
@@ -406,7 +406,7 @@ const userManagementController = {
                     email: userData.email || 'N/A',
                     contactNumber: userData.contactNumber || 'N/A',
                     createdAt: formatDate(userData.createdAt),
-                    profilePicture: userData.profilePicture || '/assets/img/default-avatar.png',
+                    profilePicture: userData.profilePicture || './assets/img/admin-avatar.png',
                     role: userData.Role || 'User',
                     isVerified: userData.isVerified || false
                 });

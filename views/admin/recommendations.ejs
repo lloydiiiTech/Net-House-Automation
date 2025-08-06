@@ -239,10 +239,10 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">NetHouse
+                    <span class="brand">AgriNet
                         <span class="brand-tip">Automation</span>
                     </span>
-                    <span class="brand-mini">NHA</span>
+                    <span class="brand-mini"></span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -711,6 +711,33 @@
     if (plantBtn) {
         plantBtn.addEventListener('click', async function() {
             if (!selectedCropForPlanting) return;
+
+            // If not registered, ask to register
+            if (!selectedCropForPlanting.isRegistered) {
+                const confirmRegister = confirm('This crop is not registered. Do you want to register it before planting?');
+                if (!confirmRegister) return;
+
+                // Register the crop
+                try {
+                    const cropId = selectedCropForPlanting.id;
+                    if (!cropId) {
+                        alert('Crop ID not found. Cannot register.');
+                        return;
+                    }
+                    const regRes = await fetch(`/api/crops/${cropId}/register`, { method: 'POST' });
+                    const regData = await regRes.json();
+                    if (!regData.success) {
+                        alert(regData.message || 'Failed to register crop.');
+                        return;
+                    }
+                    // Mark as registered locally so the next step works
+                    selectedCropForPlanting.isRegistered = true;
+                } catch (err) {
+                    alert('Server error while registering crop.');
+                    return;
+                }
+            }
+
             plantBtn.disabled = true;
             plantBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Planting...';
             try {
@@ -723,7 +750,7 @@
                 if (data.success) {
                     alert(data.message);
                     $('#cropDetailsModal').modal('hide');
-                    location.reload();
+                    window.location.href = '/plant-overview';
                 } else {
                     alert(data.error || data.message || 'Failed to plant crop.');
                 }
@@ -734,6 +761,14 @@
                 plantBtn.innerHTML = '<i class="fas fa-seedling mr-2"></i>Plant this Crop';
             }
         });
+    }
+
+    // Auto-open modal if crop was selected from previous page
+    const cropName = sessionStorage.getItem('selectedCrop');
+    if (cropName) {
+        const crop = recommendationsData.find(c => c.name === cropName);
+        if (crop) showCropDetails(crop);
+        sessionStorage.removeItem('selectedCrop');
     }
     </script>
 </body>

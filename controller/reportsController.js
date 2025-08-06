@@ -528,55 +528,121 @@ exports.getSensorData = async (req, res) => {
     }
 };
 
+exports.checkSensorData = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        if (!startDate || !endDate) {
+            return res.json({ hasData: false });
+        }
+        const start = admin.firestore.Timestamp.fromDate(new Date(startDate));
+        const end = admin.firestore.Timestamp.fromDate(new Date(endDate));
+        const snapshot = await firestore.collection('daily_sensor_summaries')
+            .where('timestamp', '>=', start)
+            .where('timestamp', '<=', end)
+            .limit(1)
+            .get();
+        res.json({ hasData: !snapshot.empty });
+    } catch (error) {
+        res.json({ hasData: false });
+    }
+};
+
 exports.downloadSensorData = async (req, res) => {
     try {
         const { startDate, endDate, format = 'csv', type = 'sensor' } = req.query;
         
-        if (!startDate || !endDate) {
-            return res.status(400).json({ error: "Start date and end date are required" });
+        if (!startDate && !endDate) {
+            return res.status(400).json({ error: "Start date or end date is required" });
         }
 
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        // Date filtering logic (match reportDailySensorsController.js)
+        let start, end;
+        if (startDate && !endDate) {
+            start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            end = new Date(startDate);
+            end.setHours(23, 59, 59, 999);
+        } else if (!startDate && endDate) {
+            start = new Date(endDate);
+            start.setHours(0, 0, 0, 0);
+            end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+        } else if (startDate && endDate) {
+            start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+        }
         
         let data = [];
         
         if (type === 'sensor' || type === 'all') {
-            const sensorSnapshot = await firestore.collection('daily_sensor_summaries')
-                .where('period_start', '>=', admin.firestore.Timestamp.fromDate(start))
-                .where('period_start', '<=', admin.firestore.Timestamp.fromDate(end))
-                .orderBy('period_start', 'asc')
-                .get();
+            let query = firestore.collection('daily_sensor_summaries');
+            if (start && end) {
+                query = query
+                    .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(start))
+                    .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(end));
+            }
+            query = query.orderBy('timestamp', 'asc');
+
+            const sensorSnapshot = await query.get();
 
             data = sensorSnapshot.docs.map(doc => {
                 const sensorData = doc.data();
                 return {
-                    date: sensorData.period_start.toDate().toISOString().split('T')[0],
-                    temperature_avg: sensorData.temperature?.average || 0,
-                    temperature_min: sensorData.temperature?.min || 0,
-                    temperature_max: sensorData.temperature?.max || 0,
-                    humidity_avg: sensorData.humidity?.average || 0,
-                    humidity_min: sensorData.humidity?.min || 0,
-                    humidity_max: sensorData.humidity?.max || 0,
-                    moisture_avg: sensorData.moistureAve?.average || 0,
-                    moisture_min: sensorData.moistureAve?.min || 0,
-                    moisture_max: sensorData.moistureAve?.max || 0,
-                    light_avg: sensorData.light?.average || 0,
-                    light_min: sensorData.light?.min || 0,
-                    light_max: sensorData.light?.max || 0,
-                    ph_avg: sensorData.ph?.average || 0,
-                    ph_min: sensorData.ph?.min || 0,
-                    ph_max: sensorData.ph?.max || 0,
-                    nitrogen_avg: sensorData.nitrogen?.average || 0,
-                    nitrogen_min: sensorData.nitrogen?.min || 0,
-                    nitrogen_max: sensorData.nitrogen?.max || 0,
-                    phosphorus_avg: sensorData.phosphorus?.average || 0,
-                    phosphorus_min: sensorData.phosphorus?.min || 0,
-                    phosphorus_max: sensorData.phosphorus?.max || 0,
-                    potassium_avg: sensorData.potassium?.average || 0,
-                    potassium_min: sensorData.potassium?.min || 0,
-                    potassium_max: sensorData.potassium?.max || 0,
-                    data_points: sensorData.data_points || 0
+                    Date: sensorData.timestamp && sensorData.timestamp.toDate
+                        ? sensorData.timestamp.toDate().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' })
+                        : '',
+                    'Temperature Avg (°C)': sensorData.temperature?.average || 0,
+                    'Temperature Min (°C)': sensorData.temperature?.min || 0,
+                    'Temperature Max (°C)': sensorData.temperature?.max || 0,
+                    'Humidity Avg (%)': sensorData.humidity?.average || 0,
+                    'Humidity Min (%)': sensorData.humidity?.min || 0,
+                    'Humidity Max (%)': sensorData.humidity?.max || 0,
+                    'Soil Moisture Avg (%)': sensorData.moistureAve?.average || 0,
+                    'Soil Moisture Min (%)': sensorData.moistureAve?.min || 0,
+                    'Soil Moisture Max (%)': sensorData.moistureAve?.max || 0,
+                    'Light Avg (lux)': sensorData.light?.average || 0,
+                    'Light Min (lux)': sensorData.light?.min || 0,
+                    'Light Max (lux)': sensorData.light?.max || 0,
+                    'pH Avg': sensorData.ph?.average || 0,
+                    'pH Min': sensorData.ph?.min || 0,
+                    'pH Max': sensorData.ph?.max || 0,
+                    'Nitrogen Avg': sensorData.nitrogen?.average || 0,
+                    'Nitrogen Min': sensorData.nitrogen?.min || 0,
+                    'Nitrogen Max': sensorData.nitrogen?.max || 0,
+                    'Phosphorus Avg': sensorData.phosphorus?.average || 0,
+                    'Phosphorus Min': sensorData.phosphorus?.min || 0,
+                    'Phosphorus Max': sensorData.phosphorus?.max || 0,
+                    'Potassium Avg': sensorData.potassium?.average || 0,
+                    'Potassium Min': sensorData.potassium?.min || 0,
+                    'Potassium Max': sensorData.potassium?.max || 0,
+                    'Data Points': sensorData.data_points || 0
+                };
+            });
+        }
+
+        // IRRIGATION EXPORT SUPPORT
+        if (type === 'irrigation') {
+            let query = firestore.collection('irrigation_records');
+            if (start && end) {
+                query = query
+                    .where('date', '>=', admin.firestore.Timestamp.fromDate(start))
+                    .where('date', '<=', admin.firestore.Timestamp.fromDate(end));
+            }
+            query = query.orderBy('date', 'asc');
+            const irrigationSnapshot = await query.get();
+            data = irrigationSnapshot.docs.map(doc => {
+                const d = doc.data();
+                return {
+                    Date: d.date && d.date.toDate ? d.date.toDate().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }) : '',
+                    'Start Time': d.startTime && d.startTime.toDate ? d.startTime.toDate().toLocaleTimeString('en-CA', { timeZone: 'Asia/Manila' }) : '',
+                    'End Time': d.endTime && d.endTime.toDate ? d.endTime.toDate().toLocaleTimeString('en-CA', { timeZone: 'Asia/Manila' }) : '',
+                    'Duration (min)': d.duration || '',
+                    'Moisture Before': d.moistureBefore || '',
+                    'Moisture After': d.moistureAfter || '',
+                    Note: d.note || '',
+                    Status: d.status || ''
                 };
             });
         }
@@ -621,56 +687,332 @@ exports.downloadSensorData = async (req, res) => {
         if (format === 'json') {
             res.json({ data });
         } else if (format === 'excel') {
-            const XLSX = require('xlsx');
-            const workbook = XLSX.utils.book_new();
-            
-            if (type === 'all') {
-                XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data.sensor_data), 'Sensor Data');
-                XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data.crops_data), 'Crops Data');
-            } else {
-                XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(data), type === 'sensor' ? 'Sensor Data' : 'Crops Data');
+            const ExcelJS = require('exceljs');
+            const workbook = new ExcelJS.Workbook();
+            let sheet;
+            if (type === 'irrigation') {
+                sheet = workbook.addWorksheet('Irrigation Records');
+                // Header
+                sheet.mergeCells('A1:H1');
+                sheet.getCell('A1').value = 'NetHouseAutomation';
+                sheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+                sheet.getCell('A1').font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
+                sheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+                sheet.mergeCells('A2:H2');
+                sheet.getCell('A2').value = 'Irrigation Records Report';
+                sheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+                sheet.getCell('A2').font = { bold: true, size: 14, color: { argb: 'FFE3EEFD' } };
+                sheet.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+                sheet.mergeCells('A3:H3');
+                sheet.getCell('A3').value = `Period: ${startDate} to ${endDate}    Generated on: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })}`;
+                sheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+                sheet.getCell('A3').font = { italic: true, size: 10, color: { argb: 'FF34495E' } };
+                // Header row
+                const headerRow = ['Date', 'Start Time', 'End Time', 'Duration (min)', 'Moisture Before', 'Moisture After', 'Note', 'Status'];
+                sheet.addRow(headerRow);
+                const headerRowIdx = 4;
+                const row = sheet.getRow(headerRowIdx);
+                row.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                row.alignment = { vertical: 'middle', horizontal: 'center' };
+                row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+                // Data rows
+                data.forEach((row, idx) => {
+                    const excelRow = [row['Date'], row['Start Time'], row['End Time'], row['Duration (min)'], row['Moisture Before'], row['Moisture After'], row['Note'], row['Status']];
+                    sheet.addRow(excelRow);
+                });
+                // Alternating row colors and grid lines
+                for (let i = headerRowIdx + 1; i <= sheet.rowCount; i++) {
+                    const row = sheet.getRow(i);
+                    row.eachCell(cell => {
+                        cell.border = { top: { style: 'thin', color: { argb: 'FFE3EEFD' } }, left: { style: 'thin', color: { argb: 'FFE3EEFD' } }, bottom: { style: 'thin', color: { argb: 'FFE3EEFD' } }, right: { style: 'thin', color: { argb: 'FFE3EEFD' } } };
+                        if (i % 2 === 0) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+                    });
+                }
+                // Footer row
+                const footerRow = sheet.addRow([
+                    '', '', '', '', '', '', '',
+                    `© 2025 NetHouseAutomation - All rights reserved.`
+                ]);
+                footerRow.font = { italic: true, size: 9, color: { argb: 'FF7A8CA3' } };
+                // Auto-fit columns
+                sheet.columns.forEach(col => { col.width = col.header ? Math.max(13, col.header.length + 2) : 13; });
+                workbook.xlsx.writeBuffer().then(buffer => {
+                    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    res.setHeader('Content-Disposition', `attachment; filename=${type}-data-${startDate}-to-${endDate}.xlsx`);
+                    res.send(buffer);
+                });
+                return;
             }
-            
-            const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-            
-            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader('Content-Disposition', `attachment; filename=${type}-data-${startDate}-to-${endDate}.xlsx`);
-            res.send(excelBuffer);
+            // 1. Colored header bar with centered title
+            sheet.mergeCells('A1:I1');
+            sheet.getCell('A1').value = 'NetHouseAutomation';
+            sheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A1').font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
+            sheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            sheet.mergeCells('A2:I2');
+            sheet.getCell('A2').value = 'Sensor Data Report';
+            sheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A2').font = { bold: true, size: 14, color: { argb: 'FFE3EEFD' } };
+            sheet.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            // 2. Date range and generation timestamp
+            sheet.mergeCells('A3:I3');
+            sheet.getCell('A3').value = `Period: ${startDate} to ${endDate}    Generated on: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })}`;
+            sheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A3').font = { italic: true, size: 10, color: { argb: 'FF34495E' } };
+            // 3. Summary section
+            let summaryRowIdx = 5;
+            if (data.length > 0) {
+                const avg = (arr, key) => arr.reduce((a, b) => a + (Number(b[key]) || 0), 0) / arr.length;
+                const summary = {
+                    temp: avg(data, 'Temperature Avg (°C)'),
+                    humidity: avg(data, 'Humidity Avg (%)'),
+                    moisture: avg(data, 'Soil Moisture Avg (%)'),
+                    light: avg(data, 'Light Avg (lux)'),
+                    ph: avg(data, 'pH Avg'),
+                    n: avg(data, 'Nitrogen Avg'),
+                    p: avg(data, 'Phosphorus Avg'),
+                    k: avg(data, 'Potassium Avg'),
+                    points: data.reduce((a, b) => a + (Number(b['Data Points']) || 0), 0)
+                };
+                sheet.mergeCells(`A${summaryRowIdx}:I${summaryRowIdx}`);
+                sheet.getCell(`A${summaryRowIdx}`).value = 'Summary for Selected Period:';
+                sheet.getCell(`A${summaryRowIdx}`).font = { bold: true, size: 11, color: { argb: 'FF2C3E50' } };
+                sheet.getCell(`A${summaryRowIdx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3EEFD' } };
+                summaryRowIdx++;
+                sheet.mergeCells(`A${summaryRowIdx}:I${summaryRowIdx}`);
+                sheet.getCell(`A${summaryRowIdx}`).value =
+                    `Avg Temp: ${summary.temp.toFixed(1)}°C   Avg Humidity: ${summary.humidity.toFixed(1)}%   Avg Soil Moisture: ${summary.moisture.toFixed(1)}%   Avg Light: ${summary.light.toFixed(1)} lux   Avg pH: ${summary.ph.toFixed(2)}   Avg N: ${summary.n.toFixed(1)}   Avg P: ${summary.p.toFixed(1)}   Avg K: ${summary.k.toFixed(1)}   Total Data Points: ${summary.points}`;
+                sheet.getCell(`A${summaryRowIdx}`).font = { size: 10, color: { argb: 'FF34495E' } };
+                sheet.getCell(`A${summaryRowIdx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+                summaryRowIdx++;
+            }
+            // 4. Single-level header row
+            const paramNames = [
+                'Temperature Avg (°C)', 'Humidity Avg (%)', 'Soil Moisture Avg (%)', 'Light Avg (lux)', 'pH Avg', 'Nitrogen Avg', 'Phosphorus Avg', 'Potassium Avg'
+            ];
+            const headerRow = ['Date', ...paramNames, 'Data Points'];
+            sheet.addRow(headerRow);
+            // Style header row
+            const headerRowIdx = summaryRowIdx;
+            const row = sheet.getRow(headerRowIdx);
+            row.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            row.alignment = { vertical: 'middle', horizontal: 'center' };
+            row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            // 5. Add data rows
+            data.forEach((row, idx) => {
+                const excelRow = [row.Date];
+                [
+                    'Temperature Avg (°C)',
+                    'Humidity Avg (%)',
+                    'Soil Moisture Avg (%)',
+                    'Light Avg (lux)',
+                    'pH Avg',
+                    'Nitrogen Avg',
+                    'Phosphorus Avg',
+                    'Potassium Avg'
+                ].forEach(k => {
+                    let val = row[k];
+                    if (typeof val === 'number') val = Number(val).toFixed(1);
+                    excelRow.push(val);
+                });
+                excelRow.push(row['Data Points']);
+                sheet.addRow(excelRow);
+            });
+            // 6. Alternating row colors and grid lines
+            for (let i = headerRowIdx + 1; i <= sheet.rowCount; i++) {
+                const row = sheet.getRow(i);
+                row.eachCell(cell => {
+                    cell.border = { top: { style: 'thin', color: { argb: 'FFE3EEFD' } }, left: { style: 'thin', color: { argb: 'FFE3EEFD' } }, bottom: { style: 'thin', color: { argb: 'FFE3EEFD' } }, right: { style: 'thin', color: { argb: 'FFE3EEFD' } } };
+                    if (i % 2 === 0) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+                });
+            }
+            // 7. Summary row at the bottom
+            const totalPoints = data.reduce((a, b) => a + (Number(b['Data Points']) || 0), 0);
+            const summaryRow = sheet.addRow(['TOTAL', ...Array(headerRow.length - 2).fill(''), totalPoints]);
+            summaryRow.font = { bold: true, color: { argb: 'FF207D2A' } };
+            summaryRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEAFFEA' } };
+            // 8. Footer row
+            const footerRow = sheet.addRow([
+                '', '', '', '', '', '', '', '', '',
+                `© 2025 NetHouseAutomation - All rights reserved.`
+            ]);
+            footerRow.font = { italic: true, size: 9, color: { argb: 'FF7A8CA3' } };
+            // 9. Auto-fit columns
+            sheet.columns.forEach(col => { col.width = col.header ? Math.max(13, col.header.length + 2) : 13; });
+            workbook.xlsx.writeBuffer().then(buffer => {
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.setHeader('Content-Disposition', `attachment; filename=${type}-data-${startDate}-to-${endDate}.xlsx`);
+                res.send(buffer);
+            });
         } else if (format === 'pdf') {
             const PDFDocument = require('pdfkit');
-            const doc = new PDFDocument();
-            
+            const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename=${type}-data-${startDate}-to-${endDate}.pdf`);
-            
             doc.pipe(res);
-            
-            // Add title
-            doc.fontSize(20).text(`${type.charAt(0).toUpperCase() + type.slice(1)} Data Report`, { align: 'center' });
-            doc.moveDown();
-            
-            // Add date range
-            doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`, { align: 'center' });
-            doc.moveDown();
-            
-            // Add data
-            if (type === 'all') {
-                doc.fontSize(16).text('Sensor Data');
-                doc.moveDown();
-                // Add sensor data table
-                // ... (implement table generation for sensor data)
-                
-                doc.addPage();
-                doc.fontSize(16).text('Crops Data');
-                doc.moveDown();
-                // Add crops data table
-                // ... (implement table generation for crops data)
-            } else {
-                // Add single table for the selected type
-                // ... (implement table generation)
+            if (type === 'irrigation') {
+                // Header bar
+                doc.rect(doc.x, doc.y, doc.page.width - 2 * doc.options.margin, 32).fill('#5b9bd5');
+                doc.fontSize(22).fillColor('#fff').font('Helvetica-Bold').text('NetHouseAutomation', { align: 'center', baseline: 'middle' });
+                doc.fontSize(14).fillColor('#e3eefd').font('Helvetica').text('Irrigation Records Report', { align: 'center' });
+                doc.moveDown(0.5);
+                doc.fontSize(12).fillColor('#34495e').text(`Period: ${startDate} to ${endDate}`, { align: 'left' });
+                doc.fontSize(9).fillColor('#7a8ca3').text(`Generated on: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })}`, { align: 'left' });
+                doc.moveDown(1.2);
+                // Table header
+                const headers = ['Date', 'Start Time', 'End Time', 'Duration (min)', 'Moisture Before', 'Moisture After', 'Note', 'Status'];
+                const colWidths = [60, 60, 60, 60, 60, 60, 120, 60];
+                let x = doc.x, y = doc.y;
+                doc.font('Helvetica-Bold').fontSize(9).fillColor('#fff').rect(x, y, colWidths.reduce((a,b)=>a+b,0), 22).fill('#5b9bd5');
+                let colX = x;
+                headers.forEach((name, i) => {
+                    doc.fillColor('#fff').text(name, colX + 2, y + 6, { width: colWidths[i] - 4, align: 'center' });
+                    colX += colWidths[i];
+                });
+                y += 22;
+                // Data rows
+                data.forEach((row, idx) => {
+                    let rowColor = idx % 2 === 0 ? '#f4f7fa' : '#fff';
+                    doc.rect(x, y, colWidths.reduce((a,b)=>a+b,0), 20).fill(rowColor);
+                    colX = x;
+                    headers.forEach((k, i) => {
+                        let val = row[k];
+                        if (typeof val === 'number') val = Number(val).toFixed(1);
+                        doc.font('Helvetica').fillColor('#2c3e50').fontSize(8).text(val, colX + 2, y + 6, { width: colWidths[i] - 4, align: 'center' });
+                        colX += colWidths[i];
+                    });
+                    y += 20;
+                    // Draw grid lines
+                    let gridX = x;
+                    for (let i = 0; i < colWidths.length; i++) {
+                        doc.moveTo(gridX, y - 20).lineTo(gridX, y).strokeColor('#e3eefd').lineWidth(0.5).stroke();
+                        gridX += colWidths[i];
+                    }
+                    doc.moveTo(x, y).lineTo(x + colWidths.reduce((a,b)=>a+b,0), y).strokeColor('#e3eefd').lineWidth(0.5).stroke();
+                    if (y > doc.page.height - 60) {
+                        doc.addPage();
+                        y = doc.y;
+                        // Redraw header
+                        let colX2 = x;
+                        doc.font('Helvetica-Bold').fontSize(9).fillColor('#5b9bd5').rect(x, y, colWidths.reduce((a,b)=>a+b,0), 22).fill('#5b9bd5');
+                        headers.forEach((name, i) => {
+                            doc.fillColor('#fff').text(name, colX2 + 2, y + 6, { width: colWidths[i] - 4, align: 'center' });
+                            colX2 += colWidths[i];
+                        });
+                        y += 22;
+                    }
+                });
+                // Footer with page numbers
+                const pageCount = doc.bufferedPageRange().count;
+                for (let i = 0; i < pageCount; i++) {
+                    doc.switchToPage(i);
+                    doc.fontSize(8).fillColor('#7a8ca3').text(`Page ${i + 1} of ${pageCount}`, 0, doc.page.height - 40, { align: 'center' });
+                    doc.fontSize(8).fillColor('#7a8ca3').text('© 2025 NetHouseAutomation - All rights reserved.', 40, doc.page.height - 40, { align: 'left' });
+                }
+                doc.end();
+                return;
             }
-            
-            doc.end();
+            // 1. Colored header bar with centered title
+            sheet.mergeCells('A1:I1');
+            sheet.getCell('A1').value = 'NetHouseAutomation';
+            sheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A1').font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
+            sheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            sheet.mergeCells('A2:I2');
+            sheet.getCell('A2').value = 'Sensor Data Report';
+            sheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A2').font = { bold: true, size: 14, color: { argb: 'FFE3EEFD' } };
+            sheet.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            // 2. Date range and generation timestamp
+            sheet.mergeCells('A3:I3');
+            sheet.getCell('A3').value = `Period: ${startDate} to ${endDate}    Generated on: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })}`;
+            sheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+            sheet.getCell('A3').font = { italic: true, size: 10, color: { argb: 'FF34495E' } };
+            // 3. Summary section
+            let summaryRowIdx = 5;
+            if (data.length > 0) {
+                const avg = (arr, key) => arr.reduce((a, b) => a + (Number(b[key]) || 0), 0) / arr.length;
+                const summary = {
+                    temp: avg(data, 'Temperature Avg (°C)'),
+                    humidity: avg(data, 'Humidity Avg (%)'),
+                    moisture: avg(data, 'Soil Moisture Avg (%)'),
+                    light: avg(data, 'Light Avg (lux)'),
+                    ph: avg(data, 'pH Avg'),
+                    n: avg(data, 'Nitrogen Avg'),
+                    p: avg(data, 'Phosphorus Avg'),
+                    k: avg(data, 'Potassium Avg'),
+                    points: data.reduce((a, b) => a + (Number(b['Data Points']) || 0), 0)
+                };
+                sheet.mergeCells(`A${summaryRowIdx}:I${summaryRowIdx}`);
+                sheet.getCell(`A${summaryRowIdx}`).value = 'Summary for Selected Period:';
+                sheet.getCell(`A${summaryRowIdx}`).font = { bold: true, size: 11, color: { argb: 'FF2C3E50' } };
+                sheet.getCell(`A${summaryRowIdx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3EEFD' } };
+                summaryRowIdx++;
+                sheet.mergeCells(`A${summaryRowIdx}:I${summaryRowIdx}`);
+                sheet.getCell(`A${summaryRowIdx}`).value =
+                    `Avg Temp: ${summary.temp.toFixed(1)}°C   Avg Humidity: ${summary.humidity.toFixed(1)}%   Avg Soil Moisture: ${summary.moisture.toFixed(1)}%   Avg Light: ${summary.light.toFixed(1)} lux   Avg pH: ${summary.ph.toFixed(2)}   Avg N: ${summary.n.toFixed(1)}   Avg P: ${summary.p.toFixed(1)}   Avg K: ${summary.k.toFixed(1)}   Total Data Points: ${summary.points}`;
+                sheet.getCell(`A${summaryRowIdx}`).font = { size: 10, color: { argb: 'FF34495E' } };
+                sheet.getCell(`A${summaryRowIdx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+                summaryRowIdx++;
+            }
+            // 4. Single-level header row
+            const paramNames = [
+                'Temperature Avg (°C)', 'Humidity Avg (%)', 'Soil Moisture Avg (%)', 'Light Avg (lux)', 'pH Avg', 'Nitrogen Avg', 'Phosphorus Avg', 'Potassium Avg'
+            ];
+            const headerRow = ['Date', ...paramNames, 'Data Points'];
+            sheet.addRow(headerRow);
+            // Style header row
+            const headerRowIdx = summaryRowIdx;
+            const row = sheet.getRow(headerRowIdx);
+            row.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            row.alignment = { vertical: 'middle', horizontal: 'center' };
+            row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF5B9BD5' } };
+            // 5. Add data rows
+            data.forEach((row, idx) => {
+                const excelRow = [row.Date];
+                [
+                    'Temperature Avg (°C)',
+                    'Humidity Avg (%)',
+                    'Soil Moisture Avg (%)',
+                    'Light Avg (lux)',
+                    'pH Avg',
+                    'Nitrogen Avg',
+                    'Phosphorus Avg',
+                    'Potassium Avg'
+                ].forEach(k => {
+                    let val = row[k];
+                    if (typeof val === 'number') val = Number(val).toFixed(1);
+                    excelRow.push(val);
+                });
+                excelRow.push(row['Data Points']);
+                sheet.addRow(excelRow);
+            });
+            // 6. Alternating row colors and grid lines
+            for (let i = headerRowIdx + 1; i <= sheet.rowCount; i++) {
+                const row = sheet.getRow(i);
+                row.eachCell(cell => {
+                    cell.border = { top: { style: 'thin', color: { argb: 'FFE3EEFD' } }, left: { style: 'thin', color: { argb: 'FFE3EEFD' } }, bottom: { style: 'thin', color: { argb: 'FFE3EEFD' } }, right: { style: 'thin', color: { argb: 'FFE3EEFD' } } };
+                    if (i % 2 === 0) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+                });
+            }
+            // 7. Summary row at the bottom
+            const totalPoints = data.reduce((a, b) => a + (Number(b['Data Points']) || 0), 0);
+            const summaryRow = sheet.addRow(['TOTAL', ...Array(headerRow.length - 2).fill(''), totalPoints]);
+            summaryRow.font = { bold: true, color: { argb: 'FF207D2A' } };
+            summaryRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEAFFEA' } };
+            // 8. Footer row
+            const footerRow = sheet.addRow([
+                '', '', '', '', '', '', '', '', '',
+                `© 2025 NetHouseAutomation - All rights reserved.`
+            ]);
+            footerRow.font = { italic: true, size: 9, color: { argb: 'FF7A8CA3' } };
+            // 9. Auto-fit columns
+            sheet.columns.forEach(col => { col.width = col.header ? Math.max(13, col.header.length + 2) : 13; });
+            workbook.xlsx.writeBuffer().then(buffer => {
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.setHeader('Content-Disposition', `attachment; filename=${type}-data-${startDate}-to-${endDate}.xlsx`);
+                res.send(buffer);
+            });
         } else {
             // CSV format
             const headers = Object.keys(data[0] || {});

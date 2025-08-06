@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>NetHouseAutomation Reports & Analytics</title>
+    <!-- GLOBAL MAINLY STYLES-->
+    <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
+    <!-- PLUGINS STYLES-->
+    <link href="./assets/vendors/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/jvectormap/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="assets/css/main.min.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet" />
+    <link href="./assets/vendors/fullcalendar/dist/fullcalendar.print.min.css" rel="stylesheet" media="print" />
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #eaf0f7 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .report-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+
+        .report-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .section-header h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            border-radius: 10px !important;
+            font-weight: 500;
+            padding: 0.55rem 1.3rem;
+            font-size: 1rem;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-color 0.18s;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            outline: none !important;
+        }
+
+        .btn:focus {
+            box-shadow: 0 0 0 3px #e3eefd;
+            border-color: #5b9bd5;
+        }
+
+        .btn-primary {
+            background: #5b9bd5;
+            border-color: #5b9bd5;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background: #4178b8;
+            border-color: #4178b8;
+            color: #fff;
+        }
+
+        .btn-outline-secondary {
+            border-color: #bfc9d1;
+            color: #34495e;
+            background: #fff;
+        }
+
+        .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+            background: #f2f6fa;
+            color: #4178b8;
+            border-color: #4178b8;
+        }
+
+        .btn-success {
+            background: #4bbf73;
+            border-color: #4bbf73;
+        }
+
+        .btn-success:hover, .btn-success:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+        }
+
+        .btn-danger {
+            background: #e57373;
+            border-color: #e57373;
+        }
+
+        .btn-danger:hover, .btn-danger:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table-responsive {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-normal {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .parameter-item {
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .parameter-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .parameter-item h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pagination-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-size-selector select {
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ddd;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-controls .btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .export-buttons .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .export-buttons .btn i {
+            font-size: 1.1rem;
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--box-shadow);
+        }
+
+        .modal-header {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--light-bg);
+        }
+
+        .form-group label {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--light-bg);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        @media print {
+            .report-section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .section-actions,
+            .export-buttons {
+                display: none;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .custom-toast {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.1rem 1.7rem 1.1rem 0.7rem;
+            margin: 0;
+            border-radius: 16px;
+            font-weight: 500;
+            box-shadow: none;
+            width: 100%;
+            border-left: 7px solid #5b9bd5;
+            background: #f4f7fa;
+            color: #2c3e50;
+            position: relative;
+            gap: 1rem;
+        }
+        .custom-toast-warning {
+            border-left-color: #ffb300;
+            background: linear-gradient(90deg, #fffbe6 0%, #ffe082 100%);
+            color: #b26a00;
+        }
+        .custom-toast-danger {
+            border-left-color: #e74c3c;
+            background: linear-gradient(90deg, #ffeaea 0%, #ffb3b3 100%);
+            color: #a94442;
+        }
+        .custom-toast-success {
+            border-left-color: #27ae60;
+            background: linear-gradient(90deg, #eaffea 0%, #b3ffb3 100%);
+            color: #207d2a;
+        }
+        .custom-toast .toast-icon {
+            font-size: 1.5rem;
+            margin-right: 0.7rem;
+            opacity: 0.85;
+        }
+        .custom-toast .close {
+            background: none;
+            border: none;
+            font-size: 1.7rem;
+            color: inherit;
+            opacity: 0.7;
+            margin-left: auto;
+            cursor: pointer;
+            transition: opacity 0.2s, color 0.2s;
+            padding: 0 0.5rem;
+            border-radius: 50%;
+            line-height: 1;
+        }
+        .custom-toast .close:hover {
+            opacity: 1;
+            color: #e74c3c;
+            background: #fff0f0;
+        }
+        .custom-input {
+            border-radius: 10px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.7rem 1rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+        }
+        .custom-input:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .custom-table {
+            border-radius: 14px;
+            overflow: hidden;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(44,62,80,0.06);
+        }
+        .custom-table thead th {
+            background: #f4f7fa;
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #d1d5db;
+            padding: 1rem 0.75rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .custom-table tbody td {
+            padding: 0.85rem 0.75rem;
+            border-bottom: 1px solid #f2f6fa;
+            vertical-align: middle;
+            text-align: center;
+            background: #fff;
+            transition: background 0.18s;
+        }
+        .custom-table tbody tr:nth-child(even) td {
+            background: #f7fafd;
+        }
+        .custom-table tbody tr:hover td {
+            background: #e3eefd;
+        }
+        .card.shadow-sm, .card.shadow-lg {
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.10), 0 1.5px 4px rgba(44,62,80,0.04);
+            border: 1.5px solid #e3eefd;
+        }
+        .card-header {
+            border-radius: 16px 16px 0 0 !important;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+        }
+        .page-title {
+            font-family: 'Segoe UI Semibold', 'Segoe UI', Arial, sans-serif;
+            font-size: 2.1rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #5b9bd5;
+            letter-spacing: 0.01em;
+        }
+        /* Enhanced Toast/Flash */
+        #exportToast {
+            position: fixed;
+            left: 50%;
+            top: 80px;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 340px;
+            max-width: 95vw;
+            box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+            border-radius: 16px;
+            font-size: 1.13rem;
+            padding: 0;
+            overflow: hidden;
+            display: none;
+            transition: opacity 0.5s, top 0.5s;
+            opacity: 0;
+        }
+        #exportToast.show {
+            display: block;
+            opacity: 1;
+            top: 100px;
+            animation: slideDownFade 0.5s cubic-bezier(.4,2,.6,1) 1;
+        }
+        @keyframes slideDownFade {
+            from { opacity: 0; top: 60px; }
+            to { opacity: 1; top: 100px; }
+        }
+        .info-message {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: #e3eefd;
+            color: #4178b8;
+            border-radius: 10px;
+            padding: 0.7rem 1.2rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+        }
+        .info-message .fa-info-circle {
+            font-size: 1.3rem;
+            opacity: 0.85;
+        }
+        @media (max-width: 768px) {
+            .custom-table thead th, .custom-table tbody td {
+                padding: 0.5rem 0.3rem;
+                font-size: 0.95rem;
+            }
+            .custom-input {
+                font-size: 0.95rem;
+                padding: 0.5rem 0.7rem;
+            }
+            .btn {
+                font-size: 0.95rem;
+                padding: 0.45rem 1rem;
+            }
+            .info-message {
+                font-size: 0.97rem;
+                padding: 0.5rem 0.7rem;
+            }
+        }
+
+        .filter-download-card {
+            transition: box-shadow 0.22s, border-color 0.22s;
+            border: 1.5px solid #e3eefd;
+            background: #fafdff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.10), 0 1.5px 4px rgba(44,62,80,0.04);
+        }
+        .filter-download-card:hover {
+            box-shadow: 0 8px 32px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            border-color: #b3c6e2;
+        }
+        .filter-download-form {
+            gap: 1.5rem 1rem;
+        }
+        .filter-fields .form-group {
+            margin-bottom: 0 !important;
+        }
+        .action-buttons .btn {
+            min-width: 110px;
+            font-size: 1.04rem;
+            padding: 0.55rem 1.1rem;
+            box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-color 0.18s;
+        }
+        .action-buttons .btn span {
+            display: inline-block;
+        }
+        .action-buttons .btn-success {
+            background: #4bbf73;
+            border-color: #4bbf73;
+        }
+        .action-buttons .btn-success:hover, .action-buttons .btn-success:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+        }
+        .action-buttons .btn-danger {
+            background: #e57373;
+            border-color: #e57373;
+        }
+        .action-buttons .btn-danger:hover, .action-buttons .btn-danger:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+        @media (max-width: 900px) {
+            .filter-download-form {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.2rem 0;
+            }
+            .action-buttons {
+                justify-content: flex-start !important;
+                min-width: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        .filter-download-card-pro {
+            background: rgba(255,255,255,0.85);
+            border-radius: 28px;
+            box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            overflow: hidden;
+            position: relative;
+            border: 1.5px solid #e3eefd;
+            transition: box-shadow 0.22s, border-color 0.22s, background 0.22s;
+            backdrop-filter: blur(2.5px);
+        }
+        .filter-download-card-pro:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.97);
+        }
+        .filter-download-grid {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            min-height: 180px;
+            position: relative;
+        }
+        .accent-bar {
+            width: 8px;
+            background: linear-gradient(180deg, #5b9bd5 0%, #b3c6e2 100%);
+            border-radius: 0 12px 12px 0;
+            margin-right: 0.5rem;
+            min-height: 100%;
+        }
+        .divider {
+            width: 1.5px;
+            background: linear-gradient(180deg, #e3eefd 0%, #b3c6e2 100%);
+            margin: 0 0.5rem;
+            border-radius: 2px;
+            min-height: 100%;
+            align-self: stretch;
+        }
+        .section-label {
+            font-size: 1.08rem;
+            color: #7a8ca3;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+            text-transform: uppercase;
+        }
+        .custom-input-lg {
+            border-radius: 12px;
+            border: 1.5px solid #cfd8dc;
+            padding: 0.9rem 1.1rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            box-shadow: 0 1px 2px rgba(44,62,80,0.03);
+        }
+        .custom-input-lg:focus {
+            border-color: #5b9bd5;
+            background: #fff;
+            box-shadow: 0 0 0 3px #e3eefd;
+        }
+        .btn-primary-pro {
+            background: #5b9bd5;
+            border-color: #5b9bd5;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-primary-pro:hover, .btn-primary-pro:focus {
+            background: #4178b8;
+            border-color: #4178b8;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-outline-secondary-pro {
+            border-color: #bfc9d1;
+            color: #34495e;
+            background: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-outline-secondary-pro:hover, .btn-outline-secondary-pro:focus {
+            background: #f2f6fa;
+            color: #4178b8;
+            border-color: #4178b8;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-success-pro {
+            background: #4bbf73;
+            border-color: #4bbf73;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-success-pro:hover, .btn-success-pro:focus {
+            background: #399e5a;
+            border-color: #399e5a;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn-danger-pro {
+            background: #e57373;
+            border-color: #e57373;
+            color: #fff;
+            font-size: 1.08rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: box-shadow 0.18s, transform 0.13s, background 0.18s, border-color 0.18s;
+        }
+        .btn-danger-pro:hover, .btn-danger-pro:focus {
+            background: #c0392b;
+            border-color: #c0392b;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44,62,80,0.10);
+            transform: translateY(-2px) scale(1.04);
+        }
+        @media (max-width: 900px) {
+            .filter-download-grid {
+                flex-direction: column;
+            }
+            .divider, .accent-bar {
+                display: none !important;
+            }
+            .filter-section, .export-section {
+                padding: 1.2rem 1.1rem 1.1rem 1.1rem !important;
+            }
+            .export-section {
+                min-width: 0 !important;
+                width: 100%;
+                align-items: stretch !important;
+            }
+            .btn-success-pro, .btn-danger-pro {
+                margin-bottom: 0.7rem !important;
+            }
+        }
+        .main-content-premium {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 3rem 1.5rem;
+            animation: fadeInMain 0.7s cubic-bezier(.4,2,.6,1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.2rem;
+        }
+        .main-card {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto 2.2rem auto;
+            border-radius: 24px;
+            box-shadow: 0 8px 36px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+            background: rgba(255,255,255,0.96);
+            border: 1.5px solid #e3eefd;
+            overflow: hidden;
+            transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+            backdrop-filter: blur(1.5px);
+        }
+        .main-card:hover {
+            box-shadow: 0 16px 48px rgba(44,62,80,0.18), 0 4px 16px rgba(44,62,80,0.10);
+            border-color: #b3c6e2;
+            background: rgba(255,255,255,0.99);
+        }
+        @media (max-width: 1100px) {
+            .main-content-premium {
+                max-width: 100%;
+                padding: 1.2rem 0.2rem 2rem 0.2rem;
+            }
+            .main-card {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="fixed-navbar">
+    <div class="page-wrapper">
+        <!-- START HEADER-->
+        <header class="header">
+            <div class="page-brand">
+                <a class="link" href="/dashboard">
+                    <span class="brand">Demo
+                        <span class="brand-tip">FARM</span>
+                    </span>
+                    <span class="brand-mini">DF</span>
+                </a>
+            </div>
+            <div class="flexbox flex-1">
+                <!-- START TOP-LEFT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
+                    </li>
+                </ul>
+                <!-- END TOP-LEFT TOOLBAR-->
+                <!-- START TOP-RIGHT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="dropdown dropdown-user">
+                        <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
+                            <img src="<%= user.profilePicture %>" />
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
+                            <li class="dropdown-divider"></li>
+                            <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- END TOP-RIGHT TOOLBAR-->
+            </div>
+        </header>
+        <!-- END HEADER-->
+        <!-- START SIDEBAR-->
+        <nav class="page-sidebar" id="sidebar">
+            <div id="sidebar-collapse">
+                <div class="admin-block d-flex">
+                    <div>
+                        <img src="<%= user.profilePicture %>" width="45px" />
+                    </div>
+                    <div class="admin-info">
+                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
+                </div>
+                <ul class="side-menu metismenu">
+                    <li>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-label">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                            <span class="nav-label">Plant Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                            <span class="nav-label">Reports & Analytics</span>
+                            <i class="fa fa-caret-down ml-1"></i>
+                        </a>
+                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
+                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
+                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
+                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-fertilizer">AI Fertilizer</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                            <span class="nav-label">User Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                            <span class="nav-label">Crop Recommendations</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="content-wrapper">
+            <div class="page-content fade-in-up">
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="page-title">Daily Sensors Data </h1>
+                        <!-- Filter & Download Card -->
+                        <div class="main-card filter-download-card-pro card mb-4 p-0 border-0">
+                            <div class="filter-download-grid d-flex flex-wrap flex-md-nowrap align-items-stretch position-relative">
+                                <div class="accent-bar d-none d-md-block"></div>
+                                <div class="filter-section flex-grow-1 p-4 pb-3 pe-md-4">
+                                    <div class="section-label mb-3"><i class="fa fa-filter me-2"></i> <span>Filter</span></div>
+                                    <form class="row g-3 align-items-end" id="sensorFilterForm" autocomplete="off" onsubmit="return false;">
+                                        <div class="col-md-6 col-12">
+                                            <label for="filterDateFrom" class="form-label mb-1">Date From</label>
+                                            <input type="date" class="form-control custom-input-lg" id="filterDateFrom" name="dateFrom"<% if (typeof filter !== 'undefined' && filter.dateFrom) { %> value="<%= filter.dateFrom %>"<% } %>>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label for="filterDateTo" class="form-label mb-1">Date To</label>
+                                            <input type="date" class="form-control custom-input-lg" id="filterDateTo" name="dateTo"<% if (typeof filter !== 'undefined' && filter.dateTo) { %> value="<%= filter.dateTo %>"<% } %>>
+                                        </div>
+                                        <div class="col-12 mt-2 d-flex gap-2 flex-wrap">
+                                            <button type="button" class="btn btn-primary-pro d-flex align-items-center gap-2" id="filterBtn"><i class="fa fa-search"></i> <span>Filter</span></button>
+                                            <button type="button" class="btn btn-outline-secondary-pro d-flex align-items-center gap-2" id="resetBtn"><i class="fa fa-undo"></i> <span>Reset</span></button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="divider d-none d-md-block"></div>
+                                <div class="export-section p-4 pb-3 ps-md-4 d-flex flex-column align-items-center justify-content-center" style="min-width: 220px;">
+                                    <div class="section-label mb-3"><i class="fa fa-download me-2"></i> <span>Export</span></div>
+                                    <button type="button" class="btn btn-success-pro mb-2 w-100 d-flex align-items-center justify-content-center gap-2" id="exportExcelBtn"><i class="fa fa-file-excel"></i> <span>Excel</span></button>
+                                    <button type="button" class="btn btn-danger-pro w-100 d-flex align-items-center justify-content-center gap-2" id="exportPdfBtn"><i class="fa fa-file-pdf"></i> <span>PDF</span></button>
+                                </div>
+                            </div>
+                            <!-- Toast for messages -->
+                            <div id="exportToast" style="position: fixed; left: 50%; top: 80px; transform: translateX(-50%); z-index: 9999; min-width: 340px; max-width: 95vw; box-shadow: 0 8px 32px rgba(44,62,80,0.18); border-radius: 16px; font-size: 1.13rem; padding: 0; overflow: hidden; display: none; transition: opacity 0.5s, top 0.5s; opacity: 0;"></div>
+                        </div>
+                        <script>
+                        function showExportToast(msg, type = 'warning') {
+                            const toast = document.getElementById('exportToast');
+                            let toastTypeClass = 'custom-toast-warning';
+                            let icon = '<i class="fa fa-exclamation-triangle toast-icon"></i>';
+                            if (type === 'danger') { toastTypeClass = 'custom-toast-danger'; icon = '<i class="fa fa-times-circle toast-icon"></i>'; }
+                            if (type === 'success') { toastTypeClass = 'custom-toast-success'; icon = '<i class="fa fa-check-circle toast-icon"></i>'; }
+                            toast.innerHTML = `<div class="custom-toast ${toastTypeClass} show">${icon}<span>${msg}</span><button class="close" onclick="hideExportToast()" aria-label="Close">&times;</button></div>`;
+                            toast.classList.add('show');
+                            toast.style.display = 'block';
+                            setTimeout(() => {
+                                if (toast.querySelector('.custom-toast')) {
+                                    toast.querySelector('.custom-toast').classList.remove('show');
+                                }
+                                toast.classList.remove('show');
+                            }, 2600);
+                            setTimeout(() => {
+                                toast.style.display = 'none';
+                            }, 3000);
+                        }
+                        function hideExportToast() {
+                            const toast = document.getElementById('exportToast');
+                            if (toast.querySelector('.custom-toast')) {
+                                toast.querySelector('.custom-toast').classList.remove('show');
+                            }
+                            toast.classList.remove('show');
+                            setTimeout(() => {
+                                toast.style.display = 'none';
+                            }, 400);
+                        }
+                        async function checkSensorDataExists(dateFrom, dateTo) {
+                            try {
+                                const resp = await fetch(`/api/sensor-data/check?startDate=${dateFrom}&endDate=${dateTo}`);
+                                if (!resp.ok) return false;
+                                const data = await resp.json();
+                                return data && data.hasData;
+                            } catch (e) { return false; }
+                        }
+                        document.getElementById('exportExcelBtn').addEventListener('click', async function() {
+                            const dateFrom = document.getElementById('filterDateFrom').value;
+                            const dateTo = document.getElementById('filterDateTo').value;
+                            if (!dateFrom || !dateTo) {
+                                showExportToast('Please select both Date From and Date To.');
+                                return;
+                            }
+                            if (dateFrom > dateTo) {
+                                showExportToast('Date From should not be later than Date To.', 'danger');
+                                return;
+                            }
+                            if (!(await checkSensorDataExists(dateFrom, dateTo))) {
+                                showExportToast('No sensor data found for the selected date range.', 'danger');
+                                return;
+                            }
+                            window.location.href = `/api/download-data?startDate=${dateFrom}&endDate=${dateTo}&format=excel&type=sensor`;
+                            showExportToast('Export started. Your Excel file will download shortly.', 'success');
+                        });
+                        document.getElementById('exportPdfBtn').addEventListener('click', async function() {
+                            const dateFrom = document.getElementById('filterDateFrom').value;
+                            const dateTo = document.getElementById('filterDateTo').value;
+                            if (!dateFrom || !dateTo) {
+                                showExportToast('Please select both Date From and Date To.');
+                                return;
+                            }
+                            if (dateFrom > dateTo) {
+                                showExportToast('Date From should not be later than Date To.', 'danger');
+                                return;
+                            }
+                            if (!(await checkSensorDataExists(dateFrom, dateTo))) {
+                                showExportToast('No sensor data found for the selected date range.', 'danger');
+                                return;
+                            }
+                            window.location.href = `/api/download-data?startDate=${dateFrom}&endDate=${dateTo}&format=pdf&type=sensor`;
+                            showExportToast('Export started. Your PDF file will download shortly.', 'success');
+                        });
+                        document.getElementById('filterBtn').addEventListener('click', async function() {
+                            const dateFrom = document.getElementById('filterDateFrom').value;
+                            const dateTo = document.getElementById('filterDateTo').value;
+                            if (!dateFrom || !dateTo) {
+                                showExportToast('Please select both Date From and Date To.');
+                                return;
+                            }
+                            if (dateFrom > dateTo) {
+                                showExportToast('Date From should not be later than Date To.', 'danger');
+                                return;
+                            }
+                            // Reload page with date range as query params
+                            window.location.href = `?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+                        });
+                        document.getElementById('resetBtn').addEventListener('click', function() {
+                            document.getElementById('filterDateFrom').value = '';
+                            document.getElementById('filterDateTo').value = '';
+                            window.location.href = window.location.pathname;
+                        });
+                        </script>
+                        <!-- Sensor Data Table Card -->
+                        <div class="main-card premium-table-card mb-5">
+                            <div class="card-header bg-primary text-white d-flex align-items-center" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                                <i class="fa fa-thermometer-half fa-lg me-2"></i>
+                                <h3 class="mb-0 flex-grow-1">Daily Sensor Summaries</h3>
+                                <span class="badge bg-light text-primary ms-2">Total: <%= pagination.totalRecords %></span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped align-middle mb-0 custom-table" id="sensorTable">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Temperature (°C)</th>
+                                                <th>Humidity (%)</th>
+                                                <th>Soil Moisture (%)</th>
+                                                <th>Light (lux)</th>
+                                                <th>pH Level</th>
+                                                <th>NPK Values</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (daily_sensor_summaries && daily_sensor_summaries.length > 0) { %>
+                                                <% daily_sensor_summaries.forEach(function(data) { %>
+                                                    <tr>
+                                                        <td><%= data.timestamp ? data.timestamp.toLocaleDateString() : '' %></td>
+                                                        <td>
+                                                            <%= (data.temperature?.average || 0).toFixed(1) %>°C
+                                                            <small class="text-muted d-block">
+                                                                Min: <%= (data.temperature?.min || 0).toFixed(1) %>°C | Max: <%= (data.temperature?.max || 0).toFixed(1) %>°C
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <%= (data.humidity?.average || 0).toFixed(1) %>%
+                                                            <small class="text-muted d-block">
+                                                                Min: <%= (data.humidity?.min || 0).toFixed(1) %>% | Max: <%= (data.humidity?.max || 0).toFixed(1) %>%
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <%= (data.moistureAve?.average || 0).toFixed(1) %>%
+                                                            <small class="text-muted d-block">
+                                                                Min: <%= (data.moistureAve?.min || 0).toFixed(1) %>% | Max: <%= (data.moistureAve?.max || 0).toFixed(1) %>%
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <%= (data.light?.average || 0).toFixed(1) %> lux
+                                                            <small class="text-muted d-block">
+                                                                Min: <%= (data.light?.min || 0).toFixed(1) %> lux | Max: <%= (data.light?.max || 0).toFixed(1) %> lux
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <%= (data.ph?.average || 0).toFixed(1) %>
+                                                            <small class="text-muted d-block">
+                                                                Min: <%= (data.ph?.min || 0).toFixed(1) %> | Max: <%= (data.ph?.max || 0).toFixed(1) %>
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <div>N: <%= (data.nitrogen?.average || 0).toFixed(1) %></div>
+                                                            <div>P: <%= (data.phosphorus?.average || 0).toFixed(1) %></div>
+                                                            <div>K: <%= (data.potassium?.average || 0).toFixed(1) %></div>
+                                                            <small class="text-muted d-block">
+                                                                Min: N<%= (data.nitrogen?.min || 0).toFixed(1) %> P<%= (data.phosphorus?.min || 0).toFixed(1) %> K<%= (data.potassium?.min || 0).toFixed(1) %><br>
+                                                                Max: N<%= (data.nitrogen?.max || 0).toFixed(1) %> P<%= (data.phosphorus?.max || 0).toFixed(1) %> K<%= (data.potassium?.max || 0).toFixed(1) %>
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <% const tempStatus = data.temperature?.average >= 25 && data.temperature?.average <= 30;
+                                                               const humidityStatus = data.humidity?.average >= 50 && data.humidity?.average <= 70;
+                                                               const moistureStatus = data.moistureAve?.average >= 50 && data.moistureAve?.average <= 80;
+                                                               let statusClass = 'status-normal', statusText = 'Optimal';
+                                                               if (!(tempStatus && humidityStatus && moistureStatus)) {
+                                                                 statusClass = 'status-warning'; statusText = 'Warning';
+                                                               }
+                                                               if (!tempStatus && !humidityStatus && !moistureStatus) {
+                                                                 statusClass = 'status-danger'; statusText = 'Critical';
+                                                               }
+                                                            %>
+                                                            <span class="status-badge <%= statusClass %>"><%= statusText %></span>
+                                                            <small class="text-muted d-block">Data Points: <%= data.data_points || 0 %></small>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr><td colspan="8" class="text-center">No sensor data available.</td></tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Pagination Controls -->
+                                <nav aria-label="Sensor Data Pagination" class="mt-3">
+                                    <ul class="pagination justify-content-center pagination-lg">
+                                        <li class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?page=1">First</a>
+                                        </li>
+                                        <li class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>">Previous</a>
+                                        </li>
+                                        <li class="page-item disabled"><span class="page-link">Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span></li>
+                                        <li class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>">Next</a>
+                                        </li>
+                                        <li class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="?page=<%= pagination.totalPages %>">Last</a>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center text-muted mb-2">Showing <%= (pagination.currentPage - 1) * pagination.pageSize + 1 %> to <%= Math.min(pagination.currentPage * pagination.pageSize, pagination.totalRecords) %> of <%= pagination.totalRecords %> entries</div>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
+        </div>
+    </div>
+    <!-- CORE PLUGINS-->
+    <script src="./assets/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js" type="text/javascript"></script>
+    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <!-- PAGE LEVEL PLUGINS-->
+    <script src="./assets/vendors/datatables/datatables.min.js" type="text/javascript"></script>
+    <!-- THEME SCRIPTS-->
+    <script src="assets/js/app.min.js" type="text/javascript"></script>
+</body>
+</html>

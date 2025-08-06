@@ -127,7 +127,7 @@
         <div class="letter-content">
             <p>To Whom It May Concern,</p>
             
-            <p>I, <strong><%= user.name %></strong>, hereby declare that I have officially cancelled the planting of the crop identified as <strong><%= crop.name %></strong> in the NetHouse Automation System.</p>
+            <p>I, <strong><%= crop.endUserName %></strong>, hereby declare that I have officially cancelled the planting of the crop identified as <strong><%= crop.name %></strong> in the NetHouse Automation System.</p>
             
             <p><strong>Cancellation Details:</strong></p>
             <ul>
@@ -151,8 +151,8 @@
             <div class="signature-section">
                 <p><strong>Declared by:</strong></p>
                 <div class="signature-line"></div>
-                <p><strong><%= user.name %></strong></p>
-                <p><%= user.role || 'System User' %></p>
+                <p><strong><%= crop.endUserName %></strong></p>
+                <p><%= crop.endUserRole || 'System User' %></p>
                 <p>NetHouse Automation System</p>
                 <p>Date: <%= new Date().toLocaleDateString() %></p>
             </div>
@@ -197,7 +197,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Cancelled By:</span>
-                <span class="info-value"><%= user.name %></span>
+                <span class="info-value"><%= crop.endUserName %></span>
             </div>
         </div>
 
