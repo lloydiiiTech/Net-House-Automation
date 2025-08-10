@@ -76,11 +76,20 @@ exports.trainModel = async (req, res) => {
     res.json({ 
       success: true,
       message: 'Model trained successfully',
-      samplesUsed: result.samples,
+      samples: result.samples,
+      registeredSamples: result.registeredSamples,
+      unregisteredSamples: result.unregisteredSamples,
       finalLoss: result.finalLoss.toFixed(4),
       finalValLoss: result.finalValLoss.toFixed(4),
+      finalValMae: result.finalValMae.toFixed(4),
       trainingChart: result.trainingChart,
-      trainingTime: result.trainingTime
+      trainingTime: result.trainingTime,
+      validationMetrics: {
+        mae: (result.valMAE * 100).toFixed(2) + '%',
+        rmse: (result.valRMSE * 100).toFixed(2) + '%',
+        accuracy: result.valAccuracy.toFixed(1) + '%',
+        epochs: result.epochs
+      }
     });
   } catch (error) {
     console.error('Training error:', error);
@@ -134,3 +143,5 @@ exports.getTrainingChart = async (req, res) => {
     });
   }
 };
+
+

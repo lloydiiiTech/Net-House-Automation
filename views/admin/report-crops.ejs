@@ -247,6 +247,73 @@
             color: #c0392b;
             border-color: #c0392b;
         }
+        .btn-outline-info {
+            border-color: #17a2b8;
+            color: #17a2b8;
+            background: #fff;
+        }
+        .btn-outline-info:hover, .btn-outline-info:focus {
+            background: #e3f2fd;
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .crop-details-modal .modal-content {
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1.5px solid #e3eefd;
+        }
+        .crop-details-modal .modal-header {
+            background: var(--header-gradient);
+            color: #fff;
+            border-bottom: none;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+        .crop-details-modal .modal-title {
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        .crop-details-modal .modal-body {
+            padding: 2rem;
+        }
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        .detail-section h6 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e3eefd;
+            font-size: 1.1rem;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #e3eefd;
+        }
+        .detail-item .label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        .detail-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .detail-item .unit {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-left: 0.3rem;
+        }
     </style>
 </head>
 <body class="fixed-navbar">
@@ -255,10 +322,10 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">AgriNet
-                        <span class="brand-tip">Automation</span>
+                    <span class="brand">Demo
+                        <span class="brand-tip">FARM</span>
                     </span>
-                    <span class="brand-mini"></span>
+                    <span class="brand-mini">DF</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -373,6 +440,9 @@
                                 <i class="fa fa-leaf fa-lg me-2"></i>
                                 <h3 class="mb-0 flex-grow-1">Registered Crops</h3>
                                 <span class="badge bg-light text-primary ms-2">Total: <%= cropSummary.length %></span>
+                                <button class="btn btn-light btn-sm ms-auto" onclick="openRegisterModal()">
+                                    <i class="fa fa-plus me-1"></i>Register New Crop
+                                </button>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
@@ -404,6 +474,7 @@
                                                             <% } %>
                                                         </td>
                                                         <td>
+                                                            <button class="btn btn-sm btn-outline-info me-1" title="View Details" onclick="viewCropDetails('<%= encodeURIComponent(crop.name) %>')"><i class="fa fa-eye"></i></button>
                                                             <button class="btn btn-sm btn-outline-primary me-1" title="Edit" onclick="openEditModal('<%= encodeURIComponent(crop.name) %>', this)"><i class="fa fa-edit"></i></button>
                                                             <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteCrop('<%= encodeURIComponent(crop.name) %>')"><i class="fa fa-trash"></i></button>
                                                         </td>
@@ -431,7 +502,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editCropModalLabel">Edit Crop Name</h5>
+            <h5 class="modal-title" id="editCropModalLabel">Edit Crop Data</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -443,6 +514,46 @@
                 <input type="text" class="form-control" id="editCropNameInput" name="newCropName" required>
                 <input type="hidden" id="oldCropNameInput" name="oldCropName">
               </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="editOptimalTemperature">Optimal Temperature (°C)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalTemperature" name="optimal_temperature">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="editOptimalHumidity">Optimal Humidity (%)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalHumidity" name="optimal_humidity">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="editOptimalMoisture">Optimal Moisture (%)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalMoisture" name="optimal_moisture">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="editOptimalLight">Optimal Light (lux)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalLight" name="optimal_light">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="editOptimalPH">Optimal pH</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalPH" name="optimal_ph">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="editOptimalN">Nitrogen (N) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalN" name="optimal_n">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="editOptimalP">Phosphorus (P) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalP" name="optimal_p">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="editOptimalK">Potassium (K) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="editOptimalK" name="optimal_k">
+                </div>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -452,10 +563,244 @@
         </div>
       </div>
     </div>
+
+    <!-- Crop Details Modal -->
+    <div class="modal fade crop-details-modal" id="cropDetailsModal" tabindex="-1" role="dialog" aria-labelledby="cropDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cropDetailsModalLabel">
+              <i class="fa fa-leaf me-2"></i>
+              <span id="cropDetailsTitle">Crop Details</span>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="cropDetailsContent">
+              <!-- Content will be loaded dynamically -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register New Crop Modal -->
+    <div class="modal fade" id="registerCropModal" tabindex="-1" role="dialog" aria-labelledby="registerCropModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="registerCropModalLabel">
+              <i class="fa fa-plus me-2"></i>Register New Crop
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form id="registerCropForm" autocomplete="off">
+            <div class="modal-body">
+              <div class="form-group mb-3">
+                <label for="registerCropName">Crop Name *</label>
+                <input type="text" class="form-control" id="registerCropName" name="cropName" required>
+                <small class="form-text text-muted">Enter the name of the crop you want to register</small>
+              </div>
+              
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle me-2"></i>
+                <strong>Optimal Conditions:</strong> You can either fill in the optimal conditions manually or leave them blank to use AI-generated recommendations.
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalTemperature">Optimal Temperature (°C)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalTemperature" name="optimal_temperature" placeholder="Leave blank for AI recommendation">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalHumidity">Optimal Humidity (%)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalHumidity" name="optimal_humidity" placeholder="Leave blank for AI recommendation">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalMoisture">Optimal Moisture (%)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalMoisture" name="optimal_moisture" placeholder="Leave blank for AI recommendation">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalLight">Optimal Light (lux)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalLight" name="optimal_light" placeholder="Leave blank for AI recommendation">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalPH">Optimal pH</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalPH" name="optimal_ph" placeholder="Leave blank for AI recommendation">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalN">Nitrogen (N) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalN" name="optimal_n" placeholder="Leave blank for AI recommendation">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalP">Phosphorus (P) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalP" name="optimal_p" placeholder="Leave blank for AI recommendation">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="registerOptimalK">Potassium (K) (mg/kg)</label>
+                  <input type="number" step="any" class="form-control" id="registerOptimalK" name="optimal_k" placeholder="Leave blank for AI recommendation">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fa fa-plus me-1"></i>Register Crop
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Notification Container -->
+    <div id="notification-container" style="position: fixed; top: 30px; right: 30px; z-index: 9999; min-width: 300px;"></div>
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
     <script>
+    // Global functions for crop details modal
+    function viewCropDetails(cropName) {
+        const decodedName = decodeURIComponent(cropName);
+        
+        // Show loading state
+        document.getElementById('cropDetailsTitle').textContent = 'Loading...';
+        document.getElementById('cropDetailsContent').innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading crop details...</p></div>';
+        $('#cropDetailsModal').modal('show');
+        
+        // Fetch crop details
+        fetch('/get-crop-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ cropName: decodedName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                displayCropDetails(data.cropDetails);
+            } else {
+                document.getElementById('cropDetailsContent').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Failed to load crop details: ' + (data.message || 'Unknown error') + '</div>';
+            }
+        })
+        .catch(err => {
+            document.getElementById('cropDetailsContent').innerHTML = 
+                '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Error: ' + err.message + '</div>';
+        });
+    }
+
+    function displayCropDetails(crop) {
+        // Update modal title
+        document.getElementById('cropDetailsTitle').textContent = crop.name;
+        
+        // Format dates
+        const formatDate = (timestamp) => {
+            if (!timestamp) return 'Not available';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        };
+        
+        // Create the content HTML
+        const content = `
+            <div class="detail-section">
+                <h6><i class="fa fa-chart-line me-2"></i>Performance Statistics</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Success Rate</div>
+                        <div class="value">${crop.successRate}%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Number Planted</div>
+                        <div class="value">${crop.numberPlanted}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Number Failed</div>
+                        <div class="value">${crop.numberFailed}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Last Planted</div>
+                        <div class="value">${formatDate(crop.lastPlanted)}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h6><i class="fa fa-thermometer-half me-2"></i>Environmental Conditions</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Optimal Temperature</div>
+                        <div class="value">${crop.optimal_temperature}<span class="unit">°C</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Optimal Humidity</div>
+                        <div class="value">${crop.optimal_humidity}<span class="unit">%</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Optimal Moisture</div>
+                        <div class="value">${crop.optimal_moisture}<span class="unit">%</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Optimal Light</div>
+                        <div class="value">${crop.optimal_light}<span class="unit">lux</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h6><i class="fa fa-flask me-2"></i>Soil & Nutrient Requirements</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Optimal pH</div>
+                        <div class="value">${crop.optimal_ph}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Nitrogen (N)</div>
+                        <div class="value">${crop.optimal_n}<span class="unit">mg/kg</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Phosphorus (P)</div>
+                        <div class="value">${crop.optimal_p}<span class="unit">mg/kg</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Potassium (K)</div>
+                        <div class="value">${crop.optimal_k}<span class="unit">mg/kg</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h6><i class="fa fa-robot me-2"></i>AI Prediction Data</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Last Prediction Score</div>
+                        <div class="value">${crop.lastPredictionScore}%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Last Prediction Time</div>
+                        <div class="value">${formatDate(crop.lastPredictionTime)}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('cropDetailsContent').innerHTML = content;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchCropName');
         const table = document.getElementById('registeredCropsTable');
@@ -525,59 +870,205 @@
                     // Option 1: Remove the row from the table
                     const row = document.querySelector(`button[onclick=\"deleteCrop('${cropName}')\"]`).closest('tr');
                     if (row) row.remove();
-                    alert('Crop unregistered successfully.');
+                    showNotification('Crop unregistered successfully.', 'success');
                 } else {
-                    alert('Failed to unregister crop: ' + (data.message || 'Unknown error'));
+                    showNotification('Failed to unregister crop: ' + (data.message || 'Unknown error'), 'danger');
                 }
             })
             .catch(err => {
-                alert('Error: ' + err.message);
+                showNotification('Error: ' + err.message, 'danger');
             });
         }
     }
 
     function openEditModal(cropName, btn) {
         const decodedName = decodeURIComponent(cropName);
-        document.getElementById('editCropNameInput').value = decodedName;
+        // Show loading state in modal
+        document.getElementById('editCropNameInput').value = '';
         document.getElementById('oldCropNameInput').value = decodedName;
+        document.getElementById('editOptimalTemperature').value = '';
+        document.getElementById('editOptimalHumidity').value = '';
+        document.getElementById('editOptimalMoisture').value = '';
+        document.getElementById('editOptimalLight').value = '';
+        document.getElementById('editOptimalPH').value = '';
+        document.getElementById('editOptimalN').value = '';
+        document.getElementById('editOptimalP').value = '';
+        document.getElementById('editOptimalK').value = '';
         // Store reference to the row for later update
         document.getElementById('editCropForm')._rowToUpdate = btn.closest('tr');
-        $('#editCropModal').modal('show');
+        // Fetch latest crop data
+        fetch('/get-crop-details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ cropName: decodedName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const crop = data.cropDetails;
+                document.getElementById('editCropNameInput').value = crop.name || '';
+                document.getElementById('editOptimalTemperature').value = crop.optimal_temperature ?? '';
+                document.getElementById('editOptimalHumidity').value = crop.optimal_humidity ?? '';
+                document.getElementById('editOptimalMoisture').value = crop.optimal_moisture ?? '';
+                document.getElementById('editOptimalLight').value = crop.optimal_light ?? '';
+                document.getElementById('editOptimalPH').value = crop.optimal_ph ?? '';
+                document.getElementById('editOptimalN').value = crop.optimal_n ?? '';
+                document.getElementById('editOptimalP').value = crop.optimal_p ?? '';
+                document.getElementById('editOptimalK').value = crop.optimal_k ?? '';
+                $('#editCropModal').modal('show');
+            } else {
+                showNotification('Failed to load crop data for editing: ' + (data.message || 'Unknown error'), 'danger');
+            }
+        })
+        .catch(err => {
+            showNotification('Error loading crop data: ' + err.message, 'danger');
+        });
     }
 
     document.getElementById('editCropForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const oldCropName = document.getElementById('oldCropNameInput').value;
         const newCropName = document.getElementById('editCropNameInput').value;
+        const optimal_temperature = document.getElementById('editOptimalTemperature').value;
+        const optimal_humidity = document.getElementById('editOptimalHumidity').value;
+        const optimal_moisture = document.getElementById('editOptimalMoisture').value;
+        const optimal_light = document.getElementById('editOptimalLight').value;
+        const optimal_ph = document.getElementById('editOptimalPH').value;
+        const optimal_n = document.getElementById('editOptimalN').value;
+        const optimal_p = document.getElementById('editOptimalP').value;
+        const optimal_k = document.getElementById('editOptimalK').value;
         fetch('/edit-crop-name', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({ oldCropName, newCropName })
+            body: JSON.stringify({
+                oldCropName,
+                newCropName,
+                optimal_temperature,
+                optimal_humidity,
+                optimal_moisture,
+                optimal_light,
+                optimal_ph,
+                optimal_n,
+                optimal_p,
+                optimal_k
+            })
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Update the row in the table
                 const row = document.getElementById('editCropForm')._rowToUpdate;
                 if (row) {
                     row.children[0].textContent = newCropName;
-                    // Also update the edit/delete button handlers
                     row.querySelector('.btn-outline-primary').setAttribute('onclick', `openEditModal('${encodeURIComponent(newCropName)}', this)`);
                     row.querySelector('.btn-outline-danger').setAttribute('onclick', `deleteCrop('${encodeURIComponent(newCropName)}')`);
+                    // Optionally update data attributes for optimal values
+                    row.setAttribute('data-optimal-temperature', optimal_temperature);
+                    row.setAttribute('data-optimal-humidity', optimal_humidity);
+                    row.setAttribute('data-optimal-moisture', optimal_moisture);
+                    row.setAttribute('data-optimal-light', optimal_light);
+                    row.setAttribute('data-optimal-ph', optimal_ph);
+                    row.setAttribute('data-optimal-n', optimal_n);
+                    row.setAttribute('data-optimal-p', optimal_p);
+                    row.setAttribute('data-optimal-k', optimal_k);
                 }
                 $('#editCropModal').modal('hide');
-                alert('Crop name updated successfully.');
+                showNotification('Crop data updated successfully.', 'success');
             } else {
-                alert('Failed to update crop name: ' + (data.message || 'Unknown error'));
+                showNotification('Failed to update crop data: ' + (data.message || 'Unknown error'), 'danger');
             }
         })
         .catch(err => {
-            alert('Error: ' + err.message);
+            showNotification('Error: ' + err.message, 'danger');
+        });
+    });
+
+    function showNotification(message, type = 'success', duration = 3500) {
+        // type: 'success', 'danger', 'warning', 'info'
+        const container = document.getElementById('notification-container');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `
+            <span>${message}</span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        container.appendChild(alertDiv);
+        // Auto-dismiss
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                $(alertDiv).alert('close');
+            }
+        }, duration);
+    }
+
+    function openRegisterModal() {
+        // Clear the form
+        document.getElementById('registerCropForm').reset();
+        $('#registerCropModal').modal('show');
+    }
+
+    // Handle crop registration form submission
+    document.getElementById('registerCropForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const cropData = {
+            cropName: formData.get('cropName'),
+            optimal_temperature: formData.get('optimal_temperature') || null,
+            optimal_humidity: formData.get('optimal_humidity') || null,
+            optimal_moisture: formData.get('optimal_moisture') || null,
+            optimal_light: formData.get('optimal_light') || null,
+            optimal_ph: formData.get('optimal_ph') || null,
+            optimal_n: formData.get('optimal_n') || null,
+            optimal_p: formData.get('optimal_p') || null,
+            optimal_k: formData.get('optimal_k') || null
+        };
+
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Registering...';
+        submitBtn.disabled = true;
+
+        fetch('/register-crop-with-ai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(cropData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Crop registered successfully!', 'success');
+                $('#registerCropModal').modal('hide');
+                // Reload the page to show the new crop
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification('Failed to register crop: ' + (data.message || 'Unknown error'), 'danger');
+            }
+        })
+        .catch(err => {
+            showNotification('Error: ' + err.message, 'danger');
+        })
+        .finally(() => {
+            // Restore button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         });
     });
     </script>
 </body>
 </html>
+

@@ -263,7 +263,7 @@ async function runAIPromptAndSave() {
 
 // Schedule the job to run every 6 hours
 function initAIScheduledJobs() {
-  cron.schedule('36 14 * * *', async () => {
+  cron.schedule('59 23 * * *', async () => {
     await runAIPromptAndSave();
     console.log('✅ AI prompt and save completed');
   }, {

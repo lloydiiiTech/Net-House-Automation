@@ -17,6 +17,15 @@ const initializeSocket = require('./config/socket');
 const { initAIScheduledJobs } = require('./controller/aiController');
 const { initPlantedCropsListener } = require('./services/plantedCropsListener');
 
+const redis = require('redis');
+const client = redis.createClient();
+
+client.on('error', err => console.error('Redis Client Error', err));
+
+client.connect().then(() => {
+  console.log('Connected to Redis');
+});
+
 // Configure Socket.IO with CORS
 const io = new Server(server, {
   cors: {
@@ -70,17 +79,33 @@ const initializeServices = async () => {
     // Start Firestore listener for harvested crops
     initPlantedCropsListener();
     
-    setInterval(async () => {
-      try {
-        console.log('⏳ Running periodic prediction...');
-        const results = await CropPredictionService.predict();
-        console.log('✅ Periodic prediction completed');
-        console.log('Top registered crop:', results.topRegistered?.name, 
-          `(${results.topRegistered?.score}%)`);
-      } catch (err) {
-        console.error('❌ Periodic prediction failed:', err);
-      }
-    }, 6 * 60 * 60 * 1000);
+    // Configure prediction timing - run at specific times
+    const PREDICTION_TIMES = process.env.PREDICTION_TIMES || '02:26'; // Default: 9 AM, 3 PM, 9 PM
+    const predictionTimes = PREDICTION_TIMES.split(',').map(time => time.trim());
+    
+    console.log(`⏰ Setting up scheduled predictions at: ${predictionTimes.join(', ')}`);
+    
+    // Schedule predictions at specific times
+    const schedule = require('node-schedule');
+    
+    predictionTimes.forEach(time => {
+      const [hour, minute] = time.split(':').map(Number);
+      
+      // Schedule job to run daily at specified time
+      schedule.scheduleJob(`0 ${minute} ${hour} * * *`, async () => {
+        try {
+          console.log(`⏳ Running scheduled prediction at ${time}...`);
+          const results = await CropPredictionService.predict();
+          console.log('✅ Scheduled prediction completed');
+          console.log('Top overall crop:', results.topOverall?.name, 
+            `(${results.topOverall?.score}%)`);
+        } catch (err) {
+          console.error('❌ Scheduled prediction failed:', err);
+        }
+      });
+      
+      console.log(`📅 Scheduled prediction for ${time} daily`);
+    });
     
   } catch (err) {
     console.error('❌ Service initialization failed:', err);
@@ -152,13 +177,16 @@ app.use((err, req, res, next) => {
   console.error('⚠️ Error:', err.stack);
   res.status(500).render('error', { 
     message: err.message || 'Something went wrong!',
+    error: err, // Ensure error is always passed
     timestamp: new Date().toISOString()
   });
 });
 
 // Start server with Socket.IO
-const PORT = process.env.PORT || 9999;
+const PORT = process.env.PORT || 9999; // Changed from 9999 to 3000
 server.listen(PORT, async () => {
   console.log(`🚀 Server started on http://localhost:${PORT}`);
   await initializeServices();
 });
+
+

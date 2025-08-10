@@ -150,7 +150,6 @@ router.get('/crops/train', cropController.trainModel);
 
 router.post('/crops', cropController.addCrop);
 
-
 router.get('/crop-recommendations', aController.isAuthenticated, recommendationController.recommendationsPage);
 
 router.post('/api/crops/register', aController.isAuthenticated, recommendationController.registerCrop);
@@ -158,6 +157,10 @@ router.post('/api/crops/register', aController.isAuthenticated, recommendationCo
 router.put('/api/crops/:cropId', aController.isAuthenticated, recommendationController.updateCrop);
 router.delete('/api/crops/:cropId', aController.isAuthenticated, recommendationController.deleteCrop);
 router.post('/api/crops/:cropId/register', aController.isAuthenticated, recommendationController.registerCropById);
+
+router.get('/api/crops/:cropName/details', aController.isAuthenticated, recommendationController.getCropDetails);
+
+router.put('/api/crops/:cropId/optimal-conditions', aController.isAuthenticated, recommendationController.updateCropOptimalConditions);
 
 router.post('/cancelCrop', plantOverview.cancelCurrentCrop);
 router.get('/cancellation-preview/:cropId', plantOverview.cancellationPreview);
@@ -180,8 +183,11 @@ router.get('/report-ai-disease/export/check', aController.isAuthenticated, repor
 router.get('/edit-crop/:cropName', reportCropsController.editCrop);
 router.post('/unregister-crop', reportCropsController.unregisterCrop);
 router.post('/edit-crop-name', reportCropsController.editCropName);
+router.post('/get-crop-details', reportCropsController.getCropDetails);
+router.post('/register-crop-with-ai', reportCropsController.registerCropWithAI);
 
 router.get('/report-planted-crops/export/excel', aController.isAuthenticated, reportPlantedCropsController.exportExcel);
 router.get('/report-planted-crops/export/pdf', aController.isAuthenticated, reportPlantedCropsController.exportPdf);
 
 module.exports = router;
+

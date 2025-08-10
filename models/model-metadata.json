@@ -1,0 +1,7 @@
+{
+  "version": "2.0",
+  "trainedAt": "2025-08-10T18:30:53.330Z",
+  "inputShape": 12,
+  "architecture": "enhanced-dense-128-64-32-1",
+  "status": "trained-in-memory"
+}

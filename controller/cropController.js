@@ -23,6 +23,8 @@ exports.getRecommendations = async (req, res) => {
     res.json({ 
       success: true, 
       data: recommendations,
+      modelInfo: recommendations.modelInfo,
+      predictionQuality: recommendations.predictionQuality,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -34,7 +36,6 @@ exports.getRecommendations = async (req, res) => {
     });
   }
 };
-
 
 exports.addCrop = async (req, res) => {
   try {
@@ -81,6 +82,7 @@ exports.trainModel = async (req, res) => {
     });
   }
 };
+
 
 
 

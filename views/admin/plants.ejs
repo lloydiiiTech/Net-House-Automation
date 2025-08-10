@@ -28,10 +28,10 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">AgriNet
-                        <span class="brand-tip">Automation</span>
+                    <span class="brand">Demo
+                        <span class="brand-tip">FARM</span>
                     </span>
-                    <span class="brand-mini"></span>
+                    <span class="brand-mini">DF</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -161,7 +161,7 @@
                             <div class="font-weight-bold" style="color:#28a745; font-size:1.5rem;"><%= currentCrop.healthScore %>%</div>
                             <div class="progress mx-auto" style="height: 10px; width: 80px; background:#e9ecef;">
                               <% let safeHealthScore = Math.max(0, Math.min(100, parseInt(currentCrop.healthScore) || 0)); %>
-                              <div class="progress-bar <%= hs === 'good' ? 'bg-success' : hs === 'warning' ? 'bg-warning' : hs === 'critical' ? 'bg-danger' : 'bg-secondary' %>" role="progressbar" style="width: <%= safeHealthScore %>%" aria-valuenow="<%= safeHealthScore %>" aria-valuemin="0" aria-valuemax="100"></div>
+                              <div class="progress-bar <%= hs === 'good' ? 'bg-success' : hs === 'warning' ? 'bg-warning' : hs === 'critical' ? 'bg-danger' : 'bg-secondary' %>" role="progressbar" style="width: <%= safeHealthScore %>%;" aria-valuenow="<%= safeHealthScore %>" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                           </div>
                           <div class="mx-3 text-center">

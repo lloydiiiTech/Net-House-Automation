@@ -65,14 +65,26 @@ exports.plantOverview = async (req, res) => {
       // Get sensor data from the recommendations document
       const sensorData = data.sensorData || {};
       
-      // Process crops
+      // Process crops - use the new enhanced structure
       const predictions = data.predictions || {};
-      const recommendations = []
-        .concat(predictions.top5Registered || [])
-        .concat(predictions.top5Unregistered || [])
-        .filter(crop => crop && crop.name)
-        .sort((a, b) => (b.score || b.ruleBasedScore || 0) - (a.score || a.ruleBasedScore || 0))
-        .slice(0, 5);
+      
+      // Use top5Overall if available, otherwise fall back to the old method
+      let recommendations = [];
+      if (predictions.top5Overall && predictions.top5Overall.length > 0) {
+        recommendations = predictions.top5Overall;
+      } else {
+        // Fallback to old method
+        recommendations = []
+          .concat(predictions.top5Registered || [])
+          .concat(predictions.top5Unregistered || [])
+          .filter(crop => crop && crop.name)
+          .sort((a, b) => (b.score || b.ruleBasedScore || 0) - (a.score || b.ruleBasedScore || 0))
+          .slice(0, 5);
+      }
+
+      // Add prediction quality information
+      const predictionQuality = data.predictionQuality || {};
+      const modelInfo = data.modelInfo || {};
 
       // Fetch the current active crop for the user
       let currentCrop = null;
@@ -284,20 +296,38 @@ exports.getRecommendedCrops = async (req, res) => {
 
     const latestData = snapshot.docs[0].data();
     
-    const allCrops = []
-      .concat(latestData.top5Registered || [])
-      .concat(latestData.top5Unregistered || [])
-      .filter(crop => crop && crop.name && crop.score !== undefined && crop.score !== null)
-      .filter(crop => crop.score > 0);
+    // Use the new enhanced structure if available
+    let top5Crops = [];
+    if (latestData.predictions?.top5Overall && latestData.predictions.top5Overall.length > 0) {
+      top5Crops = latestData.predictions.top5Overall
+        .filter(crop => crop && crop.name && crop.score !== undefined && crop.score !== null)
+        .filter(crop => crop.score > 0)
+        .map(crop => ({
+          name: crop.name,
+          score: crop.score,
+          isRegistered: crop.isRegistered,
+          registeredBoost: 0, // No boost in fair system
+          priorityLevel: 'standard' // All crops have standard priority
+        }));
+    } else {
+      // Fallback to old method
+      const allCrops = []
+        .concat(latestData.predictions?.top5Registered || [])
+        .concat(latestData.predictions?.top5Unregistered || [])
+        .filter(crop => crop && crop.name && crop.score !== undefined && crop.score !== null)
+        .filter(crop => crop.score > 0);
 
-    const top5Crops = allCrops
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
-      .map(crop => ({
-        name: crop.name,
-        score: crop.score,
-        isRegistered: crop.isRegistered
-      }));
+      top5Crops = allCrops
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+        .map(crop => ({
+          name: crop.name,
+          score: crop.score,
+          isRegistered: crop.isRegistered,
+          registeredBoost: 0,
+          priorityLevel: 'standard'
+        }));
+    }
 
     res.json(top5Crops);
   } catch (error) {
@@ -455,9 +485,19 @@ exports.harvestCurrentCrop = async (req, res) => {
       harvestDate: harvestTimestamp,
       harvestNotes: harvestNotes || null,
       harvestChallenges: harvestChallenges || null,
+      isTrained: false,
       endUserID: req.session.user.uid || null,
       endUserName: req.session.user.name || null
     });
+
+    // Update success rate in crops collection
+    try {
+      await updateCropSuccessRate(cropData.name, harvestSuccessRate);
+      console.log(`Updated success rate for crop: ${cropData.name}`);
+    } catch (error) {
+      console.error('Error updating crop success rate:', error);
+      // Don't fail the harvest if this update fails
+    }
 
     // Summarize daily_sensor_summaries for this crop between startDate and endDate
     const cropStartDate = cropData.startDate;
@@ -514,6 +554,59 @@ exports.harvestCurrentCrop = async (req, res) => {
     res.status(500).json({ error: "Failed to harvest crop" });
   }
 };
+
+// Function to update success rate in crops collection
+async function updateCropSuccessRate(cropName, newSuccessRate) {
+  try {
+    console.log(`Updating success rate for crop: ${cropName} with new rate: ${newSuccessRate}%`);
+    
+    // Find the crop document by name
+    const cropSnapshot = await firestore.collection('crops')
+      .where('name', '==', cropName)
+      .limit(1)
+      .get();
+
+    if (cropSnapshot.empty) {
+      console.log(`Crop '${cropName}' not found in crops collection`);
+      return;
+    }
+
+    const cropDoc = cropSnapshot.docs[0];
+    const cropData = cropDoc.data();
+    
+    // Get current values or initialize if they don't exist
+    const currentNumberFailed = cropData.numberFailed || 0;
+    const currentSuccessRate = cropData.successRate || 0;
+    const currentTotalSuccessRate = cropData.totalSuccessRate || 0;
+    const currentPlantingCount = cropData.plantingCount || 0;
+
+    // Calculate new values
+    const newPlantingCount = currentPlantingCount + 1;
+    
+    // Determine if this was a successful harvest (success rate >= 50% is considered successful)
+    const isSuccessful = newSuccessRate >= 50;
+    const newNumberFailed = isSuccessful ? currentNumberFailed : currentNumberFailed + 1;
+    
+    // Calculate new average success rate
+    const newTotalSuccessRate = currentTotalSuccessRate + newSuccessRate;
+    const newAverageSuccessRate = newTotalSuccessRate / newPlantingCount;
+
+    // Update the crop document
+    await cropDoc.ref.update({
+      numberFailed: newNumberFailed,
+      successRate: newAverageSuccessRate,
+      totalSuccessRate: newTotalSuccessRate,
+      plantingCount: newPlantingCount,
+      
+    });
+
+    
+
+  } catch (error) {
+    console.error(`Error updating success rate for crop '${cropName}':`, error);
+    throw error;
+  }
+}
 
 // Add this function to get real-time sensor data
 exports.getRealtimeSensorData = async (req, res) => {
@@ -744,6 +837,16 @@ exports.cancelCurrentCrop = async (req, res) => {
             endUserName: req.session.user.name || null
         });
 
+        // Update success rate in crops collection (treat cancelled/failed crops as 0% success)
+        try {
+          const successRate = 0; // Cancelled/failed crops have 0% success rate
+          await updateCropSuccessRate(cropData.name, successRate);
+          console.log(`Updated success rate for cancelled/failed crop: ${cropData.name}`);
+        } catch (error) {
+          console.error('Error updating crop success rate:', error);
+          // Don't fail the cancellation if this update fails
+        }
+
         // Summarize daily_sensor_summaries for this crop between startDate and endDate
         const cropStartDate = cropData.startDate;
         console.log('Summarizing for cropId:', cropDoc.id, 'from', cropStartDate, 'to', endDate);
@@ -841,7 +944,6 @@ exports.cancellationPreview = async (req, res) => {
 
       }
 
-
         
 
     } catch (error) {
@@ -894,3 +996,4 @@ exports.harvestPreview = async (req, res) => {
         res.status(500).json({ error: "Failed to load preview" });
     }
 };
+

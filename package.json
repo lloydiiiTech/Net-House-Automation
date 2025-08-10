@@ -34,6 +34,7 @@
     "jspdf-autotable": "^5.0.2",
     "multer": "^2.0.1",
     "node-cron": "^3.0.3",
+    "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "nodeplotlib": "^1.1.2",

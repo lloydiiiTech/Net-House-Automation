@@ -2,15 +2,29 @@ const { firestore } = require('../config/firebase');
 const CropPredictionService = require('./cropPredictionService');
 
 function initPlantedCropsListener() {
+  // Temporary: Use simpler query to avoid index requirement
   firestore.collection('planted_crops')
     .where('status', '==', 'harvested')
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
         if (change.type === 'added' || change.type === 'modified') {
-          console.log('Detected new/updated harvested crop:', change.doc.id);
-          CropPredictionService.trainModel()
-            .then(() => console.log('Model retrained after new harvest'))
-            .catch(err => console.error('Model retraining failed:', err));
+          const data = change.doc.data();
+          
+          // Check if already trained (client-side filter)
+          if (data.isTrained !== true) {
+            console.log('Detected new harvested crop for training:', change.doc.id);
+            
+            // Train model with new data
+            CropPredictionService.trainModel()
+              .then((result) => {
+                console.log('✅ Model retrained after new harvest');
+              })
+              .catch(err => {
+                console.error('❌ Model retraining failed:', err);
+              });
+          } else {
+            console.log('ℹ️ Crop already used for training:', change.doc.id);
+          }
         }
       });
     }, err => {
@@ -19,3 +33,5 @@ function initPlantedCropsListener() {
 }
 
 module.exports = { initPlantedCropsListener }; 
+
+
