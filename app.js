@@ -80,7 +80,7 @@ const initializeServices = async () => {
     initPlantedCropsListener();
     
     // Configure prediction timing - run at specific times
-    const PREDICTION_TIMES = process.env.PREDICTION_TIMES || '02:26'; // Default: 9 AM, 3 PM, 9 PM
+    const PREDICTION_TIMES = process.env.PREDICTION_TIMES || '02:27'; // Default: 9 AM, 3 PM, 9 PM
     const predictionTimes = PREDICTION_TIMES.split(',').map(time => time.trim());
     
     console.log(`⏰ Setting up scheduled predictions at: ${predictionTimes.join(', ')}`);

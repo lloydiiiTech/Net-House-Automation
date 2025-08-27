@@ -149,59 +149,46 @@ exports.plantOverview = async (req, res) => {
 
           // Fetch latest AI fertilizer advice for the current crop
           try {
-            console.log('Fetching AI fertilizer advice for crop ID:', currentCrop.id);
-            // Calculate yesterday's date range
-            const now = new Date();
-            const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
-            const yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
             let fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
-              .where('id', '==', currentCrop.id)
-              .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(yesterdayStart))
-              .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(yesterdayEnd))
-              .get();
-            console.log('Fertilizer snapshot size:', fertilizerSnapshot.size);
-            if (!fertilizerSnapshot.empty) {
-              // Sort by timestamp in JavaScript to get the latest
-              const fertilizerDocs = fertilizerSnapshot.docs;
-              fertilizerDocs.sort((a, b) => {
-                const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
-                const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
-                return bTime - aTime; // Descending order
-              });
-              aiFertilizerAdvice = fertilizerDocs[0].data();
-              console.log('Found fertilizer advice:', aiFertilizerAdvice);
-            } else {
-              console.log('No fertilizer advice found for crop ID:', currentCrop.id, 'for yesterday.');
-            }
+                        .where('cropId', '==', currentCrop.id)
+                        .get();
+                    if (fertilizerSnapshot.empty) {
+                        fertilizerSnapshot = await firestore.collection('ai_fertilizer_advice')
+                            .where('cropName', '==', currentCrop.name)
+                            .get();
+                    }
+                    if (!fertilizerSnapshot.empty) {
+                        const fertilizerDocs = fertilizerSnapshot.docs;
+                        fertilizerDocs.sort((a, b) => {
+                            const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
+                            const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
+                            return bTime - aTime;
+                        });
+                        aiFertilizerAdvice = fertilizerDocs[0].data();
+                    }
           } catch (error) {
             console.error('Error fetching AI fertilizer advice:', error);
           }
 
           // Fetch latest AI disease advice for the current crop
           try {
-            const now = new Date();
-            const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
-            const yesterdayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
-            console.log('Fetching AI disease advice for crop ID:', currentCrop.id);
             let diseaseSnapshot = await firestore.collection('ai_disease_advice')
-              .where('id', '==', currentCrop.id)
-              .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(yesterdayStart))
-              .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(yesterdayEnd))
-              .get();
-            console.log('Disease snapshot size:', diseaseSnapshot.size);
-            if (!diseaseSnapshot.empty) {
-              // Sort by timestamp in JavaScript to get the latest
-              const diseaseDocs = diseaseSnapshot.docs;
-              diseaseDocs.sort((a, b) => {
-                const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
-                const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
-                return bTime - aTime; // Descending order
-              });
-              aiDiseaseAdvice = diseaseDocs[0].data();
-              console.log('Found disease advice:', aiDiseaseAdvice);
-            } else {
-              console.log('No disease advice found for crop ID:', currentCrop.id, 'for yesterday.');
-            }
+                        .where('cropId', '==', currentCrop.id)
+                        .get();
+                    if (diseaseSnapshot.empty) {
+                        diseaseSnapshot = await firestore.collection('ai_disease_advice')
+                            .where('cropName', '==', currentCrop.name)
+                            .get();
+                    }
+                    if (!diseaseSnapshot.empty) {
+                        const diseaseDocs = diseaseSnapshot.docs;
+                        diseaseDocs.sort((a, b) => {
+                            const aTime = a.data().timestamp?.toDate?.() || new Date(a.data().timestamp?._seconds * 1000);
+                            const bTime = b.data().timestamp?.toDate?.() || new Date(b.data().timestamp?._seconds * 1000);
+                            return bTime - aTime;
+                        });
+                        aiDiseaseAdvice = diseaseDocs[0].data();
+                    }
           } catch (error) {
             console.error('Error fetching AI disease advice:', error);
           }
