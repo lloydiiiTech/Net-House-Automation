@@ -265,7 +265,7 @@ async function runAIPromptAndSave() {
 function initAIScheduledJobs() {
   cron.schedule('0 6 * * *', async () => {
     await runAIPromptAndSave();
-    console.log('✅ AI prompt and save completed');
+    consoledlog('✅ AI prompt and save completed');
   }, {
     timezone: 'Asia/Manila'
   });

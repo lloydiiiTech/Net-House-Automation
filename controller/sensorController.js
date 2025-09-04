@@ -113,49 +113,58 @@ async function summarizeSensorData() {
 async function summarizeDailySensorData() {
     const now = new Date();
     const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0); // Set to 12:00:00 AM today
-    
-    // Query Firestore for data from the entire day
+    startOfDay.setHours(0, 0, 0, 0); // midnight today
+
+    // Query today's 6-hour summaries
     const snapshot = await firestore.collection('sensor_summaries')
         .where('timestamp', '>=', startOfDay)
         .where('timestamp', '<=', now)
         .get();
-    
+
     if (snapshot.empty) {
-        console.log('⚠️ No sensor data found for today');
+        console.log('⚠️ No 6-hour summaries found for today');
         return;
     }
-    
-    // Initialize summary with all required parameters
+
+    // Initialize daily summary
     const summary = {
         // Environmental Data
         temperature: initParameterSummary(),
         humidity: initParameterSummary(),
         light: initParameterSummary(),
-        
+
         // Soil Data
         moistureAve: initParameterSummary(),
         nitrogen: initParameterSummary(),
         phosphorus: initParameterSummary(),
         potassium: initParameterSummary(),
         ph: initParameterSummary(),
-        
+
         // Metadata
-        data_points: snapshot.size,
+        data_points: 0, // will be sum of counts
         period_start: startOfDay,
         period_end: now,
         timestamp: now,
-        summary_type: 'daily' // Add summary type
+        summary_type: 'daily'
     };
 
-    // Process each document
+    // Process each 6-hour summary doc
     snapshot.forEach(doc => {
         const data = doc.data();
-        
-        // Process all parameters consistently
+
+        // Accumulate total datapoints
+        if (typeof data.data_points === "number") {
+            summary.data_points += data.data_points;
+        }
+
         for (const param in summary) {
-            if (param in data && !['data_points', 'period_start', 'period_end', 'timestamp', 'summary_type'].includes(param)) {
-                const value = parseFloat(data[param]);
+            if (
+                param in data &&
+                typeof data[param] === "object" &&
+                data[param] !== null &&
+                "average" in data[param]
+            ) {
+                const value = parseFloat(data[param].average);
                 if (!isNaN(value)) {
                     updateParameterSummary(summary[param], value);
                 }
@@ -163,22 +172,30 @@ async function summarizeDailySensorData() {
         }
     });
 
-    // Calculate final averages and handle null values
+    // Finalize daily summary
     for (const param in summary) {
-        if (typeof summary[param] === 'object' && summary[param] !== null && 'values' in summary[param]) {
+        if (
+            typeof summary[param] === "object" &&
+            summary[param] !== null &&
+            "values" in summary[param]
+        ) {
             summary[param] = finalizeParameterSummary(summary[param]);
         }
     }
 
-    // Save summary to Firestore
+    // Save to Firestore
     try {
         await firestore.collection('daily_sensor_summaries').add(summary);
-        console.log(`💾 Saved daily summary (${summary.data_points} data points) from ${formatDate(startOfDay)} to ${formatTime(now)}`);
+        console.log(
+            `💾 Saved daily summary (from ${snapshot.size} six-hour summaries, ${summary.data_points} raw points) between ${formatDate(startOfDay)} and ${formatTime(now)}`
+        );
     } catch (e) {
-        console.error('❌ Error saving daily summary:', e);
+        console.error("❌ Error saving daily summary:", e);
         throw e;
     }
 }
+
+
 
 // Helper functions
 function initParameterSummary() {

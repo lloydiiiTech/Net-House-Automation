@@ -49,7 +49,7 @@ exports.registerUser = async (req, res) => {
             
         } catch (error) {
             if (error.code !== "auth/user-not-found") {
-                console.error("Error checking user:", error);
+                
                 req.flash("error", "Server error, please try again");
                 req.flash("name", name);
                 req.flash("contactNumber", contactNumber);
@@ -115,7 +115,7 @@ exports.registerUser = async (req, res) => {
 
 
     } catch (error) {
-        console.error("Registration error:", error);
+        
         
         req.flash('error', 'Server error, please try again');
         return res.redirect('/register');
@@ -217,14 +217,14 @@ exports.loginUser = async (req, res) => {
         return loginSuccess(req, res, userData, userId);
 
     } catch (error) {
-        console.error("Login error:", error);
+        
         req.flash("error", "Something went wrong. Please try again.");
         return res.redirect("/login");
     }
 };
 const loginSuccess = async (req, res, userData, userId, email) => {
     if (!req.session) {
-        console.error("Session is undefined! Ensure express-session is set up correctly.");
+        
         req.flash("error", "Session error. Please try again.");
         req.flash("email", email);
         return res.redirect("/login");
@@ -236,7 +236,7 @@ const loginSuccess = async (req, res, userData, userId, email) => {
             lastLogin: new Date()
         });
     } catch (error) {
-        console.error("Error updating last login:", error);
+        
         // Continue with login even if last login update fails
     }
 
@@ -252,11 +252,11 @@ const loginSuccess = async (req, res, userData, userId, email) => {
         role: userData.Role
     };
 
-    console.log("Session saved:", req.session.user);
+    
 
     req.session.save((err) => {
         if (err) {
-            console.error("Session save error:", err);
+            
             req.flash("error", "Could not save session. Try again.");
             req.flash("email", email);
             return res.redirect("/login");
@@ -344,7 +344,7 @@ exports.handleForgotPassword = async (req, res) => {
         res.redirect("/login");
 
     } catch (error) {
-        console.error(error);
+        
         req.flash("error", "Server Error, Please try again.");
         req.flash("email", email);
         res.redirect("/forgotpassword");
@@ -420,7 +420,7 @@ exports.ResetPassword = async (req, res) => {
         
 
     } catch (error) {
-        console.error("Error verifying reset token:", error);
+        
         req.flash("error", "Something went wrong. Try again.");
         res.redirect("/forgotpassword");
     }
@@ -510,7 +510,7 @@ exports.handleNewPassword = async (req, res) => {
         req.flash("success", "Password reset successful! Please log in.");
         res.redirect("/login");
     } catch (error) {
-        console.error("Error updating password:", error);
+        
         req.flash("error", "Server error. Please try again later.");
         res.redirect("/reset-password");
     }
