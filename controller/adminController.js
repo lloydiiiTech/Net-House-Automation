@@ -60,14 +60,12 @@ exports.initFirebaseListener = (io) => {
 
 exports.Dashboard = async (req, res) => {
     try {
-        console.log('Loading dashboard data...');
+        
         const sensorRef = realtimeDB.ref("sensors");
 
         // Get sensor data
-        console.log('Fetching sensor data...');
         const sensorSnapshot = await sensorRef.once("value");
         const data = sensorSnapshot.val();
-        console.log('Sensor data received:', data);
         
         // Get user data from session
         const userId = req.session.user?.uid;
@@ -88,7 +86,6 @@ exports.Dashboard = async (req, res) => {
         }
         
         // Get crop recommendations
-        console.log('Fetching crop recommendations...');
         const predictionSnapshot = await admin.firestore()
             .collection('prediction_history')
             .orderBy('timestamp', 'desc')
@@ -106,19 +103,15 @@ exports.Dashboard = async (req, res) => {
                 .sort((a, b) => (b.score || b.ruleBasedScore || 0) - (a.score || a.ruleBasedScore || 0))
                 .slice(0, 5);
         }
-        console.log('Crop recommendations loaded:', recommendations.length);
         
         // Get crop data
-        console.log('Fetching crop data...');
         const cropRef = admin.firestore().collection('planted_crops');
         const cropSnapshot = await cropRef.where('endDate', '==', null).limit(1).get();
-        console.log('Crop query executed, documents found:', cropSnapshot.size);
         
         let cropData = null;
         if (!cropSnapshot.empty) {
             const cropDoc = cropSnapshot.docs[0];
             const cropInfo = cropDoc.data();
-            console.log('Raw crop data:', cropInfo);
 
             // Planting date
             const plantingDate = cropInfo.startDate.toDate();
@@ -176,7 +169,6 @@ exports.Dashboard = async (req, res) => {
                 healthStatus: healthStatus,
                 healthScore: healthScore
             };
-            console.log('Processed crop data:', cropData);
         } else {
             console.log('No active crop found');
         }
@@ -186,7 +178,6 @@ exports.Dashboard = async (req, res) => {
         try {
             const cachedData = await redisClient.lRange(SENSOR_CACHE_KEY, 0, -1);
             history = cachedData.map(entry => JSON.parse(entry)).reverse();
-            console.log('Sensor history loaded, entries:', history.length);
         } catch (err) {
             console.error("Error fetching from Redis:", err);
         }
@@ -196,21 +187,18 @@ exports.Dashboard = async (req, res) => {
         try {
             const snapshot = await admin.firestore()
                 .collection('daily_sensor_summaries')
-                .orderBy('date', 'desc')
+                .orderBy('timestamp', 'desc')
                 .limit(1)
                 .get();
             
             if (!snapshot.empty) {
                 const latestData = snapshot.docs[0].data();
-                console.log('Latest NPK data:', latestData);
                 npkAverages = {
                     nitrogen: latestData.nitrogen || latestData.N || 0,
                     phosphorus: latestData.phosphorus || latestData.P || 0,
                     potassium: latestData.potassium || latestData.K || 0
                 };
-            } else {
-                console.log('No NPK data found');
-            }
+            } 
         } catch (err) {
             console.error("Error fetching Firestore NPK data:", err);
         }
@@ -226,7 +214,6 @@ exports.Dashboard = async (req, res) => {
             ph: { value: data.ph, status: getPHStatus(data.ph) },
             npkAverages: npkAverages
         };
-        console.log('Processed sensor data:', sensorData);
 
         // Fetch the current active crop for the user
         let aiFertilizerAdvice = null;
@@ -288,12 +275,7 @@ exports.Dashboard = async (req, res) => {
             }
         }
 
-        console.log('Rendering dashboard with data:', { 
-            hasSensorData: !!sensorData, 
-            hasCropData: !!cropData,
-            hasHistory: history.length > 0,
-            hasUserData: !!userData
-        });
+        
         
         const rolesession = req.session.user?.role;
 
@@ -410,7 +392,6 @@ exports.npkUpdates = (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    console.log('New client connected to NPK stream');
 
     const sendInitialData = async () => {
         try {
@@ -445,11 +426,6 @@ exports.npkUpdates = (req, res) => {
         .onSnapshot((snapshot) => {
             if (!snapshot.empty) {
                 const data = snapshot.docs[0].data();
-                console.log('New NPK data detected:', {
-                    nitrogen: data.nitrogen?.average,
-                    phosphorus: data.phosphorus?.average,
-                    potassium: data.potassium?.average
-                });
                 
                 res.write(`data: ${JSON.stringify({
                     nitrogen: data.nitrogen?.average || 0,
@@ -465,7 +441,6 @@ exports.npkUpdates = (req, res) => {
 
     // Clean up on client disconnect
     req.on('close', () => {
-        console.log('Client disconnected from NPK stream');
         unsubscribe();
         res.end();
     });
@@ -615,14 +590,11 @@ exports.reportsAnalytics = async (req, res) => {
 
 exports.getCurrentCrop = async (req, res) => {
     try {
-        console.log('Fetching current crop data...');
         const cropRef = admin.firestore().collection('planted_crops');
         const cropSnapshot = await cropRef.where('endDate', '==', null).limit(1).get();
 
-        console.log('Query executed, documents found:', cropSnapshot.size);
 
         if (cropSnapshot.empty) {
-            console.log('No active crops found');
             return res.json({ crop: null });
         }
 
@@ -630,11 +602,9 @@ exports.getCurrentCrop = async (req, res) => {
         const sensorRef = realtimeDB.ref("sensors");
         const sensorSnapshot = await sensorRef.once("value");
         const sensorData = sensorSnapshot.val();
-        console.log('Current sensor data:', sensorData);
 
         const cropDoc = cropSnapshot.docs[0];
         const cropData = cropDoc.data();
-        console.log('Crop data retrieved:', cropData);
         
         // Calculate growth stage based on start date
         const startDate = cropData.startDate.toDate();
@@ -653,7 +623,6 @@ exports.getCurrentCrop = async (req, res) => {
         // Calculate health score and status based on sensor data
         const healthScore = calculateHealthScore(sensorData, cropData.optimalConditions);
         const healthStatus = getHealthStatus(healthScore);
-        console.log('Health score:', healthScore, 'Status:', healthStatus);
 
         const cropInfo = {
             name: cropData.name,
@@ -674,7 +643,6 @@ exports.getCurrentCrop = async (req, res) => {
             }
         };
 
-        console.log('Sending crop info:', cropInfo);
         res.json({ crop: cropInfo });
     } catch (error) {
         console.error("Error fetching current crop:", error);

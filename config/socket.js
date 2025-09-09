@@ -29,7 +29,6 @@ function initializeSocket(io) {
                 };
                 
                 // Log the transformed data for debugging
-                console.log('Transformed sensor data:', transformedData);
                 
                 // Broadcast sensor updates to all connected clients
                 io.emit('sensorUpdate', transformedData);

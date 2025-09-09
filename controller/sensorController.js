@@ -111,6 +111,25 @@ async function summarizeSensorData() {
 }
 
 async function summarizeDailySensorData() {
+    // const now = new Date();
+
+    // // Set the specific date you want (e.g., 2025-09-08)
+    // const targetDate = new Date("2025-09-03"); 
+
+    // // Start of that date (00:00:00)
+    // const startOfDay = new Date(targetDate);
+    // startOfDay.setHours(0, 0, 0, 0);
+
+    // // End of that date (23:59:59.999)
+    // const endOfDay = new Date(targetDate);
+    // endOfDay.setHours(23, 59, 59, 999);
+
+    // // Query summaries for that specific date
+    // const snapshot = await firestore.collection('sensor_summaries')
+    //     .where('timestamp', '>=', startOfDay)
+    //     .where('timestamp', '<=', endOfDay)
+    //     .get();
+
     const now = new Date();
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0); // midnight today

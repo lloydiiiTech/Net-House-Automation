@@ -24,7 +24,6 @@ const syncData = () => {
                     ...sensorData,
                     timestamp: admin.firestore.FieldValue.serverTimestamp()
                 });
-                console.log("✅ Data synced to Firestore:", sensorData);
             } catch (error) {
                 console.error("❌ Error syncing data:", error);
             }
