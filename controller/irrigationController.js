@@ -488,7 +488,7 @@ function initializeSensorListener(io) {
                     });
                 }
                 
-                console.log("Sensor data updated:", sensorDataCache);
+                
             }
         }
     }, (error) => {

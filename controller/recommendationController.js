@@ -13,7 +13,6 @@ exports.confirmCropSelection = async (req, res) => {
   
       // Verify no active crop exists
       const activeCheck = await firestore.collection('planted_crops')
-        .where('userId', '==', req.session.user.uid)
         .where('endDate', '==', null)
         .limit(1)
         .get();
@@ -124,7 +123,6 @@ exports.recommendationsPage = async (req, res) => {
         let hasActiveCrop = false;
         if (userId) {
             const plantedSnapshot = await firestore.collection('planted_crops')
-                .where('userId', '==', userId)
                 .where('endDate', '==', null)
                 .limit(1)
                 .get();

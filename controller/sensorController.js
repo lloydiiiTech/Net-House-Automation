@@ -47,9 +47,12 @@ async function summarizeSensorData() {
     
     // Query Firestore for data from the last 6 hours
     const snapshot = await firestore.collection('sensors')
-        .where('timestamp', '>=', sixHoursAgo)
-        .where('timestamp', '<=', now)
-        .get();
+    .where('timestamp', '>=', sixHoursAgo) // or startOfDay
+    .where('timestamp', '<=', now)         // or endOfDay
+    .orderBy('timestamp', 'desc')          // get latest first
+    .limit(1080)                           // restrict to 1080 entries
+    .get();
+
     
     if (snapshot.empty) {
         console.log('⚠️ No sensor data found for the last 6 hours');
@@ -134,11 +137,13 @@ async function summarizeDailySensorData() {
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0); // midnight today
 
-    // Query today's 6-hour summaries
     const snapshot = await firestore.collection('sensor_summaries')
-        .where('timestamp', '>=', startOfDay)
-        .where('timestamp', '<=', now)
+        .where('timestamp', '>=', startOfDay) // only documents from today
+        .where('timestamp', '<=', now)        // up until right now
+        .orderBy('timestamp', 'desc')         // newest first
+        .limit(4)                             // only the last 4 docs
         .get();
+
 
     if (snapshot.empty) {
         console.log('⚠️ No 6-hour summaries found for today');

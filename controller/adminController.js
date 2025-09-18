@@ -1,7 +1,7 @@
 const { realtimeDB, admin, firestore } = require("../config/firebase");
 const redisClient = require("../config/redis");
 
-const MAX_HISTORY = 500; // Store last 500 readings
+const MAX_HISTORY = 180; // Store last 500 readings
 const SENSOR_CACHE_KEY = "sensor_data";
 // Cache sensor data in Redis
 const cacheSensorData = async (data) => {

@@ -226,10 +226,11 @@ class CropPredictionService {
     const startDate = new Date(now);
     startDate.setDate(now.getDate() - 31);
     
-    const snapshot = await firestore.collection('sensor_summaries')
+    const snapshot = await firestore.collection('daily_sensor_summaries')
       .where('timestamp', '>=', startDate)
       .where('timestamp', '<=', now)
-      .orderBy('timestamp', 'asc')
+      .orderBy('timestamp', 'desc')
+      .limit(31)
       .get();
     
     if (snapshot.empty) {

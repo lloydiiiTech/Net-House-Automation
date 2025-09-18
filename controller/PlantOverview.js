@@ -93,7 +93,6 @@ exports.plantOverview = async (req, res) => {
       
       if (userId) {
         const cropSnapshot = await firestore.collection('planted_crops')
-          .where('userId', '==', userId)
           .where('endDate', '==', null)
           .limit(1)
           .get();
@@ -332,7 +331,6 @@ exports.checkActiveCrop = async (req, res) => {
     }
 
     const snapshot = await firestore.collection('planted_crops')
-      .where('userId', '==', req.session.user.uid)
       .where('endDate', '==', null)
       .limit(1)
       .get();
@@ -712,7 +710,6 @@ exports.getAIDiseaseAdvice = async (req, res) => {
 
         // Get current crop ID
         const cropSnapshot = await firestore.collection('planted_crops')
-            .where('userId', '==', req.session.user.uid)
             .where('endDate', '==', null)
             .limit(1)
             .get();

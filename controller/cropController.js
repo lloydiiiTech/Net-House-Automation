@@ -42,7 +42,7 @@ exports.addCrop = async (req, res) => {
     const cropData = req.body;
     
     // Add to Firestore with server timestamp
-    const docRef = await firestore.collection('crop_dataset').add({
+    const docRef = await firestore.collection('crops').add({
       ...cropData,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       lastUpdated: admin.firestore.FieldValue.serverTimestamp()
