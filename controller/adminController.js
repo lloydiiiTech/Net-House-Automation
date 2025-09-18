@@ -221,7 +221,6 @@ exports.Dashboard = async (req, res) => {
         let currentCrop = null;
         if (userId) {
             const cropSnapshot = await firestore.collection('planted_crops')
-                .where('userId', '==', userId)
                 .where('endDate', '==', null)
                 .limit(1)
                 .get();

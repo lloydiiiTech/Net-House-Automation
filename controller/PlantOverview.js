@@ -662,7 +662,6 @@ exports.getAIFertilizerAdvice = async (req, res) => {
 
         // Get current crop ID
         const cropSnapshot = await firestore.collection('planted_crops')
-            .where('userId', '==', req.session.user.uid)
             .where('endDate', '==', null)
             .limit(1)
             .get();
