@@ -10,5 +10,7 @@ router.get('/training/status', trainingController.getTrainingStatus);
 router.get('/training/train', trainingController.trainModel);
 router.get('/training/validate', trainingController.validateModel);
 router.get('/training/chart', trainingController.getTrainingChart);
+router.get('/training/evaluate', trainingController.evaluateModel);
+router.get('/training/trials', trainingController.getTrainingTrials);
 
 module.exports = router;

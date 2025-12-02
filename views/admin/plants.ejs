@@ -28,10 +28,9 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">Demo
-                        <span class="brand-tip">FARM</span>
+                    <span class="brand">AgriNet
+                        <span class="brand-tip">TECH</span>
                     </span>
-                    <span class="brand-mini">DF</span>
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -103,9 +102,18 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
                             <span class="nav-label">Reports & Analytics</span>
+                            <i class="fa fa-caret-down ml-1"></i>
                         </a>
+                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
+                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
+                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
+                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease & Fertilizer</a></li>
+                        </ul>
                     </li>
                     <li>
                         <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>

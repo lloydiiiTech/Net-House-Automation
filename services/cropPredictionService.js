@@ -24,6 +24,9 @@ class CropPredictionService {
     this.modelTrained = false;
     this.currentTraining = false;
     this.modelVersion = '2.0'; // Track model improvements
+    this.lastTrainingTime = null;
+    this.pendingRetrainTimeout = null;
+    this.newOutcomesSinceLastTrain = 0;
   }
 
   async initialize() {
@@ -171,17 +174,30 @@ class CropPredictionService {
         ) return;
   
         const s = data.finalSensorSummary;
+
+        // Normalize using the same pipeline as prediction so the model
+        // sees *consistent* feature scales during both train and infer
+        const normalized = normalizeData({
+          nitrogen: s.nitrogen ?? 0,
+          phosphorus: s.phosphorus ?? 0,
+          potassium: s.potassium ?? 0,
+          temperature: s.temperature ?? 0,
+          humidity: s.humidity ?? 0,
+          moisture: s.moistureAve ?? 0,
+          ph: s.ph ?? 0,
+          light: s.light ?? 0
+        });
   
-        // Enhanced feature engineering
+        // Enhanced feature engineering on normalized core features
         const features = [
-          s.nitrogen ?? 0,
-          s.phosphorus ?? 0,
-          s.potassium ?? 0,
-          s.temperature ?? 0,
-          s.humidity ?? 0,
-          s.moistureAve ?? 0,
-          s.ph ?? 0,
-          s.light ?? 0
+          normalized.n ?? 0,
+          normalized.p ?? 0,
+          normalized.k ?? 0,
+          normalized.temperature ?? 0,
+          normalized.humidity ?? 0,
+          normalized.moisture ?? 0,
+          normalized.ph ?? 0,
+          normalized.light ?? 0
         ];
   
         const startDate = data.startDate?.toDate ? data.startDate.toDate() : null;
@@ -297,8 +313,20 @@ class CropPredictionService {
   
     const predictions = [];
     for (const [cropId, crop] of Object.entries(crops)) {
-      // Rule-based score
+      // Rule-based score (now enhanced with all parameterMatches data)
       const { suitability, parameterMatches } = this.calculateScore(averagedData, crop);
+      
+      // Calculate additional metrics from parameterMatches for better scoring
+      const matchScores = Object.values(parameterMatches).filter(s => typeof s === 'number' && s !== null);
+      const avgParameterMatch = matchScores.length > 0 
+        ? matchScores.reduce((a, b) => a + b, 0) / matchScores.length 
+        : 0;
+      const minParameterMatch = matchScores.length > 0 ? Math.min(...matchScores) : 0;
+      const maxParameterMatch = matchScores.length > 0 ? Math.max(...matchScores) : 0;
+      
+      // Count how many parameters are above 70% match (good matches)
+      const goodMatchesCount = matchScores.filter(s => s >= 70).length;
+      const goodMatchesRatio = matchScores.length > 0 ? goodMatchesCount / matchScores.length : 0;
       
       // ML-based score if model is trained
       let mlScore = suitability;
@@ -314,10 +342,32 @@ class CropPredictionService {
         }
       }
 
-      // Enhanced scoring with registered crop priority
-      let finalScore = this.modelTrained 
-        ? Math.round(suitability * 0.6 + mlScore * 0.4) // Increased ML weight
-        : suitability;
+      // Enhanced final score calculation using ALL available data:
+      // 1. Base weighted suitability (from parameterMatches)
+      // 2. Average parameter match (overall fit)
+      // 3. Good matches ratio (how many parameters are well-matched)
+      // 4. ML prediction (if trained)
+      let finalScore;
+      
+      if (this.modelTrained) {
+        // When ML is trained: blend all factors intelligently
+        const ruleBasedComponent = suitability * 0.25; // Enhanced suitability from parameterMatches
+        const avgMatchComponent = avgParameterMatch * 0.15; // Overall parameter match average
+        const goodMatchesComponent = goodMatchesRatio * 100 * 0.10; // Bonus for many good matches
+        const mlComponent = mlScore * 0.50; // ML prediction (most weight when trained)
+        
+        finalScore = Math.round(ruleBasedComponent + avgMatchComponent + goodMatchesComponent + mlComponent);
+      } else {
+        // When ML not trained: use parameterMatches data more heavily
+        const ruleBasedComponent = suitability * 0.50; // Enhanced suitability
+        const avgMatchComponent = avgParameterMatch * 0.30; // Average of all parameter matches
+        const goodMatchesComponent = goodMatchesRatio * 100 * 0.20; // Good matches bonus
+        
+        finalScore = Math.round(ruleBasedComponent + avgMatchComponent + goodMatchesComponent);
+      }
+      
+      // Ensure score is within valid range
+      finalScore = Math.max(0, Math.min(100, finalScore));
       
       // Fair scoring - no boost or penalty for registered/unregistered crops
       // All crops compete equally based on their actual suitability scores
@@ -374,10 +424,11 @@ class CropPredictionService {
   }
 
   createInputTensor(sensorData, isRegistered = true, startDate = null, endDate = null) {
+    // Normalize using the same schema as getPlantedCropsTrainingData
     const normalized = normalizeData({
-      n: sensorData.nitrogen,
-      p: sensorData.phosphorus,
-      k: sensorData.potassium,
+      nitrogen: sensorData.nitrogen,
+      phosphorus: sensorData.phosphorus,
+      potassium: sensorData.potassium,
       temperature: sensorData.temperature,
       humidity: sensorData.humidity,
       moisture: sensorData.moisture,
@@ -401,14 +452,14 @@ class CropPredictionService {
     }
     
     return tf.tensor2d([[
-      normalized.n,
-      normalized.p,
-      normalized.k,
-      normalized.temperature,
-      normalized.humidity,
-      normalized.moisture,
-      normalized.ph,
-      normalized.light,
+      normalized.n ?? 0,
+      normalized.p ?? 0,
+      normalized.k ?? 0,
+      normalized.temperature ?? 0,
+      normalized.humidity ?? 0,
+      normalized.moisture ?? 0,
+      normalized.ph ?? 0,
+      normalized.light ?? 0,
       month,
       duration,
       season,
@@ -418,9 +469,10 @@ class CropPredictionService {
 
   calculateScore(sensorData, crop) {
     const parameterMatches = {
-      nitrogen: this.calculateMatch(crop.optimal_n, sensorData.nitrogen, 'nitrogen'),
-      phosphorus: this.calculateMatch(crop.optimal_p, sensorData.phosphorus, 'phosphorus'),
-      potassium: this.calculateMatch(crop.optimal_k, sensorData.potassium, 'potassium'),
+      // Keep human-friendly NPK naming similar to your Firestore example
+      npk_N: this.calculateMatch(crop.optimal_n, sensorData.nitrogen, 'nitrogen'),
+      npk_P: this.calculateMatch(crop.optimal_p, sensorData.phosphorus, 'phosphorus'),
+      npk_K: this.calculateMatch(crop.optimal_k, sensorData.potassium, 'potassium'),
       temperature: this.calculateMatch(crop.optimal_temperature, sensorData.temperature, 'temperature'),
       humidity: this.calculateMatch(crop.optimal_humidity, sensorData.humidity, 'humidity'),
       moisture: this.calculateMatch(crop.optimal_moisture, sensorData.moisture, 'moisture'),
@@ -437,45 +489,101 @@ class CropPredictionService {
   }
 
   calculateMatch(optimal, actual, paramName = '') {
-    // Handle cases where parameter isn't applicable
-    if (optimal === 0 || optimal === undefined || actual === undefined) {
+    // If either side is missing, we truly cannot compute a match
+    if (optimal === undefined || optimal === null || actual === undefined || actual === null) {
+      return null;
+    }
+
+    // If optimal is 0 but sensors have a value, treat it as 0% match
+    // (like your YYY / Unnamed crop examples)
+    if (optimal === 0) {
       return 0;
     }
-    
-    // Special handling for pH (logarithmic scale)
-    if (paramName === 'light') {
-      const difference = Math.abs(optimal - actual);
-      return Math.max(0, 100 - (difference / optimal * 50)); // 50% tolerance
-    }
-    // Normal parameters
-    const difference = Math.abs(optimal - actual);
-    const tolerance = optimal * 0.3; // Increased from 0.2 to 0.3 for more flexibility
-    return Math.max(0, 100 - (difference / tolerance * 100));
+
+    const absDiff = Math.abs(actual - optimal);
+    const ratio = absDiff / optimal; // relative difference
+
+    // Use a smooth decay so we NEVER hit 0 for valid comparisons, just very small %
+    //  - For most params: score = 100 / (1 + 3 * ratio)
+    //  - For light: wider tolerance: score = 100 / (1 + 1.5 * ratio)
+    const alpha = paramName === 'light' ? 1.5 : 3.0;
+    const score = 100 / (1 + alpha * ratio);
+
+    // Return the exact decimal percentage from this function
+    return score;
   }
 
   calculateWeightedSuitability(parameterMatches, crop) {
+    // Enhanced weights based on parameter importance for crop growth
     const weights = {
-    nitrogen: 0.12,  // Reduced from 0.15
-    phosphorus: 0.12,  // Reduced from 0.15
-    potassium: 0.12,  // Reduced from 0.15
-    temperature: 0.18,
-    humidity: 0.10, 
-    moisture: 0.15,  // Increased from 0.10
-    ph: 0.13,       // Increased from 0.10
-    light: 0.08     // Increased from 0.05
-  };
+      npk_N: 0.13,      // Nitrogen - slightly increased
+      npk_P: 0.13,      // Phosphorus - slightly increased
+      npk_K: 0.13,      // Potassium - slightly increased
+      temperature: 0.20, // Temperature - most critical, increased
+      humidity: 0.11,    // Humidity - slightly increased
+      moisture: 0.16,    // Moisture - increased
+      ph: 0.10,          // pH - critical but slightly reduced
+      light: 0.04        // Light - reduced (less critical than others)
+    };
 
-    let totalScore = 0;
+    // Extract all valid parameter match scores
+    const validMatches = [];
     let totalWeight = 0;
+    let weightedSum = 0;
     
     Object.entries(parameterMatches).forEach(([param, score]) => {
-      if (score > 0) {
-        totalScore += score * weights[param];
-        totalWeight += weights[param];
+      if (typeof score === 'number' && score !== null) {
+        const weight = weights[param] || 0;
+        weightedSum += score * weight;
+        totalWeight += weight;
+        validMatches.push(score);
       }
     });
 
-    return totalWeight > 0 ? Math.round(totalScore / totalWeight) : 0;
+    if (totalWeight === 0 || validMatches.length === 0) {
+      return 0;
+    }
+
+    // Base weighted average
+    let baseScore = weightedSum / totalWeight;
+
+    // Enhancement 1: Completeness bonus - reward crops with more parameters configured
+    const totalParams = Object.keys(weights).length;
+    const completenessRatio = validMatches.length / totalParams;
+    const completenessBonus = completenessRatio * 5; // Up to 5 points bonus
+
+    // Enhancement 2: Consistency bonus - reward crops with consistent parameter matches
+    // (low variance means all parameters are similarly matched)
+    const avgMatch = validMatches.reduce((a, b) => a + b, 0) / validMatches.length;
+    const variance = validMatches.reduce((sum, score) => {
+      return sum + Math.pow(score - avgMatch, 2);
+    }, 0) / validMatches.length;
+    const consistencyBonus = Math.max(0, 10 - (variance / 100)); // Up to 10 points bonus for low variance
+
+    // Enhancement 3: Critical parameters bonus - extra weight for temperature and pH
+    const criticalParams = ['temperature', 'ph'];
+    let criticalScore = 0;
+    let criticalWeight = 0;
+    criticalParams.forEach(param => {
+      const score = parameterMatches[param];
+      if (typeof score === 'number' && score !== null) {
+        criticalScore += score;
+        criticalWeight += 1;
+      }
+    });
+    const criticalBonus = criticalWeight > 0 ? (criticalScore / criticalWeight) * 0.1 : 0; // Up to 10% bonus
+
+    // Enhancement 4: Penalty for very poor matches - if any critical parameter is < 20%
+    const hasVeryPoorMatch = validMatches.some(score => score < 20);
+    const poorMatchPenalty = hasVeryPoorMatch ? 5 : 0;
+
+    // Calculate final enhanced score
+    let enhancedScore = baseScore + completenessBonus + consistencyBonus + criticalBonus - poorMatchPenalty;
+    
+    // Ensure score stays within 0-100 range
+    enhancedScore = Math.max(0, Math.min(100, enhancedScore));
+
+    return Math.round(enhancedScore);
   }
 
   async savePredictionResults(predictions, sensorData) {
@@ -774,7 +882,8 @@ class CropPredictionService {
       // Generate training chart
       const chartPath = await generateTrainingChart(history);
       
-      return { 
+      // Prepare training trial data
+      const trialData = {
         success: true, 
         samples: trainingData.length,
         registeredSamples: trainingData.filter(d => d.isRegistered).length,
@@ -789,6 +898,48 @@ class CropPredictionService {
         valAccuracy: accuracy,
         epochs: history.loss.length
       };
+
+      // Save training trial to Firestore for tracking and comparison
+      try {
+        const trialRef = firestore.collection('training_trials').doc();
+        const trialTimestamp = admin.firestore.FieldValue.serverTimestamp();
+        
+        // Calculate trial score (composite metric to identify best trials)
+        // Higher is better: accuracy weighted 60%, low MAE weighted 30%, low RMSE weighted 10%
+        const trialScore = (accuracy * 0.6) + ((100 - mae * 100) * 0.3) + ((100 - rmse * 100) * 0.1);
+        
+        await trialRef.set({
+          trialId: trialRef.id,
+          trainedAt: trialTimestamp,
+          modelVersion: this.modelVersion,
+          metrics: {
+            samples: trialData.samples,
+            registeredSamples: trialData.registeredSamples,
+            unregisteredSamples: trialData.unregisteredSamples,
+            finalLoss: trialData.finalLoss,
+            finalValLoss: trialData.finalValLoss,
+            finalValMae: trialData.finalValMae,
+            valMAE: trialData.valMAE,
+            valRMSE: trialData.valRMSE,
+            valAccuracy: trialData.valAccuracy,
+            epochs: trialData.epochs,
+            trainingTime: trialData.trainingTime
+          },
+          trialScore: Math.round(trialScore * 100) / 100, // Composite score for ranking
+          isBest: false, // Will be updated by best trial finder
+          trainingChart: chartPath
+        });
+        
+        console.log(`📊 Training trial saved: ${trialRef.id} (Score: ${trialScore.toFixed(2)})`);
+        
+        // Update best trial flag
+        await this.updateBestTrial();
+      } catch (trialError) {
+        console.error('❌ Failed to save training trial:', trialError);
+        // Don't fail training if trial save fails
+      }
+      
+      return trialData;
       
     } finally {
       this.currentTraining = false;
@@ -876,7 +1027,152 @@ class CropPredictionService {
     });
 
     console.log(`📝 Recorded outcome for prediction ${predictionId}`);
+    
+    // Schedule auto-retrain if enough new outcomes collected
+    this.scheduleAutoRetrain();
+    
     return outcomeRef.id;
+  }
+
+  scheduleAutoRetrain() {
+    // Increment counter
+    this.newOutcomesSinceLastTrain++;
+    
+    // Clear existing timeout
+    if (this.pendingRetrainTimeout) {
+      clearTimeout(this.pendingRetrainTimeout);
+    }
+    
+    // Retrain if we have enough new outcomes (5+) or it's been a while since last train
+    const shouldRetrain = this.newOutcomesSinceLastTrain >= 5 || 
+      (this.lastTrainingTime && (Date.now() - new Date(this.lastTrainingTime).getTime() > 7 * 24 * 60 * 60 * 1000)); // 7 days
+    
+    if (shouldRetrain) {
+      // Retrain immediately
+      this.newOutcomesSinceLastTrain = 0;
+      this.autoRetrain();
+    } else {
+      // Schedule retrain after a delay (debounce - wait 30 seconds for more outcomes)
+      this.pendingRetrainTimeout = setTimeout(() => {
+        if (this.newOutcomesSinceLastTrain >= 3) {
+          this.newOutcomesSinceLastTrain = 0;
+          this.autoRetrain();
+        }
+      }, 30000); // 30 seconds
+    }
+  }
+
+  async autoRetrain() {
+    if (this.currentTraining) {
+      console.log('⏸️ Training already in progress, skipping auto-retrain');
+      return;
+    }
+
+    if (!this.backendReady) {
+      console.log('⏸️ Backend not ready, skipping auto-retrain');
+      return;
+    }
+
+    try {
+      console.log('🔄 Auto-retraining model with new data...');
+      const result = await this.trainModel();
+      if (result.success) {
+        console.log(`✅ Auto-retrain completed: ${result.samples} samples, accuracy: ${result.valAccuracy.toFixed(1)}%`);
+        this.lastTrainingTime = new Date().toISOString();
+      }
+    } catch (error) {
+      console.error('❌ Auto-retrain failed:', error.message);
+      // Don't throw - this is background operation
+    }
+  }
+
+  async updateBestTrial() {
+    try {
+      // Get all training trials (fetch all and find best client-side to avoid index)
+      const allTrialsSnapshot = await firestore.collection('training_trials').get();
+
+      if (allTrialsSnapshot.empty) return;
+
+      // Find best trial by trialScore
+      let bestTrial = null;
+      let bestScore = -1;
+
+      allTrialsSnapshot.forEach(doc => {
+        const data = doc.data();
+        const score = data.trialScore || 0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestTrial = { id: doc.id, data };
+        }
+      });
+
+      if (!bestTrial) return;
+
+      // Update all trials - set isBest flag
+      const batch = firestore.batch();
+
+      allTrialsSnapshot.forEach(doc => {
+        const trialRef = firestore.collection('training_trials').doc(doc.id);
+        batch.update(trialRef, {
+          isBest: doc.id === bestTrial.id
+        });
+      });
+
+      await batch.commit();
+      console.log(`🏆 Best trial updated: ${bestTrial.id.substring(0, 8)}... (Score: ${bestScore.toFixed(2)})`);
+    } catch (error) {
+      console.error('❌ Failed to update best trial:', error);
+    }
+  }
+
+  async getTrainingTrials(limit = 20) {
+    try {
+      // Get all trials and sort client-side to avoid index requirement
+      const allTrialsSnapshot = await firestore.collection('training_trials').get();
+
+      const allTrials = [];
+      allTrialsSnapshot.forEach(doc => {
+        const data = doc.data();
+        allTrials.push({
+          trialId: doc.id,
+          ...data,
+          trainedAt: data.trainedAt?.toDate?.()?.getTime() || 0 // Convert to timestamp for sorting
+        });
+      });
+
+      // Sort by trainedAt descending (most recent first)
+      allTrials.sort((a, b) => b.trainedAt - a.trainedAt);
+
+      // Convert back to ISO string and limit
+      const trials = allTrials.slice(0, limit).map(trial => ({
+        ...trial,
+        trainedAt: trial.trainedAt > 0 ? new Date(trial.trainedAt).toISOString() : null
+      }));
+
+      // Find best trial (highest trialScore)
+      let bestTrial = null;
+      let bestScore = -1;
+
+      allTrials.forEach(trial => {
+        const score = trial.trialScore || 0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestTrial = {
+            ...trial,
+            trainedAt: trial.trainedAt > 0 ? new Date(trial.trainedAt).toISOString() : null
+          };
+        }
+      });
+
+      return {
+        trials,
+        bestTrial,
+        totalTrials: allTrials.length
+      };
+    } catch (error) {
+      console.error('❌ Failed to get training trials:', error);
+      throw error;
+    }
   }
 }
 

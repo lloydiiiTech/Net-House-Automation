@@ -12,15 +12,16 @@ function initPlantedCropsListener() {
           
           // Check if already trained (client-side filter)
           if (data.isTrained !== true) {
-            console.log('Detected new harvested crop for training:', change.doc.id);
+            console.log('🌾 Detected new harvested crop for training:', change.doc.id);
             
-            // Train model with new data
-            CropPredictionService.trainModel()
-              .then((result) => {
-                console.log('✅ Model retrained after new harvest');
+            // Train immediately on every harvest (no debouncing)
+            // This ensures model learns from each harvest cycle
+            CropPredictionService.autoRetrain()
+              .then(() => {
+                console.log('✅ Model retrained after harvest');
               })
               .catch(err => {
-                console.error('❌ Model retraining failed:', err);
+                console.error('❌ Auto-retrain after harvest failed:', err);
               });
           } else {
             console.log('ℹ️ Crop already used for training:', change.doc.id);
