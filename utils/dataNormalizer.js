@@ -26,8 +26,22 @@ const normalizeData = (sensorData) => {
     
     if (ranges[normKey]) {
       const [min, max] = ranges[normKey];
-      // Ensure value is within range before normalizing
-      const clampedValue = Math.max(min, Math.min(max, value));
+      // Validate value is a number and within extended range (allow some tolerance)
+      let numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        console.warn(`Invalid value for ${key}: ${value}, skipping normalization`);
+        continue;
+      }
+      // Add check for all-zero or invalid ranges
+      if (numValue < 0 || (ranges[normKey] && numValue > ranges[normKey][1] * 2)) {
+        console.warn(`Out-of-range value for ${key}: ${numValue}, clamping`);
+        numValue = Math.max(ranges[normKey][0], Math.min(ranges[normKey][1], numValue));
+      }
+      // Clamp to range with warning if out of bounds
+      const clampedValue = Math.max(min - 10, Math.min(max + 10, numValue)); // Allow 10% tolerance
+      if (clampedValue !== numValue) {
+        console.warn(`Value for ${key} (${numValue}) clamped to ${clampedValue} for normalization`);
+      }
       normalized[normKey] = (clampedValue - min) / (max - min);
     }
   }
@@ -52,7 +66,9 @@ const denormalizeData = (normalized, originalSensorData) => {
   for (const [key, value] of Object.entries(normalized)) {
     if (ranges[key]) {
       const [min, max] = ranges[key];
-      denormalized[key] = min + (value * (max - min));
+      // Ensure normalized value is between 0 and 1
+      const clampedNorm = Math.max(0, Math.min(1, value));
+      denormalized[key] = min + (clampedNorm * (max - min));
     }
   }
 

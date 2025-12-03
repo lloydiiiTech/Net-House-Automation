@@ -1,0 +1,10 @@
+
+{
+  "ignore": [
+    "models/*",
+    "public/*",
+    "node_modules/*"
+  ],
+  "ext": "js,json,ejs",
+  "delay": 1000
+}

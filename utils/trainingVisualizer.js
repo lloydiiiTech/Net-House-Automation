@@ -11,19 +11,19 @@ module.exports.generateTrainingChart = async (history) => {
     // Dynamic import of nodeplotlib
     const { plot } = await import('nodeplotlib');
     
-    const epochs = Array.from({length: history.history.loss.length}, (_, i) => i + 1);
+    const epochs = Array.from({length: history.loss.length}, (_, i) => i + 1);  // Fixed: history.loss instead of history.history.loss
     
     const data = [
       {
         x: epochs,
-        y: history.history.loss,
+        y: history.loss,  // Fixed: history.loss
         type: 'line',
         name: 'Training Loss',
         line: { color: '#1f77b4' }
       },
       {
         x: epochs,
-        y: history.history.val_loss,
+        y: history.val_loss,  // Fixed: history.val_loss
         type: 'line',
         name: 'Validation Loss',
         line: { color: '#ff7f0e' }
@@ -62,9 +62,9 @@ module.exports.generateTrainingChart = async (history) => {
   <div class="container">
     <h1>Model Training Progress</h1>
     <div class="info">
-      Final Training Loss: ${history.history.loss[history.history.loss.length - 1].toFixed(4)}<br>
-      Final Validation Loss: ${history.history.val_loss[history.history.val_loss.length - 1].toFixed(4)}<br>
-      Epochs: ${history.history.loss.length}
+      Final Training Loss: ${history.loss[history.loss.length - 1].toFixed(4)}<br>  // Fixed: history.loss
+      Final Validation Loss: ${history.val_loss[history.val_loss.length - 1].toFixed(4)}<br>  // Fixed: history.val_loss
+      Epochs: ${history.loss.length}  // Fixed: history.loss
     </div>
     <div id="chart"></div>
   </div>

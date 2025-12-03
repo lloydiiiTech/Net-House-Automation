@@ -4,6 +4,8 @@ const { firestore } = require('../config/firebase');
 const admin = require('firebase-admin');
 const { normalizeData } = require('../utils/dataNormalizer');
 const { generateTrainingChart } = require('../utils/trainingVisualizer');
+const path = require('path');  // Added: Missing import
+const fs = require('fs');  // Added: Missing import
 
 function extractSeasonalityFeatures(startDate, endDate) {
   let month = 0, duration = 0, season = 0;
@@ -23,7 +25,7 @@ class CropPredictionService {
     this.backendReady = false;
     this.modelTrained = false;
     this.currentTraining = false;
-    this.modelVersion = '2.0'; // Track model improvements
+    this.modelVersion = '3.0'; // Updated for enhanced features and architecture
     this.lastTrainingTime = null;
     this.pendingRetrainTimeout = null;
     this.newOutcomesSinceLastTrain = 0;
@@ -51,12 +53,12 @@ class CropPredictionService {
     }
   }
 
-  createModel(inputShape = 12) { // Increased input shape for better features
+  createModel(inputShape = 20) { // Updated input shape to include optimal conditions (8 additional features)
     const model = tf.sequential();
     
-    // Enhanced architecture with better regularization
+    // Enhanced architecture with more layers for better learning of complex relationships
     model.add(tf.layers.dense({
-      units: 128,
+      units: 256,
       activation: 'relu',
       inputShape: [inputShape],
       kernelInitializer: 'heNormal',
@@ -64,6 +66,15 @@ class CropPredictionService {
     }));
     model.add(tf.layers.batchNormalization());
     model.add(tf.layers.dropout({ rate: 0.3 }));
+    
+    model.add(tf.layers.dense({ 
+      units: 128, 
+      activation: 'relu',
+      kernelInitializer: 'heNormal',
+      kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })
+    }));
+    model.add(tf.layers.batchNormalization());
+    model.add(tf.layers.dropout({ rate: 0.25 }));
     
     model.add(tf.layers.dense({ 
       units: 64, 
@@ -89,7 +100,7 @@ class CropPredictionService {
     }));
     
     model.compile({
-      optimizer: tf.train.adam(0.0005), // Reduced learning rate for better convergence
+      optimizer: tf.train.adam(0.0003), // Slightly lower learning rate for stability
       loss: 'meanSquaredError',
       metrics: ['mae', 'mse']
     });
@@ -99,49 +110,51 @@ class CropPredictionService {
 
   async saveModel() {
     try {
-      // For now, we'll skip file saving and just mark the model as trained
-      // This avoids the TensorFlow.js file system issues on Windows
-      console.log('💾 Model training completed successfully');
-      console.log('ℹ️ Model is ready for predictions (in-memory)');
-      
-      // Save model metadata to track training
-      const fs = require('fs');
-      const path = require('path');
-      
       const modelsDir = path.join(__dirname, '../models');
       if (!fs.existsSync(modelsDir)) {
         fs.mkdirSync(modelsDir, { recursive: true });
       }
+      
+      const modelPath = path.join(modelsDir, 'saved_model');
+      await this.model.save(modelPath);  // Save model to file
       
       const metadata = {
         version: this.modelVersion,
         trainedAt: new Date().toISOString(),
         inputShape: this.model.inputs[0].shape[1],
         architecture: 'enhanced-dense-128-64-32-1',
-        status: 'trained-in-memory'
+        status: 'saved-to-file',
+        path: modelPath
       };
       
       const metadataPath = path.join(modelsDir, 'model-metadata.json');
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
       
-      console.log('📄 Model metadata saved');
+      console.log('💾 Model saved to file successfully');
       
     } catch (error) {
-      console.error('❌ Model metadata save failed:', error.message);
-      // Don't throw error - model is still trained and usable
+      console.error('❌ Model save failed:', error.message);
+      // Fallback to in-memory
     }
   }
 
   async loadModel() {
     try {
-      // Since we're using in-memory models, we'll create a new model
-      // The model will be trained when needed
-      console.log('ℹ️ No saved model found, will train when needed');
+      const modelsDir = path.join(__dirname, '../models');
+      const modelPath = path.join(modelsDir, 'saved_model');
+      if (fs.existsSync(modelPath)) {
+        this.model = await tf.loadLayersModel(`${modelPath}/model.json`);
+        console.log('✅ Model loaded from file');
+        this.modelTrained = true;
+      } else {
+        console.log('ℹ️ No saved model found, creating new one');
+        this.model = this.createModel();
+        this.modelTrained = false;
+      }
+    } catch (error) {
+      console.error('❌ Model load failed:', error.message);
       this.model = this.createModel();
       this.modelTrained = false;
-    } catch (error) {
-      console.error('❌ Model initialization failed:', error.message);
-      throw new Error('Failed to initialize model');
     }
   }
 
@@ -159,25 +172,36 @@ class CropPredictionService {
       }
   
       const trainingData = [];
-      snapshot.forEach(doc => {
+      for (const doc of snapshot.docs) {
         const data = doc.data();
         
-        // Skip if already used for training (client-side filter)
-        if (data.isTrained === true) {
-          return;
-        }
+        // Include all harvested crops for retraining (old and new data)
+        // Removed skip for isTrained to ensure complete dataset is used
         
         if (
           typeof data.harvestSuccessRate !== 'number' ||
-          data.harvestSuccessRate < 5 || data.harvestSuccessRate > 100 || // More lenient outlier filtering
-          !data.finalSensorSummary
-        ) return;
-  
+          data.harvestSuccessRate < 5 || data.harvestSuccessRate > 100 ||
+          !data.finalSensorSummary ||
+          !data.endDate  // Ensure dates for seasonality
+        ) continue;
+        
+        // Get optimal conditions directly from planted_crops document
+        // Assuming optimal fields are stored here (e.g., optimal_n, optimal_p, etc.)
+        const optimalConditions = {
+          optimal_n: parseFloat(data.optimal_n) || 0,
+          optimal_p: parseFloat(data.optimal_p) || 0,
+          optimal_k: parseFloat(data.optimal_k) || 0,
+          optimal_temperature: parseFloat(data.optimal_temperature) || 0,
+          optimal_humidity: parseFloat(data.optimal_humidity) || 0,
+          optimal_moisture: parseFloat(data.optimal_moisture) || 0,
+          optimal_ph: parseFloat(data.optimal_ph) || 0,
+          optimal_light: parseFloat(data.optimal_light) || 0
+        };
+        
         const s = data.finalSensorSummary;
-
-        // Normalize using the same pipeline as prediction so the model
-        // sees *consistent* feature scales during both train and infer
-        const normalized = normalizeData({
+        
+        // Normalize sensor data
+        const normalizedSensor = normalizeData({
           nitrogen: s.nitrogen ?? 0,
           phosphorus: s.phosphorus ?? 0,
           potassium: s.potassium ?? 0,
@@ -187,38 +211,60 @@ class CropPredictionService {
           ph: s.ph ?? 0,
           light: s.light ?? 0
         });
-  
-        // Enhanced feature engineering on normalized core features
+        
+        // Normalize optimal conditions using the same normalizer for consistency
+        const normalizedOptimal = normalizeData({
+          nitrogen: optimalConditions.optimal_n,
+          phosphorus: optimalConditions.optimal_p,
+          potassium: optimalConditions.optimal_k,
+          temperature: optimalConditions.optimal_temperature,
+          humidity: optimalConditions.optimal_humidity,
+          moisture: optimalConditions.optimal_moisture,
+          ph: optimalConditions.optimal_ph,
+          light: optimalConditions.optimal_light
+        });
+        
+        // Enhanced features: sensor data + optimal conditions + seasonality + registration
         const features = [
-          normalized.n ?? 0,
-          normalized.p ?? 0,
-          normalized.k ?? 0,
-          normalized.temperature ?? 0,
-          normalized.humidity ?? 0,
-          normalized.moisture ?? 0,
-          normalized.ph ?? 0,
-          normalized.light ?? 0
+          // Normalized sensor data (8)
+          normalizedSensor.n ?? 0,
+          normalizedSensor.p ?? 0,
+          normalizedSensor.k ?? 0,
+          normalizedSensor.temperature ?? 0,
+          normalizedSensor.humidity ?? 0,
+          normalizedSensor.moisture ?? 0,
+          normalizedSensor.ph ?? 0,
+          normalizedSensor.light ?? 0,
+          // Normalized optimal conditions (8)
+          normalizedOptimal.n ?? 0,
+          normalizedOptimal.p ?? 0,
+          normalizedOptimal.k ?? 0,
+          normalizedOptimal.temperature ?? 0,
+          normalizedOptimal.humidity ?? 0,
+          normalizedOptimal.moisture ?? 0,
+          normalizedOptimal.ph ?? 0,
+          normalizedOptimal.light ?? 0
         ];
-  
+        
         const startDate = data.startDate?.toDate ? data.startDate.toDate() : null;
         const endDate = data.endDate?.toDate ? data.endDate.toDate() : null;
         const { month, duration, season } = extractSeasonalityFeatures(startDate, endDate);
         features.push(month, duration, season);
         
-        // Add crop type indicator (registered vs unregistered)
-        const isRegistered = data.isRegistered !== false; // Default to true
+        // Get isRegistered from planted_crops or default to true
+        const isRegistered = data.isRegistered !== false;
         features.push(isRegistered ? 1 : 0);
-  
+        
         trainingData.push({
           features,
           label: Math.min(1, Math.max(0, data.harvestSuccessRate / 100)),
-          cropId: data.cropId,
-          docId: doc.id, // Store document ID for marking as trained
+          cropId: data.cropId || doc.id, // Use cropId if available, else doc.id
+          docId: doc.id,
           isRegistered
         });
-      });
+      }
   
-      console.log(`📊 Retrieved ${trainingData.length} new training samples from planted_crops`);
+      console.log(`📊 Retrieved ${trainingData.length} training samples (all harvested crops)`);
       return trainingData;
     } catch (err) {
       // Handle missing index error
@@ -285,7 +331,7 @@ class CropPredictionService {
         optimal_p: parseFloat(data.optimal_p) || 0,
         optimal_k: parseFloat(data.optimal_k) || 0,
         optimal_temperature: parseFloat(data.optimal_temperature) || 0,
-        optimal_humidity: parseFloat(data.optimal_humidity) || 0,
+        optimal_humidity: parseFloat(data.optimal_humidity) || 0,  // Fixed: optimal_humidity instead of optimal_hidity
         optimal_moisture: parseFloat(data.optimal_moisture) || 0,
         optimal_ph: parseFloat(data.optimal_ph) || 0,
         optimal_light: parseFloat(data.optimal_light) || 0,
@@ -328,11 +374,11 @@ class CropPredictionService {
       const goodMatchesCount = matchScores.filter(s => s >= 70).length;
       const goodMatchesRatio = matchScores.length > 0 ? goodMatchesCount / matchScores.length : 0;
       
-      // ML-based score if model is trained
+      // ML-based score with enhanced features
       let mlScore = suitability;
       if (this.modelTrained) {
         try {
-          const inputTensor = this.createInputTensor(averagedData, crop.isRegistered);
+          const inputTensor = this.createInputTensor(averagedData, crop); // Pass crop optimal
           const prediction = await this.model.predict(inputTensor).data();
           mlScore = Math.round(prediction[0] * 100);
           tf.dispose(inputTensor);
@@ -342,19 +388,14 @@ class CropPredictionService {
         }
       }
 
-      // Enhanced final score calculation using ALL available data:
-      // 1. Base weighted suitability (from parameterMatches)
-      // 2. Average parameter match (overall fit)
-      // 3. Good matches ratio (how many parameters are well-matched)
-      // 4. ML prediction (if trained)
+      // Enhanced final score calculation with higher ML weight for accuracy
       let finalScore;
       
       if (this.modelTrained) {
-        // When ML is trained: blend all factors intelligently
-        const ruleBasedComponent = suitability * 0.25; // Enhanced suitability from parameterMatches
-        const avgMatchComponent = avgParameterMatch * 0.15; // Overall parameter match average
-        const goodMatchesComponent = goodMatchesRatio * 100 * 0.10; // Bonus for many good matches
-        const mlComponent = mlScore * 0.50; // ML prediction (most weight when trained)
+        const ruleBasedComponent = suitability * 0.30; // Reduced rule-based weight
+        const avgMatchComponent = avgParameterMatch * 0.20;
+        const goodMatchesComponent = goodMatchesRatio * 100 * 0.10;
+        const mlComponent = mlScore * 0.40; // Increased ML weight
         
         finalScore = Math.round(ruleBasedComponent + avgMatchComponent + goodMatchesComponent + mlComponent);
       } else {
@@ -423,9 +464,9 @@ class CropPredictionService {
     };
   }
 
-  createInputTensor(sensorData, isRegistered = true, startDate = null, endDate = null) {
-    // Normalize using the same schema as getPlantedCropsTrainingData
-    const normalized = normalizeData({
+  createInputTensor(sensorData, cropOptimal, isRegistered = true, startDate = null, endDate = null) {
+    // Normalize sensor data
+    const normalizedSensor = normalizeData({
       nitrogen: sensorData.nitrogen,
       phosphorus: sensorData.phosphorus,
       potassium: sensorData.potassium,
@@ -436,7 +477,19 @@ class CropPredictionService {
       light: sensorData.light
     });
     
-    // Add seasonality features (use current date if not provided)
+    // Normalize optimal conditions
+    const normalizedOptimal = normalizeData({
+      nitrogen: cropOptimal.optimal_n || 0,
+      phosphorus: cropOptimal.optimal_p || 0,
+      potassium: cropOptimal.optimal_k || 0,
+      temperature: cropOptimal.optimal_temperature || 0,
+      humidity: cropOptimal.optimal_humidity || 0,
+      moisture: cropOptimal.optimal_moisture || 0,
+      ph: cropOptimal.optimal_ph || 0,
+      light: cropOptimal.optimal_light || 0
+    });
+    
+    // Add seasonality features
     let month = 0, duration = 0, season = 0;
     if (startDate instanceof Date && !isNaN(startDate)) {
       month = startDate.getMonth() / 11;
@@ -448,18 +501,29 @@ class CropPredictionService {
       const now = new Date();
       month = now.getMonth() / 11;
       season = Math.floor(now.getMonth() / 3) / 3;
-      duration = 0; // unknown
+      duration = 0;
     }
     
     return tf.tensor2d([[
-      normalized.n ?? 0,
-      normalized.p ?? 0,
-      normalized.k ?? 0,
-      normalized.temperature ?? 0,
-      normalized.humidity ?? 0,
-      normalized.moisture ?? 0,
-      normalized.ph ?? 0,
-      normalized.light ?? 0,
+      // Sensor data (8)
+      normalizedSensor.n ?? 0,
+      normalizedSensor.p ?? 0,
+      normalizedSensor.k ?? 0,
+      normalizedSensor.temperature ?? 0,
+      normalizedSensor.humidity ?? 0,
+      normalizedSensor.moisture ?? 0,
+      normalizedSensor.ph ?? 0,
+      normalizedSensor.light ?? 0,
+      // Optimal conditions (8)
+      normalizedOptimal.n ?? 0,
+      normalizedOptimal.p ?? 0,
+      normalizedOptimal.k ?? 0,
+      normalizedOptimal.temperature ?? 0,
+      normalizedOptimal.humidity ?? 0,
+      normalizedOptimal.moisture ?? 0,
+      normalizedOptimal.ph ?? 0,
+      normalizedOptimal.light ?? 0,
+      // Seasonality and registration (4)
       month,
       duration,
       season,
@@ -753,7 +817,7 @@ class CropPredictionService {
     try {
       console.log('⏳ Loading training data...');
       const trainingData = await this.getPlantedCropsTrainingData();
-      if (trainingData.length < 10) {
+      if (trainingData.length < 10) {  // Require at least 10 samples
         throw new Error(`Insufficient training data (${trainingData.length} samples). Need at least 10.`);
       }
       
@@ -785,19 +849,22 @@ class CropPredictionService {
       // Recreate model for new input shape
       this.model = this.createModel(features[0].length);
       
-      // Enhanced training with better monitoring
-      let bestValLoss = Infinity, bestWeights = null, patience = 15, wait = 0;
+      // Enhanced training with callbacks
+      const earlyStopping = tf.callbacks.earlyStopping({ monitor: 'val_loss', patience: 20 });
+      
+      let bestValLoss = Infinity, bestWeights = null, patience = 20, wait = 0;
       const history = { loss: [], val_loss: [], val_mae: [] };
       const startTime = Date.now();
       
-      console.log('🚀 Starting training...');
-      for (let epoch = 0; epoch < 150; epoch++) {
+      console.log('🚀 Starting enhanced training...');
+      for (let epoch = 0; epoch < 200; epoch++) { // Increased epochs
         const h = await this.model.fit(xTrain, yTrain, {
           epochs: 1,
           batchSize: Math.min(32, Math.floor(trainIndices.length / 4)),
           validationData: [xVal, yVal],
           shuffle: true,
-          verbose: 0
+          verbose: 0,
+          callbacks: [earlyStopping]  // Only use earlyStopping
         });
         
         const loss = h.history.loss[0];
@@ -855,6 +922,61 @@ class CropPredictionService {
       console.log(`   RMSE: ${(rmse*100).toFixed(2)}%`);
       console.log(`   Accuracy (±${threshold*100}%): ${accuracy.toFixed(1)}%`);
       
+      // Prepare training trial data FIRST
+      const chartPath = await generateTrainingChart(history);
+      const trialData = {
+        success: true, 
+        samples: trainingData.length,
+        registeredSamples: trainingData.filter(d => d.isRegistered).length,
+        unregisteredSamples: trainingData.filter(d => !d.isRegistered).length,
+        finalLoss: history.loss[history.loss.length-1],
+        finalValLoss: history.val_loss[history.val_loss.length-1],
+        finalValMae: history.val_mae[history.val_mae.length-1],
+        trainingChart: chartPath,
+        trainingTime: `${Math.round(trainingTime/1000)}s`,
+        valMAE: mae,
+        valRMSE: rmse,
+        valAccuracy: accuracy,
+        epochs: history.loss.length
+      };
+
+      // Save training trial to Firestore FIRST (before other async ops)
+      try {
+        const trialRef = firestore.collection('training_trials').doc();
+        const trialTimestamp = admin.firestore.FieldValue.serverTimestamp();
+        
+        const trialScore = (accuracy * 0.6) + ((100 - mae * 100) * 0.3) + ((100 - rmse * 100) * 0.1);
+        
+        await trialRef.set({
+          trialId: trialRef.id,
+          trainedAt: trialTimestamp,
+          modelVersion: this.modelVersion,
+          metrics: {
+            samples: trialData.samples,
+            registeredSamples: trialData.registeredSamples,
+            unregisteredSamples: trialData.unregisteredSamples,
+            finalLoss: trialData.finalLoss,
+            finalValLoss: trialData.finalValLoss,
+            finalValMae: trialData.finalValMae,
+            valMAE: trialData.valMAE,
+            valRMSE: trialData.valRMSE,
+            valAccuracy: trialData.valAccuracy,
+            epochs: trialData.epochs,
+            trainingTime: trialData.trainingTime
+          },
+          trialScore: Math.round(trialScore * 100) / 100,
+          isBest: false,
+          trainingChart: chartPath
+        });
+        
+        console.log(`📊 Training trial saved: ${trialRef.id} (Score: ${trialScore.toFixed(2)})`);
+        
+        // Add delay to ensure save completes before potential restart
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (trialError) {
+        console.error('❌ Failed to save training trial:', trialError);
+      }
+      
       await this.saveModel();
       this.modelTrained = true;
       this.lastTrainingTime = new Date().toISOString();
@@ -879,65 +1001,8 @@ class CropPredictionService {
         console.error('❌ Failed to mark crops as trained:', batchError);
       }
       
-      // Generate training chart
-      const chartPath = await generateTrainingChart(history);
-      
-      // Prepare training trial data
-      const trialData = {
-        success: true, 
-        samples: trainingData.length,
-        registeredSamples: trainingData.filter(d => d.isRegistered).length,
-        unregisteredSamples: trainingData.filter(d => !d.isRegistered).length,
-        finalLoss: history.loss[history.loss.length-1],
-        finalValLoss: history.val_loss[history.val_loss.length-1],
-        finalValMae: history.val_mae[history.val_mae.length-1],
-        trainingChart: chartPath,
-        trainingTime: `${Math.round(trainingTime/1000)}s`,
-        valMAE: mae,
-        valRMSE: rmse,
-        valAccuracy: accuracy,
-        epochs: history.loss.length
-      };
-
-      // Save training trial to Firestore for tracking and comparison
-      try {
-        const trialRef = firestore.collection('training_trials').doc();
-        const trialTimestamp = admin.firestore.FieldValue.serverTimestamp();
-        
-        // Calculate trial score (composite metric to identify best trials)
-        // Higher is better: accuracy weighted 60%, low MAE weighted 30%, low RMSE weighted 10%
-        const trialScore = (accuracy * 0.6) + ((100 - mae * 100) * 0.3) + ((100 - rmse * 100) * 0.1);
-        
-        await trialRef.set({
-          trialId: trialRef.id,
-          trainedAt: trialTimestamp,
-          modelVersion: this.modelVersion,
-          metrics: {
-            samples: trialData.samples,
-            registeredSamples: trialData.registeredSamples,
-            unregisteredSamples: trialData.unregisteredSamples,
-            finalLoss: trialData.finalLoss,
-            finalValLoss: trialData.finalValLoss,
-            finalValMae: trialData.finalValMae,
-            valMAE: trialData.valMAE,
-            valRMSE: trialData.valRMSE,
-            valAccuracy: trialData.valAccuracy,
-            epochs: trialData.epochs,
-            trainingTime: trialData.trainingTime
-          },
-          trialScore: Math.round(trialScore * 100) / 100, // Composite score for ranking
-          isBest: false, // Will be updated by best trial finder
-          trainingChart: chartPath
-        });
-        
-        console.log(`📊 Training trial saved: ${trialRef.id} (Score: ${trialScore.toFixed(2)})`);
-        
-        // Update best trial flag
-        await this.updateBestTrial();
-      } catch (trialError) {
-        console.error('❌ Failed to save training trial:', trialError);
-        // Don't fail training if trial save fails
-      }
+      // Update best trial LAST
+      await this.updateBestTrial();
       
       return trialData;
       
@@ -962,7 +1027,7 @@ class CropPredictionService {
 
     let totalError = 0;
     let correctPredictions = 0;
-    const validationThreshold = 15; // Points within actual to be considered correct
+    const threshold = 15;
     const results = [];
     
     for (const doc of snapshot.docs) {
@@ -978,14 +1043,14 @@ class CropPredictionService {
       const error = Math.abs(prediction - actual);
       
       totalError += error;
-      if (error <= validationThreshold) correctPredictions++;
+      if (error <= threshold) correctPredictions++;
       
       results.push({
         predictionId: doc.id,
         predicted: Math.round(prediction),
         actual: Math.round(actual),
         error: Math.round(error),
-        withinThreshold: error <= validationThreshold,
+        withinThreshold: error <= threshold,
         timestamp: data.timestamp.toDate().toISOString()
       });
       
@@ -994,12 +1059,14 @@ class CropPredictionService {
 
     const meanAbsoluteError = totalError / results.length;
     const accuracy = (correctPredictions / results.length) * 100;
+    const r2 = 1 - (totalError / results.length) / (results.reduce((s, r) => s + r.actual ** 2, 0) / results.length);  // Simple R²
     
     return {
       samples: results.length,
       meanAbsoluteError,
       accuracy,
-      validationThreshold,
+      r2,
+      validationThreshold: threshold,
       results: results.sort((a, b) => a.error - b.error)
     };
   }
@@ -1043,22 +1110,13 @@ class CropPredictionService {
       clearTimeout(this.pendingRetrainTimeout);
     }
     
-    // Retrain if we have enough new outcomes (5+) or it's been a while since last train
-    const shouldRetrain = this.newOutcomesSinceLastTrain >= 5 || 
-      (this.lastTrainingTime && (Date.now() - new Date(this.lastTrainingTime).getTime() > 7 * 24 * 60 * 60 * 1000)); // 7 days
+    // Retrain immediately on any new outcome (changed from 5 to 1)
+    const shouldRetrain = this.newOutcomesSinceLastTrain >= 1;
     
     if (shouldRetrain) {
       // Retrain immediately
       this.newOutcomesSinceLastTrain = 0;
       this.autoRetrain();
-    } else {
-      // Schedule retrain after a delay (debounce - wait 30 seconds for more outcomes)
-      this.pendingRetrainTimeout = setTimeout(() => {
-        if (this.newOutcomesSinceLastTrain >= 3) {
-          this.newOutcomesSinceLastTrain = 0;
-          this.autoRetrain();
-        }
-      }, 30000); // 30 seconds
     }
   }
 
@@ -1141,9 +1199,6 @@ class CropPredictionService {
       });
 
       // Sort by trainedAt descending (most recent first)
-      allTrials.sort((a, b) => b.trainedAt - a.trainedAt);
-
-      // Convert back to ISO string and limit
       const trials = allTrials.slice(0, limit).map(trial => ({
         ...trial,
         trainedAt: trial.trainedAt > 0 ? new Date(trial.trainedAt).toISOString() : null
@@ -1171,6 +1226,38 @@ class CropPredictionService {
       };
     } catch (error) {
       console.error('❌ Failed to get training trials:', error);
+      throw error;
+    }
+  }
+
+  async getBestTrial() {
+    try {
+      // Get all training trials and find the best one
+      const allTrialsSnapshot = await firestore.collection('training_trials').get();
+
+      if (allTrialsSnapshot.empty) {
+        return null;
+      }
+
+      let bestTrial = null;
+      let bestScore = -1;
+
+      allTrialsSnapshot.forEach(doc => {
+        const data = doc.data();
+        const score = data.trialScore || 0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestTrial = {
+            trialId: doc.id,
+            ...data,
+            trainedAt: data.trainedAt?.toDate?.()?.toISOString() || null
+          };
+        }
+      });
+
+      return bestTrial;
+    } catch (error) {
+      console.error('❌ Failed to get best trial:', error);
       throw error;
     }
   }

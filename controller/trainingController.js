@@ -111,6 +111,7 @@ exports.validateModel = async (req, res) => {
       success: true,
       accuracy: validation.accuracy.toFixed(1) + '%',
       meanAbsoluteError: validation.meanAbsoluteError.toFixed(2),
+      r2: validation.r2.toFixed(3),
       validationThreshold: validation.validationThreshold,
       samples: validation.samples,
       results: validation.results
@@ -421,7 +422,7 @@ exports.getTrainingTrials = async (req, res) => {
       
       if (best.metrics.samples < 100) {
         insights.recommendations.push(
-          `Best trial used only ${best.metrics.samples} samples. Collect more data for better accuracy.`
+          `Best trial used only ${best.metrics.samples}. Collect more data for better accuracy.`
         );
       }
     }
@@ -446,6 +447,84 @@ exports.getTrainingTrials = async (req, res) => {
       message: 'Failed to get training trials'
     });
   }
+};
+
+exports.getBestTrial = async (req, res) => {
+  try {
+    const bestTrial = await CropPredictionService.getBestTrial();
+    
+    if (!bestTrial) {
+      return res.json({
+        success: true,
+        message: 'No training trials available yet. Train the model first.',
+        hasBestTrial: false
+      });
+    }
+
+    // Provide insights based on the best trial
+    const insights = {
+      performanceGrade: this.calculatePerformanceGrade(bestTrial.metrics.valAccuracy, bestTrial.metrics.valMAE),
+      strengths: [],
+      recommendations: []
+    };
+
+    // Analyze strengths
+    if (bestTrial.metrics.valAccuracy >= 80) {
+      insights.strengths.push('High prediction accuracy');
+    }
+    if (bestTrial.metrics.valMAE <= 0.1) {
+      insights.strengths.push('Low mean absolute error');
+    }
+    if (bestTrial.metrics.samples >= 100) {
+      insights.strengths.push('Trained on substantial dataset');
+    }
+
+    // Generate recommendations
+    if (bestTrial.metrics.valAccuracy < 70) {
+      insights.recommendations.push('Consider collecting more diverse training data');
+    }
+    if (bestTrial.metrics.samples < 50) {
+      insights.recommendations.push('Train with more samples for better generalization');
+    }
+    if (bestTrial.metrics.valMAE > 0.15) {
+      insights.recommendations.push('Model may benefit from additional feature engineering');
+    }
+
+    res.json({
+      success: true,
+      hasBestTrial: true,
+      bestTrial,
+      insights,
+      comparison: {
+        vsAverage: this.compareToAveragePerformance(bestTrial)
+      }
+    });
+  } catch (error) {
+    console.error('Get best trial error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: 'Failed to get best trial'
+    });
+  }
+};
+
+exports.calculatePerformanceGrade = (accuracy, mae) => {
+  if (accuracy >= 85 && mae <= 0.08) return 'A+';
+  if (accuracy >= 80 && mae <= 0.1) return 'A';
+  if (accuracy >= 75 && mae <= 0.12) return 'B+';
+  if (accuracy >= 70 && mae <= 0.15) return 'B';
+  if (accuracy >= 60 && mae <= 0.2) return 'C';
+  return 'D';
+};
+
+exports.compareToAveragePerformance = (bestTrial) => {
+  // This would require fetching all trials and calculating averages
+  // For now, return a placeholder
+  return {
+    accuracyVsAverage: 'Above average', // Implement actual comparison
+    maeVsAverage: 'Below average'
+  };
 };
 
 

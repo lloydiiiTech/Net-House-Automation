@@ -12,5 +12,6 @@ router.get('/training/validate', trainingController.validateModel);
 router.get('/training/chart', trainingController.getTrainingChart);
 router.get('/training/evaluate', trainingController.evaluateModel);
 router.get('/training/trials', trainingController.getTrainingTrials);
+router.get('/training/best-trial', trainingController.getBestTrial);
 
 module.exports = router;
