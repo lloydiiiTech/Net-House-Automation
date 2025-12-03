@@ -352,6 +352,124 @@ exports.registerCropById = async (req, res) => {
     }
 }; 
 
+// Add these helper functions from cropPredictionService for consistent computation
+function calculateMatch(optimal, actual, paramName = '') {
+    // If either side is missing, we truly cannot compute a match
+    if (optimal === undefined || optimal === null || actual === undefined || actual === null) {
+        return null;
+    }
+
+    // If optimal is 0 but sensors have a value, treat it as 0% match
+    if (optimal === 0) {
+        return 0;
+    }
+
+    const absDiff = Math.abs(actual - optimal);
+    const ratio = absDiff / optimal; // relative difference
+
+    // Use a smooth decay so we NEVER hit 0 for valid comparisons, just very small %
+    const alpha = paramName === 'light' ? 1.5 : 3.0;
+    const score = 100 / (1 + alpha * ratio);
+
+    // Return the exact decimal percentage from this function
+    return score;
+}
+
+function calculateWeightedSuitability(parameterMatches, crop) {
+    // Enhanced weights based on parameter importance for crop growth
+    const weights = {
+        npk_N: 0.13,      // Nitrogen - slightly increased
+        npk_P: 0.13,      // Phosphorus - slightly increased
+        npk_K: 0.13,      // Potassium - slightly increased
+        temperature: 0.20, // Temperature - most critical, increased
+        humidity: 0.11,    // Humidity - slightly increased
+        moisture: 0.16,    // Moisture - increased
+        ph: 0.10,          // pH - critical but slightly reduced
+        light: 0.04        // Light - reduced (less critical than others)
+    };
+
+    // Extract all valid parameter match scores
+    const validMatches = [];
+    let totalWeight = 0;
+    let weightedSum = 0;
+    
+    Object.entries(parameterMatches).forEach(([param, score]) => {
+        if (typeof score === 'number' && score !== null) {
+            const weight = weights[param] || 0;
+            weightedSum += score * weight;
+            totalWeight += weight;
+            validMatches.push(score);
+        }
+    });
+
+    if (totalWeight === 0 || validMatches.length === 0) {
+        return 0;
+    }
+
+    // Base weighted average
+    let baseScore = weightedSum / totalWeight;
+
+    // Enhancement 1: Completeness bonus - reward crops with more parameters configured
+    const totalParams = Object.keys(weights).length;
+    const completenessRatio = validMatches.length / totalParams;
+    const completenessBonus = completenessRatio * 5; // Up to 5 points bonus
+
+    // Enhancement 2: Consistency bonus - reward crops with consistent parameter matches
+    const avgMatch = validMatches.reduce((a, b) => a + b, 0) / validMatches.length;
+    const variance = validMatches.reduce((sum, score) => {
+        return sum + Math.pow(score - avgMatch, 2);
+    }, 0) / validMatches.length;
+    const consistencyBonus = Math.max(0, 10 - (variance / 100)); // Up to 10 points bonus for low variance
+
+    // Enhancement 3: Critical parameters bonus - extra weight for temperature and pH
+    const criticalParams = ['temperature', 'ph'];
+    let criticalScore = 0;
+    let criticalWeight = 0;
+    criticalParams.forEach(param => {
+        const score = parameterMatches[param];
+        if (typeof score === 'number' && score !== null) {
+            criticalScore += score;
+            criticalWeight += 1;
+        }
+    });
+    const criticalBonus = criticalWeight > 0 ? (criticalScore / criticalWeight) * 0.1 : 0; // Up to 10% bonus
+
+    // Enhancement 4: Penalty for very poor matches - if any critical parameter is < 20%
+    const hasVeryPoorMatch = validMatches.some(score => score < 20);
+    const poorMatchPenalty = hasVeryPoorMatch ? 5 : 0;
+
+    // Calculate final enhanced score
+    let enhancedScore = baseScore + completenessBonus + consistencyBonus + criticalBonus - poorMatchPenalty;
+    
+    // Ensure score stays within 0-100 range
+    enhancedScore = Math.max(0, Math.min(100, enhancedScore));
+
+    return Math.round(enhancedScore);
+}
+
+function calculateScore(sensorData, crop) {
+    const parameterMatches = {
+        // Keep human-friendly NPK naming similar to your Firestore example
+        npk_N: calculateMatch(crop.optimal_n, sensorData.nitrogen, 'nitrogen'),
+        npk_P: calculateMatch(crop.optimal_p, sensorData.phosphorus, 'phosphorus'),
+        npk_K: calculateMatch(crop.optimal_k, sensorData.potassium, 'potassium'),
+        temperature: calculateMatch(crop.optimal_temperature, sensorData.temperature, 'temperature'),
+        humidity: calculateMatch(crop.optimal_humidity, sensorData.humidity, 'humidity'),
+        moisture: calculateMatch(crop.optimal_moisture, sensorData.moisture, 'moisture'),
+        ph: calculateMatch(crop.optimal_ph, sensorData.ph, 'ph'),
+        light: calculateMatch(crop.optimal_light, sensorData.light, 'light')
+    };
+  
+    const suitability = calculateWeightedSuitability(parameterMatches, crop);
+  
+    return {
+        suitability,
+        parameterMatches
+    };
+}
+
+// ...existing code...
+
 exports.getCropDetails = async (req, res) => {
     try {
         const { cropName } = req.params;
@@ -360,7 +478,7 @@ exports.getCropDetails = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Crop name is required.' });
         }
 
-        // Get the latest prediction history to access current sensor data
+        // Get the latest prediction history to access current sensor data and top 5 recommendations
         const snapshot = await firestore.collection('prediction_history')
             .orderBy('timestamp', 'desc')
             .limit(1)
@@ -372,6 +490,12 @@ exports.getCropDetails = async (req, res) => {
 
         const predictionData = snapshot.docs[0].data();
         const sensorData = predictionData.sensorData || {};
+        const predictions = predictionData.predictions || {};
+        const top5Registered = predictions.top5Registered || [];
+        const top5Unregistered = predictions.top5Unregistered || [];
+        
+        // Check if the crop is in the top 5 recommendations
+        const isInTop5 = [...top5Registered, ...top5Unregistered].some(crop => crop.name === cropName);
         
         // Get crop details from crops collection
         const cropQuery = await firestore.collection('crops')
@@ -396,45 +520,39 @@ exports.getCropDetails = async (req, res) => {
             ruleBasedScore: 0
         };
 
-        // Calculate parameter matches using current sensor data from prediction_history
-        const parameterMatches = {};
-        const parameterAnalysis = {};
-        
-        if (sensorData && crop.optimalConditions) {
-            const optimal = crop.optimalConditions;
-            const current = sensorData;
-            
-            // Calculate match percentages for each parameter
-            const parameters = [
-                { key: 'temperature', optimal: optimal.temperature, current: current.temperature },
-                { key: 'humidity', optimal: optimal.humidity, current: current.humidity },
-                { key: 'moisture', optimal: optimal.moisture, current: current.moisture },
-                { key: 'ph', optimal: optimal.ph, current: current.ph },
-                { key: 'light', optimal: optimal.light, current: current.light },
-                { key: 'nitrogen', optimal: optimal.npk_N, current: current.nitrogen },
-                { key: 'phosphorus', optimal: optimal.npk_P, current: current.phosphorus },
-                { key: 'potassium', optimal: optimal.npk_K, current: current.potassium }
-            ];
-            
-            parameters.forEach(param => {
-                const match = calculateMatch(param.optimal, param.current, param.key);
-                parameterMatches[param.key] = match;
-                
-                // Add detailed analysis
-                parameterAnalysis[param.key] = {
-                    optimal: param.optimal,
-                    current: param.current,
-                    match: match,
-                    status: getParameterStatus(match),
-                    recommendation: getParameterRecommendation(param.key, param.optimal, param.current, match)
-                };
-            });
+        // Use the same calculateScore logic as cropPredictionService for consistency
+        const { suitability, parameterMatches } = calculateScore(sensorData, {
+            optimal_n: crop.optimalConditions.npk_N,
+            optimal_p: crop.optimalConditions.npk_P,
+            optimal_k: crop.optimalConditions.npk_K,
+            optimal_temperature: crop.optimalConditions.temperature,
+            optimal_humidity: crop.optimalConditions.humidity,
+            optimal_moisture: crop.optimalConditions.moisture,
+            optimal_ph: crop.optimalConditions.ph,
+            optimal_light: crop.optimalConditions.light
+        });
+
+        // Apply penalty if the crop is not in the top 5 recommendations
+        let adjustedSuitability = suitability;
+        if (!isInTop5) {
+            // Penalize by reducing the score by 15-25 points to ensure it's lower than top 5
+            const penalty = Math.min(25, Math.max(15, suitability * 0.2)); // Adaptive penalty based on score
+            adjustedSuitability = Math.max(0, suitability - penalty);
         }
 
-        // Calculate overall suitability score
-        const matchValues = Object.values(parameterMatches).filter(v => typeof v === 'number');
-        const overallMatch = matchValues.length > 0 ? 
-            Math.round(matchValues.reduce((a, b) => a + b, 0) / matchValues.length) : 0;
+        // Calculate parameter analysis for detailed recommendations
+        const parameterAnalysis = {};
+        Object.entries(parameterMatches).forEach(([param, match]) => {
+            const optimal = crop.optimalConditions[param.replace('npk_', '').toUpperCase()] || crop.optimalConditions[param];
+            const current = sensorData[param.replace('npk_', '')] || sensorData[param];
+            parameterAnalysis[param] = {
+                optimal,
+                current,
+                match,
+                status: getParameterStatus(match),
+                recommendation: getParameterRecommendation(param, optimal, current, match)
+            };
+        });
 
         res.json({
             success: true,
@@ -444,7 +562,7 @@ exports.getCropDetails = async (req, res) => {
                 parameterAnalysis,
                 sensorData,
                 cropDetails: cropData,
-                overallMatch,
+                overallMatch: Math.round(adjustedSuitability), // Use adjusted suitability as overallMatch
                 analysis: {
                     bestParameter: getBestParameter(parameterMatches),
                     worstParameter: getWorstParameter(parameterMatches),
@@ -459,6 +577,8 @@ exports.getCropDetails = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error. Please try again.' });
     }
 };
+
+// ...existing code...
 
 exports.updateCropOptimalConditions = async (req, res) => {
     try {
@@ -500,173 +620,6 @@ exports.updateCropOptimalConditions = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error. Please try again.' });
     }
 };
-
-// Helper function to calculate parameter match percentage
-function calculateMatch(optimal, current, paramType) {
-    if (optimal === undefined || current === undefined) {
-        return 0;
-    }
-
-    const optimalValue = parseFloat(optimal);
-    const currentValue = parseFloat(current);
-
-    if (isNaN(optimalValue) || isNaN(currentValue)) {
-        return 0;
-    }
-
-    // Define optimal ranges and tolerances for each parameter
-    const parameterConfigs = {
-        temperature: {
-            tolerance: 3, // ±3°C tolerance
-            min: 0,
-            max: 50,
-            unit: '°C',
-            criticalRange: 2, // Critical range for 100% match
-            goodRange: 5, // Good range for 80%+ match
-            acceptableRange: 8 // Acceptable range for 60%+ match
-        },
-        humidity: {
-            tolerance: 8, // ±8% tolerance
-            min: 0,
-            max: 100,
-            unit: '%',
-            criticalRange: 5,
-            goodRange: 12,
-            acceptableRange: 20
-        },
-        moisture: {
-            tolerance: 12, // ±12% tolerance
-            min: 0,
-            max: 100,
-            unit: '%',
-            criticalRange: 8,
-            goodRange: 15,
-            acceptableRange: 25
-        },
-        ph: {
-            tolerance: 0.8, // ±0.8 pH tolerance
-            min: 0,
-            max: 14,
-            unit: '',
-            criticalRange: 0.5,
-            goodRange: 1.0,
-            acceptableRange: 1.5
-        },
-        light: {
-            tolerance: 800, // ±800 lux tolerance
-            min: 0,
-            max: 10000,
-            unit: 'lux',
-            criticalRange: 500,
-            goodRange: 1200,
-            acceptableRange: 2000
-        },
-        nitrogen: {
-            tolerance: 8, // ±8 ppm tolerance
-            min: 0,
-            max: 100,
-            unit: 'ppm',
-            criticalRange: 5,
-            goodRange: 12,
-            acceptableRange: 20
-        },
-        phosphorus: {
-            tolerance: 8, // ±8 ppm tolerance
-            min: 0,
-            max: 100,
-            unit: 'ppm',
-            criticalRange: 5,
-            goodRange: 12,
-            acceptableRange: 20
-        },
-        potassium: {
-            tolerance: 8, // ±8 ppm tolerance
-            min: 0,
-            max: 100,
-            unit: 'ppm',
-            criticalRange: 5,
-            goodRange: 12,
-            acceptableRange: 20
-        }
-    };
-
-    const config = parameterConfigs[paramType] || parameterConfigs.nitrogen;
-    const difference = Math.abs(currentValue - optimalValue);
-    
-    // Calculate match percentage based on ranges
-    let matchPercentage = 0;
-    
-    if (difference <= config.criticalRange) {
-        // Perfect match (95-100%)
-        matchPercentage = 100 - (difference / config.criticalRange) * 5;
-    } else if (difference <= config.goodRange) {
-        // Good match (80-95%)
-        const rangeDiff = difference - config.criticalRange;
-        const rangeSize = config.goodRange - config.criticalRange;
-        matchPercentage = 95 - (rangeDiff / rangeSize) * 15;
-    } else if (difference <= config.acceptableRange) {
-        // Acceptable match (60-80%)
-        const rangeDiff = difference - config.goodRange;
-        const rangeSize = config.acceptableRange - config.goodRange;
-        matchPercentage = 80 - (rangeDiff / rangeSize) * 20;
-    } else if (difference <= config.tolerance) {
-        // Poor match (30-60%)
-        const rangeDiff = difference - config.acceptableRange;
-        const rangeSize = config.tolerance - config.acceptableRange;
-        matchPercentage = 60 - (rangeDiff / rangeSize) * 30;
-    } else {
-        // Very poor match (0-30%)
-        const rangeDiff = difference - config.tolerance;
-        const maxRange = config.tolerance * 2; // Beyond tolerance
-        matchPercentage = Math.max(0, 30 - (rangeDiff / maxRange) * 30);
-    }
-    
-    // Apply additional factors for specific parameters
-    switch (paramType) {
-        case 'temperature':
-            // Temperature is critical for plant growth
-            if (currentValue < 10 || currentValue > 40) {
-                matchPercentage *= 0.7; // Reduce score for extreme temperatures
-            }
-            break;
-        case 'humidity':
-            // Humidity affects transpiration
-            if (currentValue < 20 || currentValue > 90) {
-                matchPercentage *= 0.8; // Reduce score for extreme humidity
-            }
-            break;
-        case 'moisture':
-            // Soil moisture is critical
-            if (currentValue < 15 || currentValue > 85) {
-                matchPercentage *= 0.6; // Significantly reduce score for extreme moisture
-            }
-            break;
-        case 'ph':
-            // pH affects nutrient availability
-            if (currentValue < 5.5 || currentValue > 8.5) {
-                matchPercentage *= 0.5; // Significantly reduce score for extreme pH
-            }
-            break;
-        case 'light':
-            // Light is essential for photosynthesis
-            if (currentValue < 1000) {
-                matchPercentage *= 0.8; // Reduce score for low light
-            }
-            break;
-        case 'nitrogen':
-        case 'phosphorus':
-        case 'potassium':
-            // NPK nutrients are essential
-            if (currentValue < 10) {
-                matchPercentage *= 0.7; // Reduce score for very low nutrients
-            } else if (currentValue > 80) {
-                matchPercentage *= 0.9; // Slightly reduce score for very high nutrients
-            }
-            break;
-    }
-    
-    return Math.round(Math.max(0, Math.min(100, matchPercentage)));
-} 
 
 // Helper function to get parameter status
 function getParameterStatus(match) {
@@ -890,5 +843,5 @@ function getDefaultOptimalConditions(cropName) {
         npk_P: 50,
         npk_K: 150
     };
-} 
+}
 
