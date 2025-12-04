@@ -2,7 +2,7 @@ const { firestore } = require('../config/firebase');
 const CropPredictionService = require('./cropPredictionService');
 
 function initPlantedCropsListener() {
-  // Temporary: Use simpler query to avoid index requirement
+  // Use a more efficient query to avoid index issues - listen for changes in planted_crops
   firestore.collection('planted_crops')
     .where('status', '==', 'harvested')
     .onSnapshot(snapshot => {
@@ -10,21 +10,39 @@ function initPlantedCropsListener() {
         if (change.type === 'added' || change.type === 'modified') {
           const data = change.doc.data();
           
-          // Check if already trained (client-side filter)
-          if (data.isTrained !== true) {
+          // Check if already trained and has valid harvest data
+          if (data.isTrained !== true && 
+              data.harvestSuccessRate !== undefined && 
+              data.harvestSuccessRate >= 0 && 
+              data.harvestSuccessRate <= 100 &&
+              data.finalSensorSummary &&
+              data.endDate) {  // Ensure endDate exists for seasonality
             console.log('🌾 Detected new harvested crop for training:', change.doc.id);
             
-            // Train immediately on every harvest (no debouncing)
-            // This ensures model learns from each harvest cycle
-            CropPredictionService.autoRetrain()
-              .then(() => {
-                console.log('✅ Model retrained after harvest');
-              })
-              .catch(err => {
-                console.error('❌ Auto-retrain after harvest failed:', err);
-              });
-          } else {
+            // Debounce retraining - only retrain if not already in progress
+            if (!CropPredictionService.currentTraining) {
+              CropPredictionService.autoRetrain()
+                .then(() => {
+                  console.log('✅ Model retrained after harvest');
+                  // Mark crop as trained after successful retraining
+                  return firestore.collection('planted_crops').doc(change.doc.id).update({
+                    isTrained: true,
+                    trainedAt: new Date()
+                  });
+                })
+                .then(() => {
+                  console.log('✅ Crop marked as trained:', change.doc.id);
+                })
+                .catch(err => {
+                  console.error('❌ Auto-retrain or marking failed:', err);
+                });
+            } else {
+              console.log('⏳ Training already in progress, skipping auto-retrain for:', change.doc.id);
+            }
+          } else if (data.isTrained === true) {
             console.log('ℹ️ Crop already used for training:', change.doc.id);
+          } else {
+            console.log('ℹ️ Crop not eligible for training (missing data):', change.doc.id);
           }
         }
       });
@@ -33,6 +51,6 @@ function initPlantedCropsListener() {
     });
 }
 
-module.exports = { initPlantedCropsListener }; 
+module.exports = { initPlantedCropsListener };
 
 
