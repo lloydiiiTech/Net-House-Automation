@@ -12,152 +12,323 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #2a7f62;
-            --alt-accent: #17a2b8;
-            --card-shadow: 0 12px 32px rgba(42,127,98,0.12);
-            --radius: 18px;
+            --primary-color: #1e3a5f; /* Deep navy for primary */
+            --secondary-color: #2d5a3d; /* Rich green */
+            --accent-color: #4caf50; /* Vibrant green accent */
+            --alt-accent: #2196f3; /* Blue accent */
+            --light-bg: #f8f9fa; /* Light background */
+            --dark-bg: #343a40; /* Dark background */
+            --text-primary: #212529; /* Primary text */
+            --text-secondary: #6c757d; /* Secondary text */
+            --text-light: #ffffff; /* Light text */
+            --border-color: #e9ecef; /* Border color */
+            --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+            --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15); /* Medium shadow */
+            --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2); /* Heavy shadow */
+            --radius-small: 8px; /* Small radius */
+            --radius-medium: 12px; /* Medium radius */
+            --radius-large: 16px; /* Large radius */
+            --transition: all 0.3s ease; /* Smooth transitions */
         }
+
         body {
-            background: linear-gradient(135deg, #f5faf7 0%, #e8f0fb 100%);
-            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
         }
+
         .page-title {
             color: var(--primary-color);
             font-weight: 700;
+            font-size: 2rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
+
         .summary-bar {
-            background: linear-gradient(120deg, #2a7f62 0%, #1a5f4a 100%);
-            color: #fff;
-            border-radius: var(--radius);
-            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--text-light);
+            border-radius: var(--radius-large);
+            padding: 1.5rem 2rem;
             display: flex;
             flex-wrap: wrap;
-            gap: 1.5rem;
-            box-shadow: var(--card-shadow);
+            gap: 2rem;
+            box-shadow: var(--shadow-medium);
+            margin-bottom: 2rem;
         }
+
         .summary-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.05rem;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
+
         .summary-item .badge {
-            background: rgba(255,255,255,0.15);
-            border-radius: 999px;
-            padding: 0.35rem 0.9rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-medium);
+            padding: 0.5rem 1rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-light);
+            box-shadow: var(--shadow-light);
         }
+
         .info-card {
-            background: #fff;
-            border-radius: var(--radius);
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
+            background: var(--text-light);
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-medium);
+            padding: 2rem;
             height: 100%;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
         }
+
+        .info-card:hover {
+            box-shadow: var(--shadow-heavy);
+            transform: translateY(-2px);
+        }
+
         .info-card h5 {
             font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
         }
+
         .recommendation-section {
-            margin-top: 2rem;
+            margin-top: 3rem;
         }
+
         .recommendation-header {
-            background: linear-gradient(120deg, #2a7f62 0%, #1a5f4a 100%);
-            color: #fff;
-            border-radius: var(--radius) var(--radius) 0 0;
-            padding: 1.1rem 1.5rem;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--text-light);
+            border-radius: var(--radius-large) var(--radius-large) 0 0;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(--shadow-medium);
         }
+
         .recommendation-grid {
-            background: #fff;
-            border-radius: 0 0 var(--radius) var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--card-shadow);
+            background: var(--text-light);
+            border-radius: 0 0 var(--radius-large) var(--radius-large);
+            padding: 2rem;
+            box-shadow: var(--shadow-medium);
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-top: none;
         }
+
         .recommendation-card {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: center;
-            border: 1px solid #e3ece7;
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            padding: 1.5rem 2rem;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            transition: var(--transition);
+            background: var(--light-bg);
         }
+
         .recommendation-card:hover {
-            transform: translateY(-2px);
-            border-color: #2a7f62;
-            box-shadow: 0 6px 20px rgba(42,127,98,0.18);
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: var(--shadow-heavy);
+            background: var(--text-light);
         }
+
         .crop-rank {
-            width: 52px;
-            height: 52px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: #2a7f62;
-            color: #fff;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-light);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-light);
         }
+
         .crop-name {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            color: #2a7f62;
+            color: var(--secondary-color);
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.75rem;
         }
+
         .crop-status {
-            padding: 0.2rem 0.8rem;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            color: #fff;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-small);
+            font-size: 0.9rem;
+            color: var(--text-light);
             font-weight: 600;
+            text-transform: uppercase;
         }
-        .crop-status.registered { background: #28a745; }
-        .crop-status.unregistered { background: #17a2b8; }
+
+        .crop-status.registered {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .crop-status.unregistered {
+            background: linear-gradient(135deg, #17a2b8 0%, #00bcd4 100%);
+        }
+
         .crop-match {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            margin-top: 0.3rem;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
         }
+
         .match-bar {
-            width: 140px;
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
+            width: 160px;
+            height: 10px;
+            background: var(--border-color);
+            border-radius: var(--radius-small);
             overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
+
         .match-bar-inner {
             height: 100%;
-            border-radius: 4px;
-            background: #2a7f62;
+            border-radius: var(--radius-small);
+            background: linear-gradient(90deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+            transition: width 0.5s ease;
         }
+
         .empty-state {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 3rem 1.5rem;
+            background: var(--text-light);
+            border-radius: var(--radius-large);
+            padding: 4rem 2rem;
             text-align: center;
-            box-shadow: var(--card-shadow);
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
         }
+
+        .pagination .page-link {
+            color: var(--primary-color);
+            border-color: var(--border-color);
+            border-radius: var(--radius-small);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--accent-color);
+            color: var(--text-light);
+            border-color: var(--accent-color);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .modal-content {
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-heavy);
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--text-light);
+            border-radius: var(--radius-large) var(--radius-large) 0 0;
+            border-bottom: none;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .table {
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .table th, .table td {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress {
+            border-radius: var(--radius-small);
+            background: var(--border-color);
+            height: 12px;
+        }
+
+        .progress-bar {
+            border-radius: var(--radius-small);
+            transition: width 0.5s ease;
+        }
+
         @media (max-width: 768px) {
-            .summary-bar { flex-direction: column; align-items: flex-start; }
-            .recommendation-card { flex-direction: column; align-items: flex-start; }
+            .summary-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .recommendation-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .page-title {
+                font-size: 1.5rem;
+            }
+            .info-card, .recommendation-grid {
+                padding: 1.5rem;
+            }
+            .crop-rank {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            .crop-name {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .summary-bar {
+                padding: 1rem;
+            }
+            .recommendation-header, .recommendation-grid {
+                padding: 1rem;
+            }
+            .modal-body {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -216,6 +387,8 @@
                             <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
                             <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
                             <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
+                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+
                             <li><a class="dropdown-item" href="/report-ai-disease">AI Disease & Fertilizer</a></li>
                         </ul>
                     </li>
@@ -277,7 +450,7 @@
                         <div class="col-lg-6 mb-3">
                             <div class="info-card h-100">
                                 <h5><i class="fa fa-thermometer-half mr-2 text-success"></i>Sensor Snapshot</h5>
-                                <% const sensorEntries = Object.entries(currentPrediction.sensorData || {}); %>
+                                <% const sensorEntries = Object.entries(currentPrediction.sensorData || {}).filter(([key]) => !['periodStart', 'periodEnd', 'dataPoints'].includes(key)); %>
                                 <% if (!sensorEntries.length) { %>
                                     <p class="text-muted mb-0">No sensor data stored for this run.</p>
                                 <% } else { %>
@@ -294,76 +467,26 @@
                                 <% } %>
                             </div>
                         </div>
-                        <div class="col-lg-6 mb-3">
-                            <div class="info-card h-100 d-flex flex-column">
-                                <h5><i class="fa fa-info-circle mr-2 text-primary"></i>Run Notes</h5>
-                                <p class="text-muted mb-3"><%= currentPrediction.notes || 'No notes recorded for this prediction.' %></p>
-                                <div class="mt-auto">
-                                    <table class="table table-borderless mb-0">
-                                        <tbody>
-                                            <tr>
-                                                <td>Document ID</td>
-                                                <td><code><%= currentPrediction.id %></code></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Timestamp</td>
-                                                <td><%= currentPrediction.displayDate %></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div id="prediction-data" data-prediction='<%- JSON.stringify(currentPrediction) %>'></div>
 
                     <section class="recommendation-section">
                         <div class="recommendation-header">
-                            <span><i class="fa fa-check-circle mr-2"></i>Top 5 Registered Crops</span>
-                            <span class="badge badge-light text-dark"><%= currentPrediction.top5Registered.length %> entries</span>
+                            <span><i class="fa fa-check-circle mr-2"></i>Top Recommendations</span>
+                            <span class="badge badge-light text-dark"><%= (currentPrediction.top5Overall || []).length %> entries</span>
                         </div>
                         <div class="recommendation-grid">
-                            <% if (!currentPrediction.top5Registered.length) { %>
-                                <div class="alert alert-info mb-0"><i class="fa fa-info-circle mr-2"></i>No registered crops for this prediction.</div>
+                            <% if (!(currentPrediction.top5Overall || []).length) { %>
+                                <div class="alert alert-info mb-0"><i class="fa fa-info-circle mr-2"></i>No recommendations for this prediction.</div>
                             <% } else { %>
-                                <% currentPrediction.top5Registered.forEach(function(crop, idx) { %>
-                                    <div class="recommendation-card" onclick="openCropModal('registered', <%= idx %>)">
+                                <% (currentPrediction.top5Overall || []).forEach(function(crop, idx) { %>
+                                    <div class="recommendation-card" onclick="openCropModal('combined', <%= idx %>)">
                                         <div class="crop-rank"><%= idx + 1 %></div>
                                         <div class="w-100">
                                             <div class="crop-name">
-                                            <%= crop.name %>
-                                                <span class="crop-status registered">Registered</span>
-                                            </div>
-                                            <div class="crop-match">
-                                                <div class="match-bar">
-                                                    <div class="match-bar-inner" style="width:<%= Math.min(100, Math.round(crop.score || crop.ruleBasedScore || 0)) %>%"></div>
-                                                </div>
-                                                <span><%= Math.round(crop.score || crop.ruleBasedScore || 0) %>% Match</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            <% } %>
-                        </div>
-                    </section>
-
-                    <section class="recommendation-section">
-                        <div class="recommendation-header" style="background: linear-gradient(120deg,#17a2b8 0%,#117a8b 100%);">
-                            <span><i class="fa fa-lightbulb mr-2"></i>Top 5 Unregistered Crops</span>
-                            <span class="badge badge-light text-dark"><%= currentPrediction.top5Unregistered.length %> entries</span>
-                        </div>
-                        <div class="recommendation-grid">
-                            <% if (!currentPrediction.top5Unregistered.length) { %>
-                                <div class="alert alert-info mb-0"><i class="fa fa-info-circle mr-2"></i>No unregistered crops were suggested.</div>
-                            <% } else { %>
-                                <% currentPrediction.top5Unregistered.forEach(function(crop, idx) { %>
-                                    <div class="recommendation-card" onclick="openCropModal('unregistered', <%= idx %>)">
-                                        <div class="crop-rank" style="background:#17a2b8;"><%= idx + 1 %></div>
-                                        <div class="w-100">
-                                            <div class="crop-name">
                                                 <%= crop.name %>
-                                                <span class="crop-status unregistered">Unregistered</span>
+                                                <span class="crop-status <%= crop.status %>"><%= crop.status === 'registered' ? 'Registered' : 'Unregistered' %></span>
                                             </div>
                                             <div class="crop-match">
                                                 <div class="match-bar">
@@ -424,8 +547,6 @@
                                     <tr><td>Name:</td><td id="cropNameCell"></td></tr>
                                     <tr><td>Status:</td><td><span id="cropStatusBadge" class="badge"></span></td></tr>
                                     <tr><td>Priority Level:</td><td id="cropPriority"></td></tr>
-                                    <tr><td>Last Updated:</td><td id="cropLastUpdated"></td></tr>
-                                    <tr><td>Summary:</td><td id="cropSummary"></td></tr>
                                 </table>
                             </div>
                             <div class="col-md-6">
@@ -433,8 +554,6 @@
                                 <table class="table table-sm">
                                     <tr><td>Overall Match:</td><td id="cropOverallMatch"></td></tr>
                                     <tr><td>ML Score:</td><td id="cropMlScore"></td></tr>
-                                    <tr><td>Rule‑based Score:</td><td id="cropRuleScore"></td></tr>
-                                    <tr><td>Registered Boost:</td><td id="cropBoost"></td></tr>
                                     <tr><td>Best Match Param:</td><td id="cropBestMatch"></td></tr>
                                     <tr><td>Needs Attention:</td><td id="cropWorstMatch"></td></tr>
                                 </table>
@@ -490,26 +609,29 @@
 
         function openCropModal(type, index) {
             if (!predictionData) return;
-            const list = type === 'registered' ? predictionData.top5Registered : predictionData.top5Unregistered;
+            const list = type === 'combined' ? predictionData.top5Overall : (type === 'registered' ? predictionData.top5Registered : predictionData.top5Unregistered);
             const crop = list && list[index];
             if (!crop) return;
 
             $('#cropModalTitle').text(crop.name);
+            document.getElementById('cropNameCell').textContent = crop.name;
             const statusBadge = document.getElementById('cropStatusBadge');
-            statusBadge.className = \`badge badge-\${type === 'registered' ? 'success' : 'info'}\`;
-            statusBadge.textContent = type === 'registered' ? 'Registered' : 'Unregistered';
+            statusBadge.className = `badge badge-${crop.status === 'registered' ? 'success' : 'info'}`;
+            statusBadge.textContent = crop.status === 'registered' ? 'Registered' : 'Unregistered';
+
+            document.getElementById('cropPriority').textContent = crop.priorityLevel || 'N/A';
+            document.getElementById('cropMlScore').textContent = crop.mlScore || 'N/A';
 
             const score = Math.round(crop.score || crop.ruleBasedScore || 0);
-            document.getElementById('cropOverallMatch').textContent = \`\${score}%\`;
-            document.getElementById('cropSummary').textContent = crop.summary || 'No summary provided.';
+            document.getElementById('cropOverallMatch').textContent = `${score}%`;
 
             const matches = crop.parameterMatches || {};
             const matchEntries = Object.entries(matches).filter(([, value]) => typeof value === 'number');
             const bestMatch = matchEntries.reduce((best, current) => current[1] > best[1] ? current : best, ['', 0]);
             const worstMatch = matchEntries.reduce((worst, current) => current[1] < worst[1] ? current : worst, ['', 100]);
 
-            document.getElementById('cropBestMatch').textContent = bestMatch[0] ? \`\${bestMatch[0].replace('npk_', '').toUpperCase()} (\${Math.round(bestMatch[1])}%)\` : '--';
-            document.getElementById('cropWorstMatch').textContent = worstMatch[0] ? \`\${worstMatch[0].replace('npk_', '').toUpperCase()} (\${Math.round(worstMatch[1])}%)\` : '--';
+            document.getElementById('cropBestMatch').textContent = bestMatch[0] ? `${bestMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(bestMatch[1])}%)` : '--';
+            document.getElementById('cropWorstMatch').textContent = worstMatch[0] ? `${worstMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(worstMatch[1])}%)` : '--';
 
             document.getElementById('optimalConditionsContainer').innerHTML = renderKeyValueTable(crop.optimalConditions);
 
@@ -534,5 +656,5 @@
         }
     </script>
 </body>
-</html>
+</html>  
 

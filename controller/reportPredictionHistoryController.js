@@ -83,6 +83,17 @@ exports.predictionHistoryReport = async (req, res) => {
             normalizeCropEntry(crop, idx, 'unregistered')
         );
 
+        // Use top5Overall directly from Firestore
+        const top5Overall = (predictions.top5Overall || []).map((crop, idx) =>
+            normalizeCropEntry(crop, idx, crop.isRegistered ? 'registered' : 'unregistered')
+        );
+
+        // Combine and sort top recommendations by score descending, take top 5 overall
+        const allCrops = [...top5Registered, ...top5Unregistered];
+        const topRecommendations = allCrops
+            .sort((a, b) => (b.score || 0) - (a.score || 0))
+            .slice(0, 5);
+
         const currentPrediction = {
             id: doc.id,
             timestampISO: timestamp ? timestamp.toISOString() : null,
@@ -101,6 +112,7 @@ exports.predictionHistoryReport = async (req, res) => {
             modelVersion: rawData.modelVersion || rawData.model_version || 'N/A',
             top5Registered,
             top5Unregistered,
+            top5Overall,// Add combined list
             stats: {
                 registeredCount: top5Registered.length,
                 unregisteredCount: top5Unregistered.length,
@@ -108,6 +120,7 @@ exports.predictionHistoryReport = async (req, res) => {
             }
         };
 
+        console.log(currentPrediction);
         res.render('admin/report-prediction-history', {
             user: req.session.user,
             currentPrediction,
