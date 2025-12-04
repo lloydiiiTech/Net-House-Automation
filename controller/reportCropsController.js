@@ -14,7 +14,7 @@ exports.cropsReport = async (req, res) => {
                 successRate: typeof data.successRate === 'number' ? data.successRate : 0,
                 numberFailed: typeof data.numberFailed === 'number' ? data.numberFailed : 0,
                 numberPlanted: typeof data.numberPlanted === 'number' ? data.numberPlanted : 0,
-                lastPlanted: data.lastPlanted,
+                lastPlanted: data.lastPlanted ? data.lastPlanted.toDate().toLocaleString() : null,
                 // Include optimal data for the modal
                 optimal_humidity: typeof data.optimal_humidity === 'number' ? data.optimal_humidity : 0,
                 optimal_temperature: typeof data.optimal_temperature === 'number' ? data.optimal_temperature : 0,
@@ -323,5 +323,5 @@ async function getAIOptimalConditions(cropName) {
         npk_P: 20,
         npk_K: 25
     };
-} 
+}
 

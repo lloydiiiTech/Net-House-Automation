@@ -238,15 +238,6 @@
                                                         </div>
                                                         <div class="info-item">
                                                             <div class="info-icon">
-                                                                <i class="fas fa-clock"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Expected Harvest</div>
-                                                                <div class="info-value" id="harvestDate"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
                                                                 <i class="fas fa-leaf"></i>
                                                             </div>
                                                             <div class="info-content">
@@ -254,6 +245,16 @@
                                                                 <div class="info-value" id="growthStage"></div>
                                                             </div>
                                                         </div>
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-clock"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Health Status</div>
+                                                                <div class="info-value" id="healthStatus"></div>
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <div class="info-item">
                                                             <div class="info-icon">
                                                                 <i class="fas fa-chart-line"></i>
@@ -2322,9 +2323,9 @@
             // Update crop details
             document.getElementById('cropName').textContent = cropData.name;
             document.getElementById('plantedDate').textContent = formatDate(cropData.startDate);
-            document.getElementById('harvestDate').textContent = formatDate(cropData.expectedHarvest);
+            document.getElementById('healthStatus').textContent = cropData.healthStatus;
             document.getElementById('growthStage').textContent = cropData.growthStage;
-            document.getElementById('healthScore').textContent = `${cropData.score}%`;
+            document.getElementById('healthScore').textContent = `${cropData.healthScore}%`;
 
             // Update optimal conditions
             const optimal = cropData.optimalConditions;

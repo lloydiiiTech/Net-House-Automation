@@ -52,6 +52,56 @@ function getStatusColor(type, value) {
     return 'success';
 }
 
+// Function to compute crop health score and status based on sensor summaries and optimal conditions
+function computeCropHealth(sensorSummary, optimalConditions) {
+    if (!sensorSummary || !optimalConditions) {
+        return { score: null, status: 'Unknown' };
+    }
+
+    const params = [
+        { key: 'temperature', summaryKey: 'temperature', weight: 20, tolerance: 5 }, // ±5°C, high weight
+        { key: 'humidity', summaryKey: 'humidity', weight: 15, tolerance: 10 }, // ±10%, medium weight
+        { key: 'moisture', summaryKey: 'moistureAve', weight: 20, tolerance: 20 }, // ±20%, high weight
+        { key: 'ph', summaryKey: 'ph', weight: 25, tolerance: 0.5 }, // ±0.5 pH, highest weight
+        { key: 'npk_N', summaryKey: 'nitrogen', weight: 10, tolerance: null }, // Percentage-based, medium weight
+        { key: 'npk_P', summaryKey: 'phosphorus', weight: 5, tolerance: null }, // Percentage-based, low weight
+        { key: 'npk_K', summaryKey: 'potassium', weight: 5, tolerance: null }, // Percentage-based, low weight
+        { key: 'light', summaryKey: 'light', weight: 0, tolerance: null } // Excluded from scoring
+    ];
+
+    let totalWeightedScore = 0;
+    let totalWeight = 0;
+
+    params.forEach(param => {
+        const optimal = optimalConditions[param.key];
+        const summaryVal = sensorSummary[param.summaryKey]?.average;
+        if (typeof optimal === 'number' && typeof summaryVal === 'number' && param.weight > 0) {
+            const deviation = Math.abs(summaryVal - optimal);
+            let tolerance = param.tolerance;
+            if (tolerance === null) {
+                // For NPK, use percentage tolerance
+                tolerance = optimal * 0.25; // 25% for N, 20% for P/K handled below
+                if (param.key === 'npk_P' || param.key === 'npk_K') {
+                    tolerance = optimal * 0.20;
+                }
+            }
+            // Calculate score: 100 if at optimal, decreasing linearly to 0 at tolerance limit
+            const score = Math.max(0, 100 - (deviation / tolerance) * 100);
+            totalWeightedScore += param.weight * score;
+            totalWeight += param.weight;
+        }
+    });
+
+    const overallScore = totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0;
+    let status;
+    // Define health status based on overall score
+    if (overallScore >= 80) status = 'Good'; // Excellent conditions
+    else if (overallScore >= 60) status = 'Warning'; // Needs attention
+    else status = 'Critical'; // Immediate action required
+
+    return { score: overallScore, status };
+}
+
 // Add these new functions for automation control
 async function checkAndStartAutomatedIrrigation(moisture, optimalMoisture) {
     // Calculate the threshold (5-7% below optimal)
@@ -224,18 +274,33 @@ async function getCurrentCrop() {
             growthStage = "Vegetative";
         }
 
-        // Calculate expected harvest date (assuming 90 days growth cycle)
-        const expectedHarvest = new Date(startDate);
-        expectedHarvest.setDate(expectedHarvest.getDate() + 90);
+        // Calculate health score and status based on latest sensor summaries
+        let healthScore = null;
+        let healthStatus = 'Unknown';
+        try {
+            const summarySnap = await firestore.collection('sensor_summaries')
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+            if (!summarySnap.empty && cropData.optimalConditions) {
+                const summary = summarySnap.docs[0].data();
+                const health = computeCropHealth(summary, cropData.optimalConditions);
+                healthScore = health.score;
+                healthStatus = health.status;
+            }
+        } catch (err) {
+            console.error('Error computing health score/status:', err);
+        }
 
         return {
             name: cropData.name,
-            startDate: startDate,
-            expectedHarvest: expectedHarvest,
+            plantingDate: startDate.toISOString(),
             growthStage: growthStage,
             optimalConditions: cropData.optimalConditions,
             parameterMatches: cropData.parameterMatches,
-            score: cropData.score
+            score: cropData.score,
+            healthScore: healthScore,
+            healthStatus: healthStatus
         };
     } catch (error) {
         console.error("Error fetching current crop:", error);
@@ -1027,4 +1092,4 @@ function initializeIrrigationListener() {
     }, (error) => {
         console.error('Error listening to irrigation records:', error);
     });
-} 
+}

@@ -56,6 +56,56 @@ exports.initFirebaseListener = (io) => {
     });
 };
 
+// Function to compute crop health score and status based on sensor summaries and optimal conditions
+function computeCropHealth(sensorSummary, optimalConditions) {
+    if (!sensorSummary || !optimalConditions) {
+        return { score: null, status: 'Unknown' };
+    }
+
+    const params = [
+        { key: 'temperature', summaryKey: 'temperature', weight: 20, tolerance: 5 }, // ±5°C, high weight
+        { key: 'humidity', summaryKey: 'humidity', weight: 15, tolerance: 10 }, // ±10%, medium weight
+        { key: 'moisture', summaryKey: 'moistureAve', weight: 20, tolerance: 20 }, // ±20%, high weight
+        { key: 'ph', summaryKey: 'ph', weight: 25, tolerance: 0.5 }, // ±0.5 pH, highest weight
+        { key: 'npk_N', summaryKey: 'nitrogen', weight: 10, tolerance: null }, // Percentage-based, medium weight
+        { key: 'npk_P', summaryKey: 'phosphorus', weight: 5, tolerance: null }, // Percentage-based, low weight
+        { key: 'npk_K', summaryKey: 'potassium', weight: 5, tolerance: null }, // Percentage-based, low weight
+        { key: 'light', summaryKey: 'light', weight: 0, tolerance: null } // Excluded from scoring
+    ];
+
+    let totalWeightedScore = 0;
+    let totalWeight = 0;
+
+    params.forEach(param => {
+        const optimal = optimalConditions[param.key];
+        const summaryVal = sensorSummary[param.summaryKey]?.average;
+        if (typeof optimal === 'number' && typeof summaryVal === 'number' && param.weight > 0) {
+            const deviation = Math.abs(summaryVal - optimal);
+            let tolerance = param.tolerance;
+            if (tolerance === null) {
+                // For NPK, use percentage tolerance
+                tolerance = optimal * 0.25; // 25% for N, 20% for P/K handled below
+                if (param.key === 'npk_P' || param.key === 'npk_K') {
+                    tolerance = optimal * 0.20;
+                }
+            }
+            // Calculate score: 100 if at optimal, decreasing linearly to 0 at tolerance limit
+            const score = Math.max(0, 100 - (deviation / tolerance) * 100);
+            totalWeightedScore += param.weight * score;
+            totalWeight += param.weight;
+        }
+    });
+
+    const overallScore = totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0;
+    let status;
+    // Define health status based on overall score
+    if (overallScore >= 80) status = 'Good'; // Excellent conditions
+    else if (overallScore >= 60) status = 'Warning'; // Needs attention
+    else status = 'Critical'; // Immediate action required
+
+    return { score: overallScore, status };
+}
+
 // Dashboard controller
 
 exports.Dashboard = async (req, res) => {
@@ -130,33 +180,9 @@ exports.Dashboard = async (req, res) => {
                     .get();
                 if (!summarySnap.empty && cropInfo.optimalConditions) {
                     const summary = summarySnap.docs[0].data();
-                    let totalParams = 0;
-                    let goodParams = 0;
-                    const params = [
-                        { key: 'temperature', summaryKey: 'temperature' },
-                        { key: 'humidity', summaryKey: 'humidity' },
-                        { key: 'moisture', summaryKey: 'moistureAve' },
-                        { key: 'light', summaryKey: 'light' },
-                        { key: 'npk_N', summaryKey: 'nitrogen' },
-                        { key: 'npk_P', summaryKey: 'phosphorus' },
-                        { key: 'npk_K', summaryKey: 'potassium' },
-                        { key: 'ph', summaryKey: 'ph' }
-                    ];
-                    params.forEach(param => {
-                        const optimal = cropInfo.optimalConditions[param.key];
-                        const summaryVal = summary[param.summaryKey]?.average;
-                        if (typeof optimal === 'number' && typeof summaryVal === 'number') {
-                            totalParams++;
-                            if (Math.abs(summaryVal - optimal) / optimal <= 0.15) {
-                                goodParams++;
-                            }
-                        }
-                    });
-                    const ratio = totalParams > 0 ? goodParams / totalParams : 0;
-                    healthScore = Math.round(ratio * 100);
-                    if (ratio >= 0.75) healthStatus = 'Good';
-                    else if (ratio >= 0.5) healthStatus = 'Warning';
-                    else healthStatus = 'Critical';
+                    const health = computeCropHealth(summary, cropInfo.optimalConditions);
+                    healthScore = health.score;
+                    healthStatus = health.status;
                 }
             } catch (err) {
                 console.error('Error computing health score/status:', err);
@@ -619,9 +645,24 @@ exports.getCurrentCrop = async (req, res) => {
             growthStage = "Vegetative";
         }
 
-        // Calculate health score and status based on sensor data
-        const healthScore = calculateHealthScore(sensorData, cropData.optimalConditions);
-        const healthStatus = getHealthStatus(healthScore);
+        // Calculate health score and status based on latest sensor summaries
+        let healthScore = null;
+        let healthStatus = 'Unknown';
+        try {
+            const summarySnap = await admin.firestore()
+                .collection('sensor_summaries')
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .get();
+            if (!summarySnap.empty && cropData.optimalConditions) {
+                const summary = summarySnap.docs[0].data();
+                const health = computeCropHealth(summary, cropData.optimalConditions);
+                healthScore = health.score;
+                healthStatus = health.status;
+            }
+        } catch (err) {
+            console.error('Error computing health score/status:', err);
+        }
 
         const cropInfo = {
             name: cropData.name,

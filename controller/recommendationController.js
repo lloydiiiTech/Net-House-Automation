@@ -38,14 +38,16 @@ exports.confirmCropSelection = async (req, res) => {
           const currentNumberPlanted = existingCropData.numberPlanted || 0;
           
           await cropDoc.ref.update({ 
-            numberPlanted: currentNumberPlanted + 1 
+            numberPlanted: currentNumberPlanted + 1,
+            lastPlanted: admin.firestore.FieldValue.serverTimestamp()
           });
         } else {
           // Crop doesn't exist in crops collection, create it with numberPlanted = 1
           await firestore.collection('crops').add({
             name: cropData.name,
             isRegistered: true,
-            numberPlanted: 1
+            numberPlanted: 1,
+            lastPlanted: admin.firestore.FieldValue.serverTimestamp()
           });
         }
       } catch (cropUpdateError) {
@@ -53,10 +55,25 @@ exports.confirmCropSelection = async (req, res) => {
         // Continue with planting even if crop update fails
       }
   
+      // Convert optimalConditions to numbers if present
+      const processedCropData = { ...cropData };
+      if (processedCropData.optimalConditions) {
+        processedCropData.optimalConditions = {
+          temperature: Number(processedCropData.optimalConditions.temperature),
+          humidity: Number(processedCropData.optimalConditions.humidity),
+          moisture: Number(processedCropData.optimalConditions.moisture),
+          ph: Number(processedCropData.optimalConditions.ph),
+          light: Number(processedCropData.optimalConditions.light),
+          npk_N: Number(processedCropData.optimalConditions.npk_N),
+          npk_P: Number(processedCropData.optimalConditions.npk_P),
+          npk_K: Number(processedCropData.optimalConditions.npk_K)
+        };
+      }
+  
       // Create new planted crop
       const plantedCropRef = firestore.collection('planted_crops').doc();
       await plantedCropRef.set({
-        ...cropData,
+        ...processedCropData,
         startDate: admin.firestore.FieldValue.serverTimestamp(),
         endDate: null,
         status: 'active',
@@ -274,7 +291,7 @@ exports.plantCrop = async (req, res) => {
                 
                 await cropDoc.ref.update({ 
                     numberPlanted: currentNumberPlanted + 1,
-                    lastPlanted: admin.firestore.Timestamp.now()
+                    lastPlanted: admin.firestore.FieldValue.serverTimestamp()
                 });
             } else {
                 // Crop doesn't exist in crops collection, create it with numberPlanted = 1
@@ -282,7 +299,7 @@ exports.plantCrop = async (req, res) => {
                     name: crop.name,
                     isRegistered: true,
                     numberPlanted: 1,
-                    lastPlanted: admin.firestore.Timestamp.now()
+                    lastPlanted: admin.firestore.FieldValue.serverTimestamp()
                 });
             }
         } catch (cropUpdateError) {
@@ -290,22 +307,37 @@ exports.plantCrop = async (req, res) => {
             // Continue with planting even if crop update fails
         }
 
+        // Convert optimalConditions to numbers if present
+        const processedCrop = { ...crop };
+        if (processedCrop.optimalConditions) {
+            processedCrop.optimalConditions = {
+                temperature: Number(processedCrop.optimalConditions.temperature),
+                humidity: Number(processedCrop.optimalConditions.humidity),
+                moisture: Number(processedCrop.optimalConditions.moisture),
+                ph: Number(processedCrop.optimalConditions.ph),
+                light: Number(processedCrop.optimalConditions.light),
+                npk_N: Number(processedCrop.optimalConditions.npk_N),
+                npk_P: Number(processedCrop.optimalConditions.npk_P),
+                npk_K: Number(processedCrop.optimalConditions.npk_K)
+            };
+        }
+
         // Prepare planted crop data
         const plantedCrop = {
-            name: crop.name,
-            optimalConditions: crop.optimalConditions || {},
-            parameterMatches: crop.parameterMatches || {},
-            score: crop.score || crop.ruleBasedScore || null,
-            ruleBasedScore: crop.ruleBasedScore || null,
+            name: processedCrop.name,
+            optimalConditions: processedCrop.optimalConditions || {},
+            parameterMatches: processedCrop.parameterMatches || {},
+            score: processedCrop.score || processedCrop.ruleBasedScore || null,
+            ruleBasedScore: processedCrop.ruleBasedScore || null,
             status: 'active',
             startDate: admin.firestore.FieldValue.serverTimestamp(),
             endDate: null,
             userId: user.uid,
             userEmail: user.email,
             userName: user.name,
-            isRegistered: crop.isRegistered || false,
-            lastUpdated: crop.lastUpdated || null,
-            mlScore: crop.mlScore || null
+            isRegistered: processedCrop.isRegistered || false,
+            lastUpdated: processedCrop.lastUpdated || null,
+            mlScore: processedCrop.mlScore || null
         };
         await firestore.collection('planted_crops').add(plantedCrop);
         return res.json({ success: true, message: 'Crop planted successfully.' });
@@ -510,27 +542,39 @@ exports.getCropDetails = async (req, res) => {
         const cropDoc = cropQuery.docs[0];
         const cropData = cropDoc.data();
         
+        // Format lastPlanted timestamp if it exists
+        if (cropData.lastPlanted) {
+            const date = cropData.lastPlanted.toDate();
+            const dateString = date.toLocaleDateString('en-US', { timeZone: 'Etc/GMT-8', year: 'numeric', month: 'long', day: 'numeric' });
+            const timeString = date.toLocaleTimeString('en-US', { timeZone: 'Etc/GMT-8', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+            cropData.lastPlanted = `${dateString} at ${timeString} UTC+8`;
+        }
+        
         // Create crop object with data from crops collection
         const crop = {
             name: cropName,
             id: cropDoc.id,
             isRegistered: cropData.isRegistered || true,
-            optimalConditions: cropData.optimalConditions || getDefaultOptimalConditions(cropName),
+            optimalConditions: cropData.optimalConditions,
             score: 0,
             ruleBasedScore: 0
         };
 
+        // Convert optimalConditions to numbers for calculation
+        const optimalConditions = cropData.optimalConditions || {};
+        const numericOptimal = {
+            optimal_n: Number(optimalConditions.npk_N),
+            optimal_p: Number(optimalConditions.npk_P),
+            optimal_k: Number(optimalConditions.npk_K),
+            optimal_temperature: Number(optimalConditions.temperature),
+            optimal_humidity: Number(optimalConditions.humidity),
+            optimal_moisture: Number(optimalConditions.moisture),
+            optimal_ph: Number(optimalConditions.ph),
+            optimal_light: Number(optimalConditions.light)
+        };
+
         // Use the same calculateScore logic as cropPredictionService for consistency
-        const { suitability, parameterMatches } = calculateScore(sensorData, {
-            optimal_n: crop.optimalConditions.npk_N,
-            optimal_p: crop.optimalConditions.npk_P,
-            optimal_k: crop.optimalConditions.npk_K,
-            optimal_temperature: crop.optimalConditions.temperature,
-            optimal_humidity: crop.optimalConditions.humidity,
-            optimal_moisture: crop.optimalConditions.moisture,
-            optimal_ph: crop.optimalConditions.ph,
-            optimal_light: crop.optimalConditions.light
-        });
+        const { suitability, parameterMatches } = calculateScore(sensorData, numericOptimal);
 
         // Apply penalty if the crop is not in the top 5 recommendations
         let adjustedSuitability = suitability;
@@ -540,35 +584,14 @@ exports.getCropDetails = async (req, res) => {
             adjustedSuitability = Math.max(0, suitability - penalty);
         }
 
-        // Calculate parameter analysis for detailed recommendations
-        const parameterAnalysis = {};
-        Object.entries(parameterMatches).forEach(([param, match]) => {
-            const optimal = crop.optimalConditions[param.replace('npk_', '').toUpperCase()] || crop.optimalConditions[param];
-            const current = sensorData[param.replace('npk_', '')] || sensorData[param];
-            parameterAnalysis[param] = {
-                optimal,
-                current,
-                match,
-                status: getParameterStatus(match),
-                recommendation: getParameterRecommendation(param, optimal, current, match)
-            };
-        });
-
         res.json({
             success: true,
             crop: {
                 ...crop,
                 parameterMatches,
-                parameterAnalysis,
                 sensorData,
                 cropDetails: cropData,
-                overallMatch: Math.round(adjustedSuitability), // Use adjusted suitability as overallMatch
-                analysis: {
-                    bestParameter: getBestParameter(parameterMatches),
-                    worstParameter: getWorstParameter(parameterMatches),
-                    criticalIssues: getCriticalIssues(parameterAnalysis),
-                    recommendations: getOverallRecommendations(parameterAnalysis)
-                }
+                overallMatch: Math.round(adjustedSuitability)
             }
         });
 
@@ -604,9 +627,21 @@ exports.updateCropOptimalConditions = async (req, res) => {
             });
         }
         
+        // Convert optimal conditions to numbers
+        const numericOptimalConditions = {
+            temperature: Number(optimalConditions.temperature),
+            humidity: Number(optimalConditions.humidity),
+            moisture: Number(optimalConditions.moisture),
+            ph: Number(optimalConditions.ph),
+            light: Number(optimalConditions.light),
+            npk_N: Number(optimalConditions.npk_N),
+            npk_P: Number(optimalConditions.npk_P),
+            npk_K: Number(optimalConditions.npk_K)
+        };
+        
         // Update the crop with optimal conditions
         await firestore.collection('crops').doc(cropId).update({
-            optimalConditions: optimalConditions,
+            optimalConditions: numericOptimalConditions,
             lastUpdated: admin.firestore.FieldValue.serverTimestamp()
         });
         
@@ -621,227 +656,6 @@ exports.updateCropOptimalConditions = async (req, res) => {
     }
 };
 
-// Helper function to get parameter status
-function getParameterStatus(match) {
-    if (match >= 90) return 'excellent';
-    if (match >= 80) return 'good';
-    if (match >= 60) return 'acceptable';
-    if (match >= 40) return 'poor';
-    return 'critical';
-}
 
-// Helper function to get parameter recommendation
-function getParameterRecommendation(paramKey, optimal, current, match) {
-    const currentVal = parseFloat(current);
-    const optimalVal = parseFloat(optimal);
-    
-    if (isNaN(currentVal) || isNaN(optimalVal)) {
-        return 'No data available';
-    }
-    
-    const difference = currentVal - optimalVal;
-    const absDifference = Math.abs(difference);
-    
-    if (match >= 80) {
-        return 'Optimal conditions maintained';
-    }
-    
-    switch (paramKey) {
-        case 'temperature':
-            if (difference > 0) {
-                return `Temperature is ${absDifference.toFixed(1)}°C above optimal. Consider cooling.`;
-            } else {
-                return `Temperature is ${absDifference.toFixed(1)}°C below optimal. Consider heating.`;
-            }
-        case 'humidity':
-            if (difference > 0) {
-                return `Humidity is ${absDifference.toFixed(1)}% above optimal. Consider dehumidification.`;
-            } else {
-                return `Humidity is ${absDifference.toFixed(1)}% below optimal. Consider humidification.`;
-            }
-        case 'moisture':
-            if (difference > 0) {
-                return `Soil moisture is ${absDifference.toFixed(1)}% above optimal. Reduce irrigation.`;
-            } else {
-                return `Soil moisture is ${absDifference.toFixed(1)}% below optimal. Increase irrigation.`;
-            }
-        case 'ph':
-            if (difference > 0) {
-                return `pH is ${absDifference.toFixed(1)} above optimal. Consider acidifying soil.`;
-            } else {
-                return `pH is ${absDifference.toFixed(1)} below optimal. Consider liming soil.`;
-            }
-        case 'light':
-            if (difference > 0) {
-                return `Light intensity is ${absDifference.toFixed(0)} lux above optimal. Consider shading.`;
-            } else {
-                return `Light intensity is ${absDifference.toFixed(0)} lux below optimal. Consider additional lighting.`;
-            }
-        case 'nitrogen':
-        case 'phosphorus':
-        case 'potassium':
-            const nutrient = paramKey.charAt(0).toUpperCase() + paramKey.slice(1);
-            if (difference > 0) {
-                return `${nutrient} is ${absDifference.toFixed(1)} ppm above optimal. Consider reducing fertilization.`;
-            } else {
-                return `${nutrient} is ${absDifference.toFixed(1)} ppm below optimal. Consider fertilization.`;
-            }
-        default:
-            return 'Parameter needs adjustment';
-    }
-}
 
-// Helper function to get best parameter
-function getBestParameter(parameterMatches) {
-    const entries = Object.entries(parameterMatches);
-    if (entries.length === 0) return null;
-    
-    return entries.reduce((a, b) => a[1] > b[1] ? a : b);
-}
-
-// Helper function to get worst parameter
-function getWorstParameter(parameterMatches) {
-    const entries = Object.entries(parameterMatches);
-    if (entries.length === 0) return null;
-    
-    return entries.reduce((a, b) => a[1] < b[1] ? a : b);
-}
-
-// Helper function to get critical issues
-function getCriticalIssues(parameterAnalysis) {
-    const criticalIssues = [];
-    
-    Object.entries(parameterAnalysis).forEach(([param, analysis]) => {
-        if (analysis.match < 40) {
-            criticalIssues.push({
-                parameter: param,
-                issue: analysis.recommendation,
-                severity: 'critical'
-            });
-        } else if (analysis.match < 60) {
-            criticalIssues.push({
-                parameter: param,
-                issue: analysis.recommendation,
-                severity: 'warning'
-            });
-        }
-    });
-    
-    return criticalIssues;
-}
-
-// Helper function to get overall recommendations
-function getOverallRecommendations(parameterAnalysis) {
-    const recommendations = [];
-    const criticalCount = Object.values(parameterAnalysis).filter(a => a.match < 40).length;
-    const warningCount = Object.values(parameterAnalysis).filter(a => a.match >= 40 && a.match < 60).length;
-    
-    if (criticalCount > 0) {
-        recommendations.push(`Immediate attention required for ${criticalCount} critical parameter(s).`);
-    }
-    
-    if (warningCount > 0) {
-        recommendations.push(`${warningCount} parameter(s) need improvement.`);
-    }
-    
-    const avgMatch = Object.values(parameterAnalysis).reduce((sum, a) => sum + a.match, 0) / Object.keys(parameterAnalysis).length;
-    
-    if (avgMatch >= 80) {
-        recommendations.push('Overall conditions are excellent for this crop.');
-    } else if (avgMatch >= 60) {
-        recommendations.push('Conditions are acceptable but could be improved.');
-    } else {
-        recommendations.push('Significant improvements needed for optimal growth.');
-    }
-    
-    return recommendations;
-} 
-
-// Helper function to get default optimal conditions for common crops
-function getDefaultOptimalConditions(cropName) {
-    const cropNameLower = cropName.toLowerCase();
-    
-    // Default optimal conditions for common crops
-    const defaultConditions = {
-        'tomato': {
-            temperature: 25,
-            humidity: 65,
-            moisture: 70,
-            ph: 6.5,
-            light: 5000,
-            npk_N: 150,
-            npk_P: 50,
-            npk_K: 200
-        },
-        'lettuce': {
-            temperature: 20,
-            humidity: 70,
-            moisture: 80,
-            ph: 6.0,
-            light: 3000,
-            npk_N: 100,
-            npk_P: 40,
-            npk_K: 150
-        },
-        'cucumber': {
-            temperature: 28,
-            humidity: 75,
-            moisture: 75,
-            ph: 6.5,
-            light: 4000,
-            npk_N: 120,
-            npk_P: 60,
-            npk_K: 180
-        },
-        'pepper': {
-            temperature: 26,
-            humidity: 70,
-            moisture: 70,
-            ph: 6.0,
-            light: 4500,
-            npk_N: 140,
-            npk_P: 50,
-            npk_K: 160
-        },
-        'carrot': {
-            temperature: 22,
-            humidity: 65,
-            moisture: 75,
-            ph: 6.5,
-            light: 3500,
-            npk_N: 80,
-            npk_P: 60,
-            npk_K: 120
-        },
-        'spinach': {
-            temperature: 18,
-            humidity: 75,
-            moisture: 80,
-            ph: 6.0,
-            light: 2500,
-            npk_N: 90,
-            npk_P: 45,
-            npk_K: 100
-        }
-    };
-    
-    // Try to find a match for the crop name
-    for (const [key, conditions] of Object.entries(defaultConditions)) {
-        if (cropNameLower.includes(key) || key.includes(cropNameLower)) {
-            return conditions;
-        }
-    }
-    
-    // Return general optimal conditions if no specific match found
-    return {
-        temperature: 24,
-        humidity: 70,
-        moisture: 75,
-        ph: 6.5,
-        light: 4000,
-        npk_N: 120,
-        npk_P: 50,
-        npk_K: 150
-    };
-}
 

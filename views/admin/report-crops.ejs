@@ -466,7 +466,7 @@
                                                         <td><%= crop.numberFailed %></td>
                                                         <td>
                                                             <% if (crop.lastPlanted) { %>
-                                                                <span class="badge planted"><%= new Date(crop.lastPlanted).toLocaleDateString() %></span>
+                                                                <span class="badge planted"><%= crop.lastPlanted %></span>
                                                             <% } else { %>
                                                                 <span class="badge not-planted">Not yet planted</span>
                                                             <% } %>
