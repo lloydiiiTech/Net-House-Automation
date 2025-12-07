@@ -147,6 +147,84 @@ exports.getTrainingChart = async (req, res) => {
   }
 };
 
+exports.getForecastChart = async (req, res) => {
+  try {
+    // Get recent predictions with forecast data
+    const snapshot = await firestore.collection('prediction_history')
+      .orderBy('timestamp', 'desc')
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      return res.status(404).json({ success: false, message: 'No forecast data available' });
+    }
+    
+    const data = snapshot.docs[0].data();
+    const forecastData = data.forecastData || {};
+    
+    // Generate HTML chart
+    const chartHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Time-Series Forecast</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: #333; text-align: center; }
+    .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Time-Series Forecasting: Sensor Trends (Next 7 Days)</h1>
+    <div class="info">
+      <strong>Powered by LSTM Neural Networks</strong><br>
+      This chart shows forecasted sensor values using advanced time-series analysis to predict optimal growing conditions.
+    </div>
+    <div id="chart"></div>
+  </div>
+  
+  <script>
+    const traces = [];
+    const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'];
+    let colorIndex = 0;
+    
+    Object.entries(${JSON.stringify(forecastData)}).forEach(([key, values]) => {
+      traces.push({
+        x: Array.from({length: values.length}, (_, i) => \`Day \${i+1}\`),
+        y: values,
+        type: 'line',
+        name: key.charAt(0).toUpperCase() + key.slice(1),
+        line: { color: colors[colorIndex % colors.length] },
+        mode: 'lines+markers'
+      });
+      colorIndex++;
+    });
+    
+    const layout = {
+      title: 'Forecasted Sensor Trends',
+      xaxis: { title: 'Days Ahead' },
+      yaxis: { title: 'Normalized Values' },
+      showlegend: true
+    };
+    
+    Plotly.newPlot('chart', traces, layout, { responsive: true });
+  </script>
+</body>
+</html>`;
+    
+    res.send(chartHtml);
+  } catch (error) {
+    console.error('Get forecast chart error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: 'Failed to get forecast chart'
+    });
+  }
+};
+
 exports.evaluateModel = async (req, res) => {
   try {
     // Get all predictions (avoid index requirement by fetching all and filtering client-side)

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>NetHouseAutomation Dashboard</title>
+    <title>AgriNetTech Dashboard</title>
     <!-- GLOBAL MAINLY STYLES-->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
@@ -24,33 +24,20 @@
 
 <body class="fixed-navbar">
     <div class="page-wrapper">
-        <!-- START HEADER-->
+     <!-- Header -->
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">Demo
-                        <span class="brand-tip">FARM</span>
-                    </span>
-                    <span class="brand-mini">DF</span>
+                    <img src="images/logotree.png" class="brand-icon" />
+                    <img src="images/logoside.png" class="brand-text" />
                 </a>
             </div>
             <div class="flexbox flex-1">
-                <!-- START TOP-LEFT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
                     <li>
                         <a class="nav-link sidebar-toggler js-sidebar-toggler"><i class="ti-menu"></i></a>
                     </li>
-                    <!--<li>
-                        <form class="navbar-search" action="javascript:;">
-                            <div class="rel">
-                                <span class="search-icon"><i class="ti-search"></i></span>
-                                <input class="form-control" placeholder="Search here...">
-                            </div>
-                        </form>
-                    </li>-->
                 </ul>
-                <!-- END TOP-LEFT TOOLBAR-->
-                <!-- START TOP-RIGHT TOOLBAR-->
                 <ul class="nav navbar-toolbar">
                     <li>
                         <a class="nav-link" href="#" id="pendingUsersBtn">
@@ -61,56 +48,106 @@
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
                             <img src="<%= user.profilePicture %>" />
-                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" style="width: 25%;">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
                             <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
                         </ul>
                     </li>
                 </ul>
-                <!-- END TOP-RIGHT TOOLBAR-->
             </div>
         </header>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
+
+        <!-- Sidebar -->
         <nav class="page-sidebar" id="sidebar">
             <div id="sidebar-collapse">
+              
                 <div class="admin-block d-flex">
                     <div>
                         <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small></div>
+                        <div class="font-strong"><%= user.name %></div>
+                        <small><%= user.role %></small>
+                    </div>
                 </div>
+                
                 <ul class="side-menu metismenu">
-                    <li>
-                        <a class="active" href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+               <li>
+                        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
                         </a>
                     </li>
-                    
                     <li>
-                        <a class="active" href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+                        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
                             <span class="nav-label">Plant Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/irrigation-controll-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
-                            <span class="nav-label">Irrigation Controll</span>
+                        <a class="active separator" href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+                            <span class="nav-label">Irrigation Control</span>
+                        </a>
+                    </li>
+                     <li>
+                    <a href="#reportsSubmenu" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">
+                        <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <span class="nav-label">Reports & Analytics</span>
+                        <i class="fa fa-caret-down ml-1"></i>
+                    </a>
+
+                    <ul class="collapse list-unstyled" id="reportsSubmenu">
+                        <li>
+                            <a href="/report-crops">
+                                <i class="sidebar-item-icon fas fa-tractor"></i>
+                                <span class="nav-label">Crops Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-daily-sensors">
+                                <i class="sidebar-item-icon fas fa-thermometer-half"></i>
+                                <span class="nav-label">Daily Sensors Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-irrigation">
+                                <i class="sidebar-item-icon fas fa-water"></i>
+                                <span class="nav-label">Irrigation Records</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-planted-crops">
+                                <i class="sidebar-item-icon fas fa-seedling"></i>
+                                <span class="nav-label">Planted Crops</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-ai-disease">
+                                <i class="sidebar-item-icon fas fa-robot"></i>
+                                <span class="nav-label">AI Disease & Fertilizer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-prediction-history">
+                                <i class="sidebar-item-icon fas fa-history"></i>
+                                <span class="nav-label">Prediction History</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </li>
+
+                    <li>
+                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+                            <span class="nav-label">User Management</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/reports&analytics"><i class="sidebar-item-icon fas fa-chart-bar"></i>
-                            <span class="nav-label">Reports & Analytics</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                        <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
                             <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
-                    
                 </ul>
             </div>
         </nav>
@@ -225,15 +262,6 @@
                                                         </div>
                                                         <div class="info-item">
                                                             <div class="info-icon">
-                                                                <i class="fas fa-clock"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Expected Harvest</div>
-                                                                <div class="info-value" id="harvestDate"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
                                                                 <i class="fas fa-leaf"></i>
                                                             </div>
                                                             <div class="info-content">
@@ -241,6 +269,16 @@
                                                                 <div class="info-value" id="growthStage"></div>
                                                             </div>
                                                         </div>
+                                                        <div class="info-item">
+                                                            <div class="info-icon">
+                                                                <i class="fas fa-clock"></i>
+                                                            </div>
+                                                            <div class="info-content">
+                                                                <div class="info-label">Health Status</div>
+                                                                <div class="info-value" id="healthStatus"></div>
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <div class="info-item">
                                                             <div class="info-icon">
                                                                 <i class="fas fa-chart-line"></i>
@@ -325,6 +363,7 @@
                                         </nav>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
@@ -446,6 +485,7 @@
                             
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -1477,7 +1517,171 @@
                     transform: translateY(-2px);
                     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                 }
+
+                   /* Dashboard Card Styles */
+        .page-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            justify-content: flex-start; 
+        }
+
+        body.sidebar-collapsed .page-sidebar {
+            justify-content: center;
+        }
+
+        .page-sidebar #sidebar-collapse {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .page-brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 60px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            justify-content: flex-start; 
+        }
+
+        .brand-icon {
+            height: 36px;
+        }
+
+        .brand-text {
+            height: 36px;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+   
+        body.sidebar-collapsed .brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+      
+        body.sidebar-collapsed .page-brand {
+            justify-content: center; 
+            align-items: center;   
+            margin-top: auto;       
+            margin-bottom: auto;
+            padding-top: 35px;
+        }
+
+        .dashboard-card {
+            background: rgb(250, 250, 250);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card .card-body {
+            padding: var(--container-padding);
+        }
+
+        .page-sidebar .side-menu a.active {
+            background: #02313d;    
+            color: #a7e9d3;         
+            font-weight: 600;
+        }
+
+        .page-sidebar .side-menu a.active i {
+            color: #a7e9d3;           
+        }
+
+        .page-sidebar .side-menu a:hover {
+            background: rgba(2, 49, 61, 0.12);
+            color: #a7e9d3;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .page-sidebar .side-menu a:hover i {
+            color: #a7e9d3;
+        }
+
+        .content-wrapper {
+            margin-left: 250px;
+        }
+
+       .page-sidebar .side-menu a.separator {
+            position: relative; 
+            margin-top: 0;
+            padding-top: 15px; 
+        }
+
+        .page-sidebar .side-menu a.separator::before {
+            content: "";
+            position: absolute;
+            top: 0; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px; 
+            background-color: #485570;
+            border-radius: 0;
+        }
+        .admin-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .admin-info .font-strong {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+
+        
+        body.sidebar-collapsed .page-sidebar .side-menu .nav-label {
+            display: none;  
+        }
+
+        body.sidebar-collapsed .page-sidebar .side-menu i.sidebar-item-icon {
+            margin-right: 0; 
+        }
+
+
             </style>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const toggleBtn = document.querySelector('.js-sidebar-toggler');
+
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => {
+                        document.body.classList.toggle('sidebar-collapsed');
+                    });
+                }
+            });
+        </script>
 
             <script>
                 function toggleIrrigation(id, status) {
@@ -2309,9 +2513,9 @@
             // Update crop details
             document.getElementById('cropName').textContent = cropData.name;
             document.getElementById('plantedDate').textContent = formatDate(cropData.startDate);
-            document.getElementById('harvestDate').textContent = formatDate(cropData.expectedHarvest);
+            document.getElementById('healthStatus').textContent = cropData.healthStatus;
             document.getElementById('growthStage').textContent = cropData.growthStage;
-            document.getElementById('healthScore').textContent = `${cropData.score}%`;
+            document.getElementById('healthScore').textContent = `${cropData.healthScore}%`;
 
             // Update optimal conditions
             const optimal = cropData.optimalConditions;
@@ -2424,6 +2628,7 @@
                     </button>
                 </div>
             </div>
+              
         </div>
     </div>
 
@@ -2758,6 +2963,7 @@
                     </button>
                 </div>
             </div>
+            
         </div>
     </div>
 
@@ -3096,7 +3302,11 @@
         .progress-bar {
             transition: width 0.3s ease;
         }
+
+
+
     </style>
+
 </body>
 
 </html>

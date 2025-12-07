@@ -330,6 +330,171 @@
                 padding: 1rem;
             }
         }
+
+            /* Dashboard Card Styles */
+            .page-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            justify-content: flex-start; 
+        }
+
+        body.sidebar-collapsed .page-sidebar {
+            justify-content: center;
+        }
+
+        .page-sidebar #sidebar-collapse {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .page-brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 60px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            justify-content: flex-start; 
+        }
+
+        .brand-icon {
+            height: 36px;
+        }
+
+        .brand-text {
+            height: 36px;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+   
+        body.sidebar-collapsed .brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+      
+        body.sidebar-collapsed .page-brand {
+            justify-content: center; 
+            align-items: center;   
+            margin-top: auto;       
+            margin-bottom: auto;
+            padding-top: 35px;
+        }
+
+        .dashboard-card {
+            background: rgb(250, 250, 250);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card .card-body {
+            padding: var(--container-padding);
+        }
+
+        .page-sidebar .side-menu a.active {
+            background: #02313d;    
+            color: #a7e9d3;         
+            font-weight: 600;
+        }
+
+        .page-sidebar .side-menu a.active i {
+            color: #a7e9d3;           
+        }
+
+        .page-sidebar .side-menu a:hover {
+            background: rgba(2, 49, 61, 0.12);
+            color: #a7e9d3;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .page-sidebar .side-menu a:hover i {
+            color: #a7e9d3;
+        }
+
+        .content-wrapper {
+            margin-left: 250px;
+        }
+
+       .page-sidebar .side-menu a.separator {
+            position: relative; 
+            margin-top: 0;
+            padding-top: 15px; 
+        }
+
+        .page-sidebar .side-menu a.separator::before {
+            content: "";
+            position: absolute;
+            top: 0; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px; 
+            background-color: #485570;
+            border-radius: 0;
+        }
+        .admin-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .admin-info .font-strong {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+
+        
+        body.sidebar-collapsed .page-sidebar .side-menu .nav-label {
+            display: none;  
+        }
+
+        body.sidebar-collapsed .page-sidebar .side-menu i.sidebar-item-icon {
+            margin-right: 0; 
+        }
+
+  /* --- footer --- */
+        .page-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 0;
+            background-color: #f5f5f5; 
+        }
+
+        .page-footer .font-13,
+        .page-footer .to-top {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body class="fixed-navbar">
@@ -337,9 +502,8 @@
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
-                    <span class="brand">AgriNet
-                        <span class="brand-tip">TECH</span>
-                    </span>
+                    <img src="images/logotree.png" class="brand-icon" />
+                    <img src="images/logoside.png" class="brand-text" />
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -349,11 +513,18 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-toolbar">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <li class="dropdown dropdown-user">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
                             <img src="<%= user.profilePicture %>" />
-                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" style="width: 25%;">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
                             <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
@@ -362,39 +533,101 @@
                 </ul>
             </div>
         </header>
+
+        <!-- Sidebar -->
         <nav class="page-sidebar" id="sidebar">
             <div id="sidebar-collapse">
+              
                 <div class="admin-block d-flex">
                     <div>
                         <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small>
+                        <div class="font-strong"><%= user.name %></div>
+                        <small><%= user.role %></small>
                     </div>
                 </div>
-                <ul class="side-menu metismenu">
-                    <li><a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i><span class="nav-label">Dashboard</span></a></li>
-                    <li><a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i><span class="nav-label">Plant Overview</span></a></li>
-                    <li><a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i><span class="nav-label">Irrigation Control</span></a></li>
-                    <li>
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
-                            <span class="nav-label">Reports & Analytics</span>
-                            <i class="fa fa-caret-down ml-1"></i>
-                        </a>
-                        <ul class="dropdown-menu" style="background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
-                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
-                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
-                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
-                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
+                
+    <ul class="side-menu metismenu">
+    <li>
+        <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
+            <span class="nav-label">Dashboard</span>
+        </a>
+    </li>
 
-                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease & Fertilizer</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i><span class="nav-label">User Management</span></a></li>
-                    <li><a class="active" href="/report-prediction-history"><i class="sidebar-item-icon fas fa-history"></i><span class="nav-label">Prediction History</span></a></li>
-                </ul>
+    <li>
+        <a href="/plant-overview"><i class="sidebar-item-icon fas fa-leaf"></i>
+            <span class="nav-label">Plant Overview</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="/irrigation-controll"><i class="sidebar-item-icon fas fa-faucet"></i>
+            <span class="nav-label">Irrigation Control</span>
+        </a>
+    </li>
+
+                    <li>
+                    <a href="#reportsSubmenu" class="dropdown-toggle active separator" data-toggle="collapse" aria-expanded="true">
+                        <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <span class="nav-label">Reports & Analytics</span>
+                        <i class="fa fa-caret-down ml-1"></i>
+                    </a>
+
+                    <ul class="collapse list-unstyled" id="reportsSubmenu">
+                        <li>
+                            <a href="/report-crops">
+                                <i class="sidebar-item-icon fas fa-tractor"></i>
+                                <span class="nav-label">Crops Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-daily-sensors">
+                                <i class="sidebar-item-icon fas fa-thermometer-half"></i>
+                                <span class="nav-label">Daily Sensors Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-irrigation">
+                                <i class="sidebar-item-icon fas fa-water"></i>
+                                <span class="nav-label">Irrigation Records</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-planted-crops" class="active separator">
+                                <i class="sidebar-item-icon fas fa-seedling"></i>
+                                <span class="nav-label">Planted Crops</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-ai-disease">
+                                <i class="sidebar-item-icon fas fa-robot"></i>
+                                <span class="nav-label">AI Disease & Fertilizer</span>
+                            </a>
+                        </li>
+                                                <li>
+                            <a href="/report-prediction-history">
+                                <i class="sidebar-item-icon fas fa-history"></i>
+                                <span class="nav-label">Prediction History</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </li>
+
+    <li>
+        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
+            <span class="nav-label">User Management</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+            <span class="nav-label">Crop Recommendations</span>
+        </a>
+    </li>
+</ul>
+
             </div>
         </nav>
         <div class="content-wrapper">
