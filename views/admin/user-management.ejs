@@ -29,9 +29,15 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border: 1px solid #e9ecef;
         }
+
+        .filter-section .btn-primary {
+            margin: 0 20%; /* space between Apply and Reset */
+        }
+
+
         .user-avatar {
             width: 50px;
             height: 50px;
@@ -83,28 +89,90 @@
         .pagination {
             margin-top: 20px;
         }
-        .search-box {
-            position: relative;
-        }
-        .search-box i {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-        .search-box input {
-            padding-left: 35px;
-            border-radius: 6px;
-        }
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .table thead th {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
+/* Default search box */
+.search-box {
+    position: relative;
+  
+}
+
+.search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.search-box input {
+    width: 100%;
+    padding-left: 35px;
+    border-radius: 6px;
+}
+
+/* Small devices adjustments */
+@media (max-width: 768px) {
+    .search-box {
+        margin: 10px ; /* vertical spacing between search boxes */
+    }
+
+    .search-box input {
+        padding-left: 35px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: 0.9rem; /* slightly smaller for mobile */
+    }
+
+  .search-control {
+        width: 80%;           /* or any width you prefer */
+        margin: 10px auto;    /* top/bottom spacing + center horizontally */
+        display: block;       /* ensure it behaves like a block element */
+    }
+
+
+}
+
+
+
+   
+
+        /* Main box stays transparent */
+.ibox {
+    background: #e8f5e9;          /* light green background */
+    border: none;                  /* no border */
+    border-radius: 10px;           /* rounded corners */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);  /* subtle shadow */
+                   /* optional padding */
+}
+
+.ibox-head {
+    background: linear-gradient(90deg, #2a7f62 0%, #1a5f4a 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0; /* round top corners */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    
+    display: flex;            /* flex container */
+    justify-content: center;  /* center horizontally */
+    align-items: center;      /* center vertically */
+}
+
+.ibox-title {
+    font-weight: 600;
+    font-size: 1.2em;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+
+/* Table spacing between rows */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 15px; /* space between rows */
+}
+
+     .table thead th {
+            background: linear-gradient(90deg, #ceeee3 0%, #45665c88 100%);
+            color: rgb(12, 65, 15);
             border: none;
             padding: 15px 12px;
             font-weight: 600;
@@ -112,18 +180,127 @@
             font-size: 0.85em;
             letter-spacing: 0.5px;
         }
-        .table tbody tr {
-            transition: all 0.3s ease;
-        }
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-            transform: scale(1.01);
-        }
-        .table tbody td {
-            padding: 15px 12px;
-            vertical-align: middle;
-            border-top: 1px solid #e9ecef;
-        }
+
+/* Each row is one card */
+.table tbody tr {
+    background: #fff; 
+             /* rounded corners for the row */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.table tbody{
+    border:2px solid black;            /* single background per row */
+    border-radius: 30%;  
+}
+
+/* Hover effect */
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+/* Cells inside the row */
+.table tbody td {
+    border-top: none;             /* remove default cell border */
+    vertical-align: middle;
+    padding: 15px 12px;
+    background: transparent;       /* cells themselves have no bg */
+}
+
+/* User info container stays aligned */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #fff;
+}
+
+.badge-success { background: #28a745; }
+.badge-warning { background: #ffc107; }
+.badge-danger { background: #dc3545; }
+
+/* Action buttons alignment */
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+/* Center horizontally and vertically */
+.action-buttons {
+    display: flex;
+    justify-content: center; /* horizontal center */
+    align-items: center;     /* vertical center */
+}
+
+.text-center {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Mobile / small devices */
+@media (max-width: 768px) {
+    .table thead {
+        display: none; /* hide header */
+    }
+
+    .table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Row 1: User spans full width */
+    .table tbody tr td:nth-child(1) {
+        grid-column: span 2;
+    }
+
+    /* Row 2: Email | Role */
+    .table tbody tr td:nth-child(2) { grid-column: 1 / 2; text-align: left; }
+    .table tbody tr td:nth-child(3) { grid-column: 2 / 3; text-align: left; }
+
+ /* Row 3: Email Verification | Status */
+.table tbody tr td:nth-child(4) { 
+    grid-column: 1 / 2; 
+    text-align: left; 
+}
+    /* Row 4: Last Login spans full width */
+    .table tbody tr td:nth-child(6) {
+        grid-column: span 2;
+        text-align: left;
+    }
+
+    /* Row 5: Actions spans full width and centered */
+    .table tbody tr td:nth-child(7) {
+        grid-column: span 2;
+        display: flex;
+        justify-content: center;
+        gap: 12px; /* space between buttons */
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    /* Adjust td padding for mobile */
+    .table tbody td {
+        padding: 6px 8px;
+    }
+}
+
+
+
+
         .user-info {
             display: flex;
             align-items: center;
@@ -242,18 +419,183 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
-        .modal-header {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
-            border-bottom: none;
-        }
-        .modal-header .close {
-            color: white;
-            opacity: 0.8;
-        }
-        .modal-header .close:hover {
-            opacity: 1;
-        }
+/* Modal dialog size */
+.modal-dialog {
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%;
+        margin: 15px auto;
+    }
+}
+
+/* Modal content */
+.modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Modal header */
+.modal-header {
+    background: linear-gradient(135deg, #21646be3, #273a42f8);
+    color: #fff;
+    border-bottom: none;
+    padding: 12px 20px;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h5,
+.modal-header .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-header .close {
+    color: white;
+    opacity: 0.8;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Modal body */
+.modal-body {
+    padding: 15px 20px;
+}
+
+.modal-body h4 {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.modal-body p {
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.modal-body .row p strong {
+    color: #2c3e50;
+}
+
+/* Avatar */
+.modal-body img#modalUserAvatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* View User Modal: small devices */
+@media (max-width: 768px) {
+    #userDetailsModal .modal-dialog {
+        max-width: 90%;
+        margin: 15px auto;
+    }
+
+    #userDetailsModal .modal-body .row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    #userDetailsModal .modal-body .col-md-4,
+    #userDetailsModal .modal-body .col-md-8 {
+        width: 100%;
+        padding: 5px 10px;
+    }
+
+    /* Avatar smaller and centered */
+    #userDetailsModal #modalUserAvatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 15px;
+    }
+
+    /* Name & Email centered and smaller */
+    #userDetailsModal #modalUserName {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    #userDetailsModal #modalUserEmail {
+        font-size: 0.85rem;
+    }
+
+    /* Info rows stacked */
+    #userDetailsModal .row.mt-4,
+    #userDetailsModal .row.mt-3 {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #userDetailsModal .row.mt-4 .col-md-6,
+    #userDetailsModal .row.mt-3 .col-md-6 {
+        width: 100%;
+        padding: 0;
+    }
+
+    #userDetailsModal .row.mt-4 p,
+    #userDetailsModal .row.mt-3 p {
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        text-align: center;
+    }
+}
+
+
+/* Modal footer */
+.modal-footer {
+    padding: 10px 15px;
+    border-top: none;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.modal-footer .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.modal-footer .btn-primary {
+    background: linear-gradient(45deg, #17a2b8, #20c997);
+    border: none;
+    color: #fff;
+}
+
+.modal-footer .btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(23,162,184,0.3);
+}
+
+.modal-footer .btn-secondary {
+    background: #6c757d;
+    border: none;
+    color: #fff;
+}
+
+.modal-footer .btn-secondary:hover {
+    box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+}
+
         .no-pending-users {
             text-align: center;
             padding: 40px 20px;
@@ -474,6 +816,115 @@
             margin-right: 0; 
         }
 
+        .page-heading {
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between; /* left & right */
+    align-items: center;
+    background: linear-gradient(135deg, #21646be3, #273a42f8); /* green to blue gradient */
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    margin: 10px auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 4px rgba(255,255,255,0.2);
+    color: #f5fffa; /* soft white with greenish tint */
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;   /* vertically center icon with text */
+    gap: 10px;             /* space between icon and text */
+}
+
+.page-title i {
+    color: #f5fffa;        /* same color as text */
+    font-size: 2rem;       /* match title size */
+    vertical-align: middle;
+}
+
+
+.page-heading .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #f5fffa;
+}
+
+.page-heading .breadcrumb a {
+    color: #f5fffa;
+    font-size: 1.6rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.page-heading .breadcrumb a:hover {
+    transform: scale(1.25);
+    color: #b9fbc0; /* fresh light green on hover */
+    box-shadow: 0 0 12px rgba(185, 251, 192, 0.8);
+}
+
+.page-heading .breadcrumb-item {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #f5fffa;
+}
+@media (max-width: 768px) {
+
+    .page-heading {
+        padding: 10px 15px !important;
+        flex-direction: row !important; /* keep in one row */
+        align-items: center !important;
+        justify-content: space-between !important; /* title left, breadcrumb right */
+        border-radius: 10px !important;
+        text-align: left !important;
+        flex-wrap: nowrap !important; /* prevent wrapping */
+    }
+
+    .page-title {
+        font-size: 1.3rem !important;
+        gap: 5px !important;
+        white-space: nowrap !important; /* prevent icon & text from breaking */
+        overflow: hidden;
+        text-overflow: ellipsis; /* truncate if too long */
+    }
+
+    .page-heading .breadcrumb {
+        flex-wrap: nowrap !important; /* no wrapping */
+        gap: 5px !important;
+        margin-top: 0 !important; /* keep aligned with title */
+    }
+
+    .page-heading .breadcrumb a {
+        font-size: 1rem !important;
+        padding: 3px !important;
+    }
+
+    .page-heading .breadcrumb-item {
+        font-size: 0.8rem !important;
+    }
+
+    .full-container {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .full-row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+}
     </style>
 </head>
 
@@ -608,14 +1059,16 @@
         </nav>
         <div class="content-wrapper">
             <div class="page-heading">
-                <h1 class="page-title">User Management</h1>
+                <h1 class="page-title"><i class="fas fa-users-cog" style="margin-right: 10px;"></i> User Management</h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="/dashboard"><i class="fa fa-home font-20"></i></a>
                     </li>
-                    <li class="breadcrumb-item">User Management</li>
+                    
                 </ol>
             </div>
+
+
             <div class="page-content fade-in-up">
                 <!-- Filter Section -->
                 <div class="filter-section">
@@ -626,28 +1079,28 @@
                                 <input type="text" class="form-control" name="search" placeholder="Search users..." value="<%= filters.search %>">
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 search-control">
                             <select class="form-control" name="role">
                                 <option value="">All Roles</option>
                                 <option value="Admin" <%= filters.role === 'Admin' ? 'selected' : '' %>>Admin</option>
                                 <option value="User" <%= filters.role === 'User' ? 'selected' : '' %>>User</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 search-control">
                             <select class="form-control" name="verified">
                                 <option value="">Verification Status</option>
                                 <option value="true" <%= filters.verified === 'true' ? 'selected' : '' %>>Verified</option>
                                 <option value="false" <%= filters.verified === 'false' ? 'selected' : '' %>>Not Verified</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 search-control">
                             <select class="form-control" name="status">
                                 <option value="">Account Status</option>
                                 <option value="Active" <%= filters.status === 'Active' ? 'selected' : '' %>>Active</option>
                                 <option value="Deactivated" <%= filters.status === 'Deactivated' ? 'selected' : '' %>>Deactivated</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 ">
                             <button type="submit" class="btn btn-primary">Apply Filters</button>
                             <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
                         </div>
@@ -656,24 +1109,25 @@
 
                 <!-- Users Table -->
             <div class="ibox">
-                <div class="ibox-head">
+                <div class="ibox-head" >
                     <div class="ibox-title">User List</div>
                 </div>
                 <div class="ibox-body">
                     <div class="table-responsive">
                             <table class="table table-hover">
-                            <thead>
+                            <thead >
                                 <tr>
-                                        <th>User</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                        <th>Email Verification</th>
-                                        <th>Status</th>
-                                        <th>Last Login</th>
-                                    <th>Actions</th>
+                                        <th class="text-center">User</th>
+                                    <th class="text-center">Email</th>
+                                    <th class="text-center">Role</th>
+                                        <th class="text-center">Email Verification</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Last Login</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            
+                            <tbody >
                                 <% users.forEach(user => { %>
                                     <tr>
                                             <td>
@@ -685,20 +1139,21 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                        <td><%= user.email %></td>
+                                        <td ><%= user.email %></td>
                                         <td>
                                                 <select class="form-control form-control-sm role-select" data-user-id="<%= user.id %>">
                                                 <option value="User" <%= user.role === 'User' ? 'selected' : '' %>>User</option>
                                                 <option value="Admin" <%= user.role === 'Admin' ? 'selected' : '' %>>Admin</option>
                                             </select>
                                         </td>
-                                        <td>
-                                                <span class="status-badge <%= user.isVerified ? 'badge-success' : 'badge-warning' %>">
+                                       <td class="text-center">
+                                            <span class="status-badge <%= user.isVerified ? 'badge-success' : 'badge-warning' %>">
                                                 <%= user.isVerified ? 'Verified' : 'Not Verified' %>
                                             </span>
                                         </td>
+
                                         <td>
-                                                <div class="status-container">
+                                                <div class="status-container text-center">
                                                     <span class="status-badge <%= user.status === 'Active' ? 'badge-success' : 'badge-danger' %>">
                                                         <%= user.status %>
                                             </span>
@@ -707,7 +1162,8 @@
                                             </button>
                                                 </div>
                                         </td>
-                                            <td><%= user.lastLogin %></td>
+                                           <td class="text-center"><%= user.lastLogin %></td>
+
                                             <td class="action-buttons">
                                                 <button class="btn btn-sm btn-view" onclick="viewUserDetails('<%= user.id %>')" title="View Details">
                                                     <i class="fa fa-eye"></i>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - NetHouseAutomation</title>
+    <title>My Profile - AgriNetTech</title>
     <!-- GLOBAL MAINLY STYLES-->
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
@@ -15,223 +15,357 @@
     <!-- PAGE LEVEL STYLES-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .profile-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .profile-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .profile-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 1;
-        }
-        .profile-header-content {
-            position: relative;
-            z-index: 2;
-        }
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-        .profile-name {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .profile-email {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        .profile-role {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .profile-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 25px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .profile-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        }
-        .profile-card-header {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
-            padding: 20px;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        .profile-card-body {
-            padding: 30px;
-        }
-        .form-group {
-            margin-bottom: 25px;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        .form-control {
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        .btn-primary {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-        }
-        .btn-secondary {
-            background: linear-gradient(45deg, #6c757d, #495057);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-        .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #495057;
-        }
-        .info-value {
-            color: #6c757d;
-        }
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-active {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-        }
-        .status-deactivated {
-            background: linear-gradient(45deg, #dc3545, #e83e8c);
-            color: white;
-        }
-        .verified-badge {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-        }
-        .not-verified-badge {
-            background: linear-gradient(45deg, #ffc107, #fd7e14);
-            color: white;
-        }
-        .file-upload {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            width: 100%;
-        }
-        .file-upload input[type=file] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        .file-upload-label {
-            display: block;
-            padding: 12px 20px;
-            background: linear-gradient(45deg, #17a2b8, #20c997);
-            color: white;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .file-upload-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
-        }
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            animation: slideIn 0.3s ease-out;
-            max-width: 300px;
-        }
-        .toast-success {
-            background: linear-gradient(45deg, #28a745, #20c997);
-        }
-        .toast-error {
-            background: linear-gradient(45deg, #dc3545, #e83e8c);
-        }
+
+.page-heading {
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between; /* left & right */
+    align-items: center;
+    background: linear-gradient(135deg, #21646be3, #273a42f8); /* green to blue gradient */
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 85%;
+    margin: 20px auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif; /* clean modern font */
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700; /* slightly lighter for better readability */
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 4px rgba(255,255,255,0.2);
+    color: #f5fffa; /* soft white with greenish tint */
+    letter-spacing: 0.5px;
+}
+
+.home-icon {
+    color: #f5fffa; /* soft, visible on gradient */
+    font-size: 1.6rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.home-icon:hover {
+    transform: scale(1.25);
+    color: #b9fbc0; /* fresh light green on hover */
+    box-shadow: 0 0 12px rgba(185, 251, 192, 0.8); /* soft glowing effect */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-heading {
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        padding: 15px 20px;
+    }
+
+    .home-icon {
+        align-self: flex-end;
+    }
+
+    .page-title {
+        font-size: 1.7rem; /* slightly smaller on mobile */
+    }
+}
+/* Container */
+.profile-container {
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Wrapper: left + right */
+.profile-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    align-items: stretch; /* ensures both sides same height */
+}
+
+/* Left + Right flex setup */
+.profile-left {
+    flex: 1 1 300px; /* grow, shrink, base width */
+    text-align: center;
+    background: linear-gradient(135deg, #b0cfb1, #caddda);
+    color: rgb(16, 58, 12);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 20px;
+}
+
+.profile-right {
+    flex: 2 1 350px; /* wider than left */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* spacing between cards */
+}
+
+/* Avatar with camera overlay */
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+}
+
+.camera-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.camera-overlay:hover {
+    background: rgba(0,0,0,0.8);
+    transform: scale(1.15);
+}
+
+/* Name, Email, Role */
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 20px;
+    color: #3b8b5a;
+}
+
+.profile-email {
+    font-size: 1.1rem;
+    color: #f2f5f6;
+    margin-top: 5px;
+}
+
+.profile-role {
+    display: inline-block;
+    margin-top: 15px;
+    background: rgba(150, 182, 170, 0.288);
+    color: #fffefc;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+}
+
+/* Buttons */
+.mt-3 .btn {
+    font-weight: 600;
+    background: #88c0a0;
+    border: none;
+    color: white;
+    transition: background 0.3s ease;
+}
+
+.mt-3 .btn:hover {
+    background: #6fa888;
+}
+
+/* Profile card inside right panel */
+.profile-card {
+    background: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* stretch to fill right panel */
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Card header */
+.profile-card-header {
+    background: linear-gradient(135deg, #04744060, #95cca5);
+    color: #fffefc;
+    padding: 18px 25px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Card body */
+.profile-card-body {
+    padding: 25px;
+    flex: 1; /* stretch to fill card */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Info rows */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e4e8;
+    margin: 20px;
+ 
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    padding: 0 10px; ;
+}
+
+.info-value {
+    color: #6c757d;
+    padding: 0 10px; ;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #8fd19e, #6fbf73);
+    color: #fffefc;
+}
+
+.status-deactivated {
+    background: linear-gradient(135deg, #f28c8c, #e57373);
+    color: #fffefc;
+}
+
+.verified-badge {
+    background: linear-gradient(135deg, #8fd19e, #6fbf73);
+    color: #fffefc;
+}
+
+.not-verified-badge {
+    background: linear-gradient(135deg, #ffd17a, #f7b358);
+    color: #fffefc;
+}
+
+/* Collapsible cards */
+.collapsible-card {
+    transition: all 0.3s ease;
+    margin: 20px;
+}
+
+/* Responsive for mobile: stack vertically */
+@media (max-width: 768px) {
+    .profile-wrapper {
+        flex-direction: column;
+    }
+    .profile-left, .profile-right {
+        flex: 1 1 100%;
+    }
+    .profile-right {
+        gap: 15px;
+    }
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+    .profile-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-left, .profile-right {
+        width: 100%;
+        text-align: center;
+    }
+
+    .profile-right {
+        margin-top: 20px;
+    }
+}
+.close-card-btn {
+    border: none;
+    background: #f0f0f0;     /* light background */
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;       /* makes it a circle */
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.close-card-btn:hover {
+    background: #d6d6d6;      /* darker hover */
+    color: #000;
+}
+
+.profile-card-header {
+    display: flex;
+    justify-content: space-between; /* pushes text to left and X to right */
+    align-items: center;            /* vertically centered */
+    padding-right: 10px;            /* small space from edge */
+}
+
+.cancel-btn {
+    background: #a7a1a136;       /* light gray background */
+    color: #333;               /* text color */
+    border: none;              /* no border */
+    padding: 8px 16px;         /* button size */
+    border-radius: 6px;        /* rounded corners */
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #d6d6d6;       /* darker on hover */
+}
+
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -332,18 +466,191 @@
             margin-bottom: 15px;
             opacity: 0.5;
         }
+
+		/* Dashboard Card Styles */
+        .page-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            justify-content: flex-start; 
+        }
+
+        body.sidebar-collapsed .page-sidebar {
+            justify-content: center;
+        }
+
+        .page-sidebar #sidebar-collapse {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .page-brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 60px;
+            padding: 0 10px;
+            box-sizing: border-box;
+            justify-content: flex-start; 
+        }
+
+        .brand-icon {
+            height: 36px;
+        }
+
+        .brand-text {
+            height: 36px;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+   
+        body.sidebar-collapsed .brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+      
+        body.sidebar-collapsed .page-brand {
+            justify-content: center; 
+            align-items: center;   
+            margin-top: auto;       
+            margin-bottom: auto;
+            padding-top: 35px;
+        }
+
+        .dashboard-card {
+            background: rgb(250, 250, 250);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card .card-body {
+            padding: var(--container-padding);
+        }
+
+        .page-sidebar .side-menu a.active {
+            background: #02313d;    
+            color: #a7e9d3;         
+            font-weight: 600;
+        }
+
+        .page-sidebar .side-menu a.active i {
+            color: #a7e9d3;           
+        }
+
+        .page-sidebar .side-menu a:hover {
+            background: rgba(2, 49, 61, 0.12);
+            color: #a7e9d3;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .page-sidebar .side-menu a:hover i {
+            color: #a7e9d3;
+        }
+
+      
+       .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* full height */
+        }
+
+        .main-content {
+            flex: 1 0 auto; /* takes remaining space */
+        }
+
+       .page-sidebar .side-menu a.separator {
+            position: relative; 
+            margin-top: 0;
+            padding-top: 15px; 
+        }
+
+        .page-sidebar .side-menu a.separator::before {
+            content: "";
+            position: absolute;
+            top: 0; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px; 
+            background-color: #485570;
+            border-radius: 0;
+        }
+        .admin-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .admin-info .font-strong {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+
+        
+        body.sidebar-collapsed .page-sidebar .side-menu .nav-label {
+            display: none;  
+        }
+
+        body.sidebar-collapsed .page-sidebar .side-menu i.sidebar-item-icon {
+            margin-right: 0; 
+        }
+
+         /* --- footer --- */
+        .page-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 0;
+            background-color: #f5f5f5; 
+               flex-shrink: 0;
+        }
+
+        .page-footer .font-13,
+        .page-footer .to-top {
+            margin: 5px 0;
+        }
+
     </style>
 </head>
 
 <body class="fixed-navbar">
     <div class="page-wrapper">
-        <!-- START HEADER-->
+        <!-- Header -->
         <header class="header">
             <div class="page-brand">
-                <a class="link" href="<%= user.role === 'Admin' ? '/dashboard' : '/dashboard' %>">
-                    <span class="brand">AgriNet
-                        <span class="brand-tip">TECH</span>
-                    </span>
+                <a class="link" href="/dashboard">
+                    <img src="images/logotree.png" class="brand-icon" />
+                    <img src="images/logoside.png" class="brand-text" />
                 </a>
             </div>
             <div class="flexbox flex-1">
@@ -353,19 +660,18 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-toolbar">
-                    <% if (user.role === 'Admin') { %>
-                        <li>
-                            <a class="nav-link pending-users-btn" href="#" id="pendingUsersBtn" title="Pending Users">
-                                <i class="fa fa-user-clock"></i>
-                                <span class="badge badge-danger pending-users-badge" id="pendingUsersCount" style="display: none;">0</span>
-                            </a>
-                        </li>
-                    <% } %>
-                    <li class="dropdown dropdown-user">
+                    <li>
+                        <a class="nav-link" href="#" id="pendingUsersBtn">
+                            <i class="fa fa-user-clock"></i>
+                            <span class="badge badge-danger" id="pendingUsersCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li class="dropdown dropdown-user ">
                         <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
                             <img src="<%= user.profilePicture %>" />
-                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i></a>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                            <span></span><%= user.name %><i class="fa fa-angle-down m-l-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" style="width: 25%;">
                             <a class="dropdown-item" href="/profile"><i class="fa fa-user"></i>Profile</a>
                             <li class="dropdown-divider"></li>
                             <a class="dropdown-item" href="/logout"><i class="fa fa-power-off"></i>Logout</a>
@@ -374,19 +680,22 @@
                 </ul>
             </div>
         </header>
-        <!-- END HEADER-->
-        <!-- START SIDEBAR-->
+
+        <!-- Sidebar -->
         <nav class="page-sidebar" id="sidebar">
             <div id="sidebar-collapse">
+              
                 <div class="admin-block d-flex">
                     <div>
                         <img src="<%= user.profilePicture %>" width="45px" />
                     </div>
                     <div class="admin-info">
-                        <div class="font-strong"><%= user.name %></div><small><%= user.role %></small>
+                        <div class="font-strong"><%= user.name %></div>
+                        <small><%= user.role %></small>
                     </div>
                 </div>
-                <ul class="side-menu metismenu">
+                
+               <ul class="side-menu metismenu">
                     <li>
                         <a href="/dashboard"><i class="sidebar-item-icon fas fa-tachometer-alt"></i>
                             <span class="nav-label">Dashboard</span>
@@ -403,32 +712,64 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="sidebar-item-icon fas fa-chart-bar"></i>
-                            <span class="nav-label">Reports & Analytics</span>
-                            <i class="fa fa-caret-down ml-1"></i>
-                        </a>
-                        <ul class="dropdown-menu" style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                            <li><a class="dropdown-item" href="/report-crops">Crops Report</a></li>
-                            <li><a class="dropdown-item" href="/report-daily-sensors">Daily Sensors Data</a></li>
-                            <li><a class="dropdown-item" href="/report-irrigation">Irrigation Records</a></li>
-                            <li><a class="dropdown-item" href="/report-planted-crops">Planted Crops</a></li>
-                            <li><a class="dropdown-item" href="/report-prediction-history">Prediction History</a></li>
-                            <li><a class="dropdown-item" href="/report-ai-disease">AI Disease & Fertilizer</a></li>
-                        </ul>
-                    </li>
+                    <a href="#reportsSubmenu" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">
+                        <i class="sidebar-item-icon fas fa-chart-bar"></i>
+                        <span class="nav-label">Reports & Analytics</span>
+                        <i class="fa fa-caret-down ml-1"></i>
+                    </a>
+
+                    <ul class="collapse list-unstyled" id="reportsSubmenu">
+                        <li>
+                            <a href="/report-crops">
+                                <i class="sidebar-item-icon fas fa-tractor"></i>
+                                <span class="nav-label">Crops Report</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-daily-sensors">
+                                <i class="sidebar-item-icon fas fa-thermometer-half"></i>
+                                <span class="nav-label">Daily Sensors Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-irrigation">
+                                <i class="sidebar-item-icon fas fa-water"></i>
+                                <span class="nav-label">Irrigation Records</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-planted-crops">
+                                <i class="sidebar-item-icon fas fa-seedling"></i>
+                                <span class="nav-label">Planted Crops</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-ai-disease">
+                                <i class="sidebar-item-icon fas fa-robot"></i>
+                                <span class="nav-label">AI Disease & Fertilizer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/report-prediction-history">
+                                <i class="sidebar-item-icon fas fa-history"></i>
+                                <span class="nav-label">Prediction History</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </li>
                     <li>
                         <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
                             <span class="nav-label">User Management</span>
                         </a>
                     </li>
                     <li>
-                        <a class="active" href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
+                        <a  href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
                             <span class="nav-label">Crop Recommendations</span>
                         </a>
                     </li>
-                    
                 </ul>
+
             </div>
         </nav>
         <!-- END SIDEBAR-->
@@ -439,170 +780,204 @@
                     <li class="breadcrumb-item">
                         <a href="<%= user.role === 'Admin' ? '/dashboard' : '/user-dashboard' %>"><i class="fa fa-home font-20"></i></a>
                     </li>
-                    <li class="breadcrumb-item">My Profile</li>
+                  
                 </ol>
             </div>
-            <div class="page-content fade-in-up">
-                <div class="profile-container">
-                    <!-- Profile Header -->
-                    <div class="profile-header">
-                        <div class="profile-header-content">
-                            <img src="<%= user.profilePicture %>" alt="<%= user.name %>" class="profile-avatar">
-                            <div class="profile-name"><%= user.name %></div>
-                            <div class="profile-email"><%= user.email %></div>
-                            <div class="profile-role"><%= user.role %></div>
+
+
+        <!-- PROFILE PAGE -->
+        <div class="page-content fade-in-up">
+            <div class="profile-container">
+
+                <div class="profile-wrapper">
+
+                    <!-- LEFT PROFILE -->
+                    <div class="profile-left">
+                        <div class="avatar-wrapper">
+                            <img src="<%= user.profilePicture %>" class="profile-avatar">
+                            <div class="camera-overlay" onclick="document.getElementById('profilePicture').click()">
+                                <i class="fa fa-camera"></i>
+                            </div>
                         </div>
+                        <div class="profile-name"><%= user.name %></div>
+                        <div class="profile-email"><%= user.email %></div>
+                        <div class="profile-role"><%= user.role %></div>
+
+                        <!-- Buttons -->
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-block mb-2" onclick="toggleCard('updateProfileCard')">
+                                <i class="fa fa-edit mr-1"></i> Update Profile
+                            </button>
+                            <button class="btn btn-secondary btn-block" onclick="toggleCard('changePasswordCard')">
+                                <i class="fa fa-lock mr-1"></i> Change Password
+                            </button>
+                        </div>
+
+                        <!-- Hidden Upload Form -->
+                        <form id="uploadProfilePictureForm" enctype="multipart/form-data">
+                            <input type="file" id="profilePicture" name="profilePicture" accept="image/*" style="display:none;" onchange="document.getElementById('uploadProfilePictureForm').submit()">
+                        </form>
                     </div>
 
-                    <!-- Profile Information Card -->
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <i class="fa fa-info-circle mr-2"></i>
-                            Profile Information
-                        </div>
-                        <div class="profile-card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="info-row">
-                                        <span class="info-label">Account Status:</span>
-                                        <span class="status-badge <%= user.status === 'Active' ? 'status-active' : 'status-deactivated' %>">
-                                            <%= user.status %>
-                                        </span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">Email Verification:</span>
-                                        <span class="status-badge <%= user.isVerified ? 'verified-badge' : 'not-verified-badge' %>">
-                                            <%= user.isVerified ? 'Verified' : 'Not Verified' %>
-                                        </span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">Last Login:</span>
-                                        <span class="info-value"><%= user.lastLogin %></span>
-                                    </div>
+                    <!-- RIGHT PROFILE INFORMATION -->
+                    <div class="profile-right">
+                        <div class="profile-card">
+                            <div class="profile-card-header">
+                                <i class="fa fa-info-circle mr-2"></i> Profile Information
+                            </div>
+                            <div class="profile-card-body">
+                                <div class="info-row">
+                                    <span class="info-label">Account Status:</span>
+                                    <span class="status-badge <%= user.status === 'Active' ? 'status-active' : 'status-deactivated' %>">
+                                        <%= user.status %>
+                                    </span>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="info-row">
-                                        <span class="info-label">Contact Number:</span>
-                                        <span class="info-value"><%= user.contactNumber || 'Not provided' %></span>
-                                    </div>
+                                <div class="info-row">
+                                    <span class="info-label">Email Verification:</span>
+                                    <span class="status-badge <%= user.isVerified ? 'verified-badge' : 'not-verified-badge' %>">
+                                        <%= user.isVerified ? 'Verified' : 'Not Verified' %>
+                                    </span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Last Login:</span>
+                                    <span class="info-value"><%= user.lastLogin %></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Contact Number:</span>
+                                    <span class="info-value"><%= user.contactNumber || 'Not provided' %></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Profile Information -->
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <i class="fa fa-edit mr-2"></i>
-                            Update Profile Information
-                        </div>
-                        <div class="profile-card-body">
-                            <form id="updateProfileForm">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="name" class="form-label">Full Name *</label>
-                                            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="email" class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" id="email" value="<%= user.email %>" readonly>
-                                            <small class="text-muted">Email cannot be changed</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="contactNumber" class="form-label">Contact Number</label>
-                                            <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="<%= user.contactNumber %>">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-save mr-2"></i>Update Profile
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                </div> <!-- /profile-wrapper -->
+
+                <!-- FULL-WIDTH FORMS BELOW -->
+                <div class="profile-forms mt-4">
+                    <!-- Update Profile Form -->
+                <div id="updateProfileCard" class="profile-card collapsible-card" style="display:none;">
+                  <div class="profile-card-header">
+                        <i class="fa fa-edit mr-2"></i> Update Profile Information
+                        <button class="close-card-btn" onclick="closeCard(this)">×</button>
                     </div>
 
-                    <!-- Change Password -->
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <i class="fa fa-lock mr-2"></i>
-                            Change Password
-                        </div>
-                        <div class="profile-card-body">
-                            <form id="changePasswordForm">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="currentPassword" class="form-label">Current Password *</label>
-                                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="newPassword" class="form-label">New Password *</label>
-                                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                                            <div class="password-strength" id="passwordStrength"></div>
-                                        </div>
+                    <div class="profile-card-body">
+                        <form id="updateProfileForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="confirmPassword" class="form-label">Confirm New Password *</label>
-                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" value="<%= user.email %>" readonly>
+                                        <small class="text-muted">Email cannot be changed</small>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-secondary">
-                                        <i class="fa fa-key mr-2"></i>Change Password
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                            </div>
 
-                    <!-- Upload Profile Picture -->
-                    <div class="profile-card">
-                        <div class="profile-card-header">
-                            <i class="fa fa-camera mr-2"></i>
-                            Profile Picture
-                        </div>
-                        <div class="profile-card-body">
-                            <form id="uploadProfilePictureForm" enctype="multipart/form-data">
-                                <div class="form-group">
-                                    <label class="form-label">Upload New Profile Picture</label>
-                                    <div class="file-upload">
-                                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
-                                        <label for="profilePicture" class="file-upload-label">
-                                            <i class="fa fa-upload mr-2"></i>Choose File
-                                        </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contactNumber" class="form-label">Contact Number</label>
+                                        <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="<%= user.contactNumber %>">
                                     </div>
-                                    <small class="text-muted">Supported formats: JPEG, PNG, GIF (Max size: 5MB)</small>
                                 </div>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-upload mr-2"></i>Upload Picture
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <div class="text-right">
+                                <button type="button" class="cancel-btn  btn-light mr-2" onclick="closeCard(this)">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save mr-2"></i>Update Profile
+                                </button>
+                            </div>
+                        </form>
                     </div>
+                </div>
+
+                    <!-- Change Password Form -->
+                <div id="changePasswordCard" class="profile-card collapsible-card" style="display:none;">
+                    <div class="profile-card-header">
+                        <i class="fa fa-lock mr-2"></i> Change Password
+                        <button class="close-card-btn" onclick="closeCard(this)">×</button>
+                    </div>
+                    <div class="profile-card-body">
+                        <form id="changePasswordForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="currentPassword" class="form-label">Current Password *</label>
+                                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="newPassword" class="form-label">New Password *</label>
+                                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                        <div class="password-strength" id="passwordStrength"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="confirmPassword" class="form-label">Confirm New Password *</label>
+                                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-right">
+                                <button type="button" class="cancel-btn btn-light mr-2" onclick="closeCard(this)">Cancel</button>
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fa fa-key mr-2"></i>Change Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div> <!-- /profile-forms -->
+
+            </div> <!-- /profile-container -->
+        </div>
+
+        <!-- SCRIPT TO TOGGLE FORMS -->
+        <script>
+        function toggleCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            if (card.style.display === "none" || card.style.display === "") {
+                card.style.display = "block";
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+                card.style.display = "none";
+            }
+        }
+
+        function closeCard(btn) {
+            let card = btn.closest(".collapsible-card");
+            card.style.display = "none";
+        }
+
+        
+        </script>
+
+
+
+     <!-- Footer -->
+            <footer class="page-footer">
+                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+            </footer>
                 </div>
             </div>
         </div>
-        <footer class="page-footer">
-            <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
-            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-        </footer>
+       
     </div>
 
     <!-- CORE PLUGINS-->
@@ -973,6 +1348,20 @@
         </div>
     </div>
     <% } %>
+
+        </script>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const toggleBtn = document.querySelector('.js-sidebar-toggler');
+
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => {
+                        document.body.classList.toggle('sidebar-collapsed');
+                    });
+                }
+            });
+        </script>
 </body>
 
 </html> 

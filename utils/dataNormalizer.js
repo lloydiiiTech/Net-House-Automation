@@ -1,14 +1,14 @@
 const normalizeData = (sensorData) => {
   // Adjusted to match your Firestore sensor data structure
   const ranges = {
-    n: [0, 200],       // Expanded for nitrogen
-    p: [0, 200],       // Expanded for phosphorus
-    k: [0, 200],       // Expanded for potassium
+    n: [0, 100],       // NPK Nitrogen (maps to nitrogen)
+    p: [0, 100],       // NPK Phosphorus (maps to phosphorus)
+    k: [0, 100],       // NPK Potassium (maps to potassium)
     temperature: [0, 50],
     humidity: [0, 100],
     moisture: [0, 100],
     ph: [0, 14],
-    light: [0, 20000]  // Expanded for light
+    light: [0, 2000]
   };
 
   // Map sensor data fields to normalized names
@@ -75,13 +75,7 @@ const denormalizeData = (normalized, originalSensorData) => {
   return denormalized;
 };
 
-// New: Normalize a sequence of sensor data
-const normalizeSequence = (sensorSequence) => {
-  return sensorSequence.map(data => normalizeData(data));
-};
-
 module.exports = { 
   normalizeData,
-  denormalizeData,
-  normalizeSequence // New export
+  denormalizeData
 };

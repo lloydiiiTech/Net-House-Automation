@@ -19,11 +19,18 @@
             border-radius: 1rem;
             box-shadow: 0 4px 16px rgba(42,127,98,0.08);
             padding: 1.5rem 1.5rem 1rem 1.5rem;
-            margin-bottom: 1.5rem;
+           
             transition: box-shadow 0.3s, transform 0.2s;
             border: 1px solid #e9ecef;
             cursor: pointer;
+            width: 100%;
+            max-width: 100%;
         }
+        .recommendation-section {
+            width: 100%;
+            padding: 0;
+        }
+
         .recommendation-card:hover {
             box-shadow: 0 8px 32px rgba(42,127,98,0.15);
             transform: translateY(-2px) scale(1.01);
@@ -37,6 +44,20 @@
             margin-bottom: 0;
             box-shadow: 0 2px 8px rgba(42,127,98,0.08);
         }
+        @media (max-width: 768px) {
+    .recommendation-header {
+        padding: 0.75rem 1rem;       /* smaller padding */
+        font-size: 1rem;             /* reduce text size */
+        border-radius: 0.8rem 0.8rem 0 0; /* slightly smaller rounded corners */
+        box-shadow: 0 1px 4px rgba(42,127,98,0.08); /* lighter shadow */
+    }
+
+    .recommendation-header h3 {
+        font-size: 1.2rem;           /* smaller heading text */
+        margin: 0;
+    }
+}
+
         .crop-rank {
             width: 48px;
             height: 48px;
@@ -75,21 +96,29 @@
         .crop-status.new {
             background: #17a2b8;
         }
-        .crop-match {
-            margin-top: 0.5rem;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-        }
-        .match-bar {
-            height: 8px;
-            background: #2a7f62;
-            border-radius: 4px;
-            margin-right: 10px;
-            width: 80px;
-            display: inline-block;
-            box-shadow: 0 1px 4px rgba(42,127,98,0.08);
-        }
+.crop-match {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.match-bar-container {
+    width: 100%;         /* full width for the bar */
+    height: 8px;
+    background: #e0e0e0; /* gray for remainder */
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.match-bar {
+    height: 100%;
+    background: #2a7f62; /* green for match */
+    width: 0;             /* will be set inline */
+    border-radius: 4px 0 0 4px;
+}
+
         .recommendation-grid {
             display: flex;
             flex-direction: column;
@@ -110,7 +139,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(40,167,69,0.08);
         }
@@ -414,6 +443,131 @@
         .page-footer .to-top {
             margin: 5px 0;
         }
+
+        
+        .page-heading {
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between; /* left & right */
+    align-items: center;
+    background: linear-gradient(135deg, #21646be3, #273a42f8); /* green to blue gradient */
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    margin: 10px auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 4px rgba(255,255,255,0.2);
+    color: #f5fffa; /* soft white with greenish tint */
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;   /* vertically center icon with text */
+    gap: 10px;             /* space between icon and text */
+}
+
+.page-title i {
+    color: #f5fffa;        /* same color as text */
+    font-size: 2rem;       /* match title size */
+    vertical-align: middle;
+}
+
+
+.page-heading .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #f5fffa;
+}
+
+.page-heading .breadcrumb a {
+    color: #f5fffa;
+    font-size: 1.6rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.page-heading .breadcrumb a:hover {
+    transform: scale(1.25);
+    color: #b9fbc0; /* fresh light green on hover */
+    box-shadow: 0 0 12px rgba(185, 251, 192, 0.8);
+}
+
+.page-heading .breadcrumb-item {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #f5fffa;
+}
+.full-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.full-row {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+@media (max-width: 768px) {
+
+    .page-heading {
+        padding: 10px 15px !important;
+        flex-direction: row !important; /* keep in one row */
+        align-items: center !important;
+        justify-content: space-between !important; /* title left, breadcrumb right */
+        border-radius: 10px !important;
+        text-align: left !important;
+        flex-wrap: nowrap !important; /* prevent wrapping */
+    }
+
+    .page-title {
+        font-size: 1.1rem !important;
+        gap: 5px !important;
+        white-space: nowrap !important; /* prevent icon & text from breaking */
+        overflow: hidden;
+        text-overflow: ellipsis; /* truncate if too long */
+    }
+
+    .page-heading .breadcrumb {
+        flex-wrap: nowrap !important; /* no wrapping */
+        gap: 5px !important;
+        margin-top: 0 !important; /* keep aligned with title */
+    }
+
+    .page-heading .breadcrumb a {
+        font-size: 1rem !important;
+        padding: 3px !important;
+    }
+
+    .page-heading .breadcrumb-item {
+        font-size: 0.8rem !important;
+    }
+
+    .full-container {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .full-row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+}
+
+
     </style>
 </head>
 <body class="fixed-navbar">
@@ -547,261 +701,189 @@
         </nav>
         <div class="content-wrapper">
             <div class="page-heading">
-                <h1 class="page-title">Crop Recommendations</h1>
+                <h1 class="page-title">
+                    <i class="fas fa-seedling" style="margin-right: 10px;"></i>
+                    Crop Recommendations
+                </h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="/dashboard"><i class="fa fa-home font-20"></i></a>
                     </li>
-                    <li class="breadcrumb-item">Crop Recommendations</li>
                 </ol>
             </div>
-            <div class="page-content fade-in-up">
-                <div class="container">
-                    <!-- Top 5 Recommendations Section -->
-                    <div class="recommendation-section">
-                        <div class="recommendation-header mb-0">
-                            <h3 class="mb-0"><i class="fas fa-seedling mr-2"></i>Top 5 Recommended Crops</h3>
-                        </div>
-                        <div class="recommendation-grid mt-3">
-                            <% if (recommendations.length > 0) { %>
-                                <% recommendations.forEach((crop, index) => { %>
-                                    <div class="recommendation-card d-flex align-items-center" onclick="showCropDetails(recommendationsData[<%= index %>])" title="View Details">
-                                        <div class="crop-rank"><%= index + 1 %></div>
-                                        <div class="crop-info">
-                                            <div class="crop-name">
-                                                <%= crop.name %>
-                                                <span class="crop-status <%= crop.isRegistered ? 'registered' : 'new' %>">
-                                                    <%= crop.isRegistered ? 'Registered' : 'New' %>
-                                                </span>
-                                            </div>
-                                            <div class="crop-match">
-                                                <div class="match-bar" style="width: <%= Number(crop.score || crop.ruleBasedScore) %>%"></div>
-                                                <span><%= Math.round(crop.score || crop.ruleBasedScore) %>% Match</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="alert alert-info text-center mt-3 w-100">
-                                    <i class="fa fa-info-circle mr-2"></i> No crop recommendations available at this time.
-                                </div>
-                            <% } %>
-                        </div>
-                    </div>
+ <div class="row">
 
-                    <!-- Registered Crops Section -->
-                    <div class="registered-crops-card card mb-5">
-                        <div class="registered-crops-header">
-                            <span><i class="fas fa-leaf mr-2"></i>All Registered Crops</span>
-                            <button class="btn btn-light btn-sm" id="registerCropBtn" data-toggle="tooltip" title="Register New Crop" onclick="openRegisterModal()"><i class="fa fa-plus"></i></button>
+    <!-- Top 5 Recommendations Section — 80% -->
+    <div class="col-lg-10 col-md-12 mb-3">
+        <div class="recommendation-section">
+            <div class="recommendation-header mb-0">
+                <h3 class="mb-0"><i class="fas fa-seedling mr-2"></i>Top 5 Recommended Crops</h3>
+            </div>
+            <div class="recommendation-grid mt-3">
+                <% if (recommendations.length > 0) { %>
+                    <% recommendations.forEach((crop, index) => { %>
+                        <div class="recommendation-card d-flex align-items-center"
+                             onclick="showCropDetails(recommendationsData[<%= index %>])"
+                             title="View Details">
+                            <div class="crop-rank"><%= index + 1 %></div>
+                            <div class="crop-info">
+                                <div class="crop-name">
+                                    <%= crop.name %>
+                                    <span class="crop-status <%= crop.isRegistered ? 'registered' : 'new' %>">
+                                        <%= crop.isRegistered ? 'Registered' : 'New' %>
+                                    </span>
+                                </div>
+                                <div class="crop-match">
+                                    <div class="match-bar-container">
+                                        <div class="match-bar" style="width: <%= Number(crop.score || crop.ruleBasedScore) %>%"></div>
+                                    </div>
+                                    <span><%= Math.round(crop.score || crop.ruleBasedScore) %>% Match</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body p-0">
-                            <table class="table table-hover mb-0 registered-crops-table">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Crop Name</th>
-                                        <th style="width: 120px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% 
-                                        // Build a Set of recommended crop names for fast lookup
-                                        const recommendedNames = new Set(recommendations.map(c => c.name));
-                                        // Filter registered crops to exclude those in recommendations
-                                        const filteredRegisteredCrops = registeredCrops.filter(crop => !recommendedNames.has(crop.name));
-                                    %>
-                                    <% if (filteredRegisteredCrops.length > 0) { %>
-                                        <% filteredRegisteredCrops.forEach(crop => { %>
-                                            <tr class="crop-row" data-crop-name="<%= crop.name %>" style="cursor: pointer;" title="Click to view details">
-                                                <td><%= crop.name %></td>
-                                                <td>
-                                                    <button class="action-btn edit edit-crop-btn" data-crop-id="<%= crop.id %>" data-crop-name="<%= crop.name %>" data-toggle="tooltip" title="Edit Crop" onclick="openEditModal('<%= encodeURIComponent(crop.name) %>', this)"><i class="fa fa-pencil-alt"></i></button>
-                                                    <button class="action-btn delete delete-crop-btn" data-crop-id="<%= crop.id %>" data-crop-name="<%= crop.name %>" data-toggle="tooltip" title="Unregister Crop" onclick="deleteCrop('<%= encodeURIComponent(crop.name) %>')"><i class="fa fa-trash"></i></button>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    <% } else { %>
-                                        <tr><td colspan="2" class="text-muted text-center">No registered crops found.</td></tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
-                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="alert alert-info text-center mt-3 w-100">
+                        <i class="fa fa-info-circle mr-2"></i> No crop recommendations available at this time.
                     </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+ <!-- Registered Crops Section — 20% -->
+<div class="col-lg-2 col-md-12 mb-3">
+    <div class="registered-crops-card card mb-0">
+        <div class="registered-crops-header">
+            <span><i class="fas fa-leaf mr-2"></i>All Registered Crops</span>
+            <button class="btn btn-light btn-sm" id="registerCropBtn" data-toggle="tooltip"
+                    title="Register New Crop" onclick="openRegisterModal()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 registered-crops-table">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Crop Name</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (registeredCrops.length > 0) { %>
+                        <% registeredCrops.forEach(crop => { %>
+                            <tr class="crop-row" data-crop-name="<%= crop.name %>" style="cursor: pointer;" title="Click to view details">
+                                <td><%= crop.name %></td>
+                                <td>
+                                    <button class="action-btn edit edit-crop-btn"
+                                            data-crop-id="<%= crop.id %>"
+                                            data-crop-name="<%= crop.name %>"
+                                            data-toggle="tooltip"
+                                            title="Edit Crop"
+                                            onclick="openEditModal('<%= encodeURIComponent(crop.name) %>', this)">
+                                        <i class="fa fa-pencil-alt"></i>
+                                    </button>
+                                    <button class="action-btn delete delete-crop-btn"
+                                            data-crop-id="<%= crop.id %>"
+                                            data-crop-name="<%= crop.name %>"
+                                            data-toggle="tooltip"
+                                            title="Unregister Crop"
+                                            onclick="deleteCrop('<%= encodeURIComponent(crop.name) %>')">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="2" class="text-muted text-center">No registered crops found.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
 
                     <!-- Floating Register Crop Button (for mobile/quick access) -->
-                    <button class="floating-btn" id="floatingRegisterCropBtn" data-toggle="tooltip" title="Register New Crop" onclick="openRegisterModal()"><i class="fa fa-plus"></i></button>
+                    <button class="floating-btn" id="floatingRegisterCropBtn" data-toggle="tooltip" title="Register New Crop"><i class="fa fa-plus"></i></button>
                 </div>
 
-                <!-- Register Crop Modal (copied from report-crops.ejs) -->
-                <div class="modal fade" id="registerCropModal" tabindex="-1" role="dialog" aria-labelledby="registerCropModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="registerCropModalLabel">
-                          <i class="fa fa-plus me-2"></i>Register New Crop
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <form id="registerCropForm" autocomplete="off">
-                        <div class="modal-body">
-                          <div class="form-group mb-3">
-                            <label for="registerCropName">Crop Name *</label>
-                            <input type="text" class="form-control" id="registerCropName" name="cropName" required>
-                            <small class="form-text text-muted">Enter the name of the crop you want to register</small>
-                          </div>
-                          <div class="alert alert-info">
-                            <i class="fa fa-info-circle me-2"></i>
-                            <strong>Optimal Conditions:</strong> You can either fill in the optimal conditions manually or leave them blank to use AI-generated recommendations.
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalTemperature">Optimal Temperature (°C)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalTemperature" name="optimal_temperature" placeholder="Leave blank for AI recommendation">
+                <!-- Register Crop Modal -->
+                <div class="modal fade" id="registerCropModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">Register New Crop</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalHumidity">Optimal Humidity (%)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalHumidity" name="optimal_humidity" placeholder="Leave blank for AI recommendation">
+                            <div class="modal-body">
+                                <form id="registerCropForm">
+                                    <div class="form-group">
+                                        <label for="cropName">Crop Name</label>
+                                        <input type="text" class="form-control" id="cropName" name="cropName" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Register</button>
+                                </form>
                             </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalMoisture">Optimal Moisture (%)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalMoisture" name="optimal_moisture" placeholder="Leave blank for AI recommendation">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalLight">Optimal Light (lux)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalLight" name="optimal_light" placeholder="Leave blank for AI recommendation">
-                            </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalPH">Optimal pH</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalPH" name="optimal_ph" placeholder="Leave blank for AI recommendation">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalN">Nitrogen (N) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalN" name="optimal_n" placeholder="Leave blank for AI recommendation">
-                            </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalP">Phosphorus (P) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalP" name="optimal_p" placeholder="Leave blank for AI recommendation">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="registerOptimalK">Potassium (K) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="registerOptimalK" name="optimal_k" placeholder="Leave blank for AI recommendation">
-                            </div>
-                          </div>
                         </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-plus me-1"></i>Register Crop
-                          </button>
-                        </div>
-                      </form>
                     </div>
-                  </div>
                 </div>
-                <!-- Edit Crop Modal (copied from report-crops.ejs) -->
-                <div class="modal fade" id="editCropModal" tabindex="-1" role="dialog" aria-labelledby="editCropModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="editCropModalLabel">Edit Crop Data</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <form id="editCropForm" autocomplete="off">
-                        <div class="modal-body">
-                          <div class="form-group">
-                            <label for="editCropNameInput">Crop Name</label>
-                            <input type="text" class="form-control" id="editCropNameInput" name="newCropName" required>
-                            <input type="hidden" id="oldCropNameInput" name="oldCropName">
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalTemperature">Optimal Temperature (°C)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalTemperature" name="optimal_temperature">
+
+                <!-- Edit Crop Modal -->
+                <div class="modal fade" id="editCropModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-white">
+                                <h5 class="modal-title">Edit Crop</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalHumidity">Optimal Humidity (%)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalHumidity" name="optimal_humidity">
+                            <div class="modal-body">
+                                <form id="editCropForm">
+                                    <input type="hidden" id="editCropId" name="editCropId" />
+                                    <div class="form-group">
+                                        <label for="editCropName">Crop Name</label>
+                                        <input type="text" class="form-control" id="editCropName" name="editCropName" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                                </form>
                             </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalMoisture">Optimal Moisture (%)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalMoisture" name="optimal_moisture">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalLight">Optimal Light (lux)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalLight" name="optimal_light">
-                            </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalPH">Optimal pH</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalPH" name="optimal_ph">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalN">Nitrogen (N) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalN" name="optimal_n">
-                            </div>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalP">Phosphorus (P) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalP" name="optimal_p">
-                            </div>
-                            <div class="form-group col-md-6">
-                              <label for="editOptimalK">Potassium (K) (mg/kg)</label>
-                              <input type="number" step="any" class="form-control" id="editOptimalK" name="optimal_k">
-                            </div>
-                          </div>
                         </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- Delete Crop Modal -->
+                <div class="modal fade" id="deleteCropModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Unregister Crop</h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to unregister <span id="deleteCropName" class="font-weight-bold"></span>?</p>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteCropBtn">Yes, Unregister</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
                         </div>
-                      </form>
                     </div>
-                  </div>
                 </div>
-                <!-- Notification Container -->
-                <div id="notification-container" style="position: fixed; top: 30px; right: 30px; z-index: 9999; min-width: 300px;"></div>
-                <!-- Global Confirmation Modal -->
-                <div class="modal fade" id="globalConfirmModal" tabindex="-1" role="dialog" aria-labelledby="globalConfirmModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header bg-warning text-dark">
-                        <h5 class="modal-title" id="globalConfirmModalLabel"><i class="fa fa-question-circle mr-2"></i>Confirmation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body" id="globalConfirmModalBody">
-                        <!-- Confirmation message will be injected here -->
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="globalConfirmModalYesBtn">Yes</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            </div>
-        
-             <!-- Footer -->
-            <footer class="page-footer">
-                <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
-                <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
-            </footer>
-    </div></div>
+           
+        <footer class="page-footer">
+            <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
+            <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
+        </footer>
+    </div> </div>
+        </div>
     <script src="/assets/vendors/jquery/dist/jquery.min.js"></script>
     <script src="/assets/vendors/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -854,61 +936,6 @@
                             <i class="fas fa-seedling mr-2"></i>Plant this Crop
                         </button>
                     <% } %>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Registered Crop Details Modal -->
-    <div class="modal fade" id="registeredCropDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title font-weight-bold" id="registeredCropModalTitle"></h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row mb-3">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <div class="section-title"><i class="fas fa-info-circle"></i> Crop Information</div>
-                                <table class="info-table">
-                                    <tr><td>Status:</td><td><span id="registeredCropStatus" class="badge badge-success">Registered</span></td></tr>
-                                    <tr><td>Overall Match:</td><td><span id="registeredOverallMatch" class="font-weight-bold"></span></td></tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="section-title"><i class="fas fa-star"></i> Quick Stats</div>
-                                <table class="info-table">
-                                    <tr><td>Best Match</td><td id="registeredBestMatchParam"></td></tr>
-                                    <tr><td>Needs Attention</td><td id="registeredWorstMatchParam"></td></tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <div class="section-title"><i class="fas fa-bullseye"></i> Optimal Conditions</div>
-                                <div id="registeredOptimalConditions"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="section-title"><i class="fas fa-tachometer-alt"></i> Parameter Matches</div>
-                                <div id="registeredParameterMatches"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <% if (!hasActiveCrop) { %>
-                        <button type="button" class="btn btn-success" id="plantRegisteredCropBtn">
-                            <i class="fas fa-seedling mr-2"></i>Plant this Crop
-                        </button>
-                    <% } %>
-                    <button type="button" class="btn btn-primary" id="editOptimalConditionsBtn" style="display: none;">
-                        <i class="fas fa-edit mr-2"></i>Edit Optimal Conditions
-                    </button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -982,219 +1009,111 @@
         });
     });
 
-    // Remove old registration/edit JS and add the new logic from report-crops.ejs
-    function openRegisterModal() {
-        document.getElementById('registerCropForm').reset();
+    document.getElementById('registerCropBtn').addEventListener('click', function() {
         $('#registerCropModal').modal('show');
-    }
-    function openEditModal(cropName, btn) {
-        const decodedName = decodeURIComponent(cropName);
-        document.getElementById('editCropNameInput').value = '';
-        document.getElementById('oldCropNameInput').value = decodedName;
-        document.getElementById('editOptimalTemperature').value = '';
-        document.getElementById('editOptimalHumidity').value = '';
-        document.getElementById('editOptimalMoisture').value = '';
-        document.getElementById('editOptimalLight').value = '';
-        document.getElementById('editOptimalPH').value = '';
-        document.getElementById('editOptimalN').value = '';
-        document.getElementById('editOptimalP').value = '';
-        document.getElementById('editOptimalK').value = '';
-        document.getElementById('editCropForm')._rowToUpdate = btn.closest('tr');
-        fetch('/get-crop-details', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ cropName: decodedName })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const crop = data.cropDetails;
-                document.getElementById('editCropNameInput').value = crop.name || '';
-                document.getElementById('editOptimalTemperature').value = crop.optimal_temperature ?? '';
-                document.getElementById('editOptimalHumidity').value = crop.optimal_humidity ?? '';
-                document.getElementById('editOptimalMoisture').value = crop.optimal_moisture ?? '';
-                document.getElementById('editOptimalLight').value = crop.optimal_light ?? '';
-                document.getElementById('editOptimalPH').value = crop.optimal_ph ?? '';
-                document.getElementById('editOptimalN').value = crop.optimal_n ?? '';
-                document.getElementById('editOptimalP').value = crop.optimal_p ?? '';
-                document.getElementById('editOptimalK').value = crop.optimal_k ?? '';
-                $('#editCropModal').modal('show');
-            } else {
-                showNotification('Failed to load crop data for editing: ' + (data.message || 'Unknown error'), 'danger');
-            }
-        })
-        .catch(err => {
-            showNotification('Error loading crop data: ' + err.message, 'danger');
-        });
-    }
-    document.getElementById('editCropForm').addEventListener('submit', function(e) {
+    });
+
+    // AJAX form submission for registering crop
+    document.getElementById('registerCropForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const oldCropName = document.getElementById('oldCropNameInput').value;
-        const newCropName = document.getElementById('editCropNameInput').value;
-        const optimal_temperature = document.getElementById('editOptimalTemperature').value;
-        const optimal_humidity = document.getElementById('editOptimalHumidity').value;
-        const optimal_moisture = document.getElementById('editOptimalMoisture').value;
-        const optimal_light = document.getElementById('editOptimalLight').value;
-        const optimal_ph = document.getElementById('editOptimalPH').value;
-        const optimal_n = document.getElementById('editOptimalN').value;
-        const optimal_p = document.getElementById('editOptimalP').value;
-        const optimal_k = document.getElementById('editOptimalK').value;
-        fetch('/edit-crop-name', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                oldCropName,
-                newCropName,
-                optimal_temperature,
-                optimal_humidity,
-                optimal_moisture,
-                optimal_light,
-                optimal_ph,
-                optimal_n,
-                optimal_p,
-                optimal_k
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
+        const cropName = document.getElementById('cropName').value.trim();
+        if (!cropName) return;
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Registering...';
+        try {
+            const res = await fetch('/api/crops/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cropName })
+            });
+            const data = await res.json();
             if (data.success) {
-                const row = document.getElementById('editCropForm')._rowToUpdate;
-                if (row) {
-                    row.children[0].textContent = newCropName;
-                    row.querySelector('.action-btn.edit').setAttribute('onclick', `openEditModal('${encodeURIComponent(newCropName)}', this)`);
-                    row.querySelector('.action-btn.delete').setAttribute('onclick', `deleteCrop('${encodeURIComponent(newCropName)}')`);
-                    row.setAttribute('data-optimal-temperature', optimal_temperature);
-                    row.setAttribute('data-optimal-humidity', optimal_humidity);
-                    row.setAttribute('data-optimal-moisture', optimal_moisture);
-                    row.setAttribute('data-optimal-light', optimal_light);
-                    row.setAttribute('data-optimal-ph', optimal_ph);
-                    row.setAttribute('data-optimal-n', optimal_n);
-                    row.setAttribute('data-optimal-p', optimal_p);
-                    row.setAttribute('data-optimal-k', optimal_k);
-                }
-                $('#editCropModal').modal('hide');
-                showNotification('Crop data updated successfully.', 'success');
+                alert(data.message);
+                $('#registerCropModal').modal('hide');
+                location.reload();
             } else {
-                showNotification('Failed to update crop data: ' + (data.message || 'Unknown error'), 'danger');
+                alert(data.message || 'Registration failed.');
             }
-        })
-        .catch(err => {
-            showNotification('Error: ' + err.message, 'danger');
+        } catch (err) {
+            alert('Server error. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Register';
+        }
+    });
+
+    // Edit Crop Modal
+    let currentEditCropId = null;
+    document.querySelectorAll('.edit-crop-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentEditCropId = this.dataset.cropId;
+            document.getElementById('editCropId').value = currentEditCropId;
+            document.getElementById('editCropName').value = this.dataset.cropName;
+            $('#editCropModal').modal('show');
         });
     });
-    // Enhanced notification (already present, just make sure it's styled)
-    function showNotification(message, type = 'success', duration = 3500) {
-        const container = document.getElementById('notification-container');
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow-lg border-0 px-4 py-3 mb-2`;
-        alertDiv.role = 'alert';
-        alertDiv.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fa ${type === 'success' ? 'fa-check-circle text-success' : type === 'danger' ? 'fa-times-circle text-danger' : type === 'warning' ? 'fa-exclamation-triangle text-warning' : 'fa-info-circle text-info'} fa-lg mr-2"></i>
-                <span class="flex-grow-1">${message}</span>
-                <button type="button" class="close ml-3" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        `;
-        container.appendChild(alertDiv);
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                $(alertDiv).alert('close');
-            }
-        }, duration);
-    }
-
-    // Global confirmation modal logic
-    function showConfirm(message, yesCallback) {
-        document.getElementById('globalConfirmModalBody').innerHTML = message;
-        $('#globalConfirmModal').modal('show');
-        const yesBtn = document.getElementById('globalConfirmModalYesBtn');
-        // Remove previous listeners
-        const newYesBtn = yesBtn.cloneNode(true);
-        yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
-        newYesBtn.addEventListener('click', function() {
-            $('#globalConfirmModal').modal('hide');
-            if (typeof yesCallback === 'function') yesCallback();
-        });
-    }
-
-    // Replace deleteCrop to use confirmation modal
-    function deleteCrop(cropName) {
-        showConfirm('Are you sure you want to unregister this crop?', function() {
-            fetch('/unregister-crop', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ cropName: decodeURIComponent(cropName) })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const row = document.querySelector(`button[onclick=\"deleteCrop('${cropName}')\"]`).closest('tr');
-                    if (row) row.remove();
-                    showNotification('Crop unregistered successfully.', 'success');
-                } else {
-                    showNotification('Failed to unregister crop: ' + (data.message || 'Unknown error'), 'danger');
-                }
-            })
-            .catch(err => {
-                showNotification('Error: ' + err.message, 'danger');
-            });
-        });
-    }
-
-    document.getElementById('registerCropForm').addEventListener('submit', function(e) {
+    document.getElementById('editCropForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
-        const cropData = {
-            cropName: formData.get('cropName'),
-            optimal_temperature: formData.get('optimal_temperature') || null,
-            optimal_humidity: formData.get('optimal_humidity') || null,
-            optimal_moisture: formData.get('optimal_moisture') || null,
-            optimal_light: formData.get('optimal_light') || null,
-            optimal_ph: formData.get('optimal_ph') || null,
-            optimal_n: formData.get('optimal_n') || null,
-            optimal_p: formData.get('optimal_p') || null,
-            optimal_k: formData.get('optimal_k') || null
-        };
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Registering...';
-        submitBtn.disabled = true;
-        fetch('/register-crop-with-ai', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(cropData)
-        })
-        .then(res => res.json())
-        .then(data => {
+        const cropId = document.getElementById('editCropId').value;
+        const newName = document.getElementById('editCropName').value.trim();
+        if (!cropId || !newName) return;
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+            const res = await fetch(`/api/crops/${cropId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newName })
+            });
+            const data = await res.json();
             if (data.success) {
-                showNotification('Crop registered successfully!', 'success');
-                $('#registerCropModal').modal('hide');
-                setTimeout(() => { location.reload(); }, 1500);
+                alert(data.message);
+                $('#editCropModal').modal('hide');
+                location.reload();
             } else {
-                showNotification('Failed to register crop: ' + (data.message || 'Unknown error'), 'danger');
+                alert(data.message || 'Update failed.');
             }
-        })
-        .catch(err => {
-            showNotification('Error: ' + err.message, 'danger');
-        })
-        .finally(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+        } catch (err) {
+            alert('Server error. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
+    });
+
+    // Delete Crop Modal
+    let currentDeleteCropId = null;
+    document.querySelectorAll('.delete-crop-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentDeleteCropId = this.dataset.cropId;
+            document.getElementById('deleteCropName').textContent = this.dataset.cropName;
+            $('#deleteCropModal').modal('show');
         });
+    });
+    document.getElementById('confirmDeleteCropBtn').addEventListener('click', async function() {
+        if (!currentDeleteCropId) return;
+        this.disabled = true;
+        this.textContent = 'Unregistering...';
+        try {
+            const res = await fetch(`/api/crops/${currentDeleteCropId}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                $('#deleteCropModal').modal('hide');
+                location.reload();
+            } else {
+                alert(data.message || 'Delete failed.');
+            }
+        } catch (err) {
+            alert('Server error. Please try again.');
+        } finally {
+            this.disabled = false;
+            this.textContent = 'Yes, Unregister';
+        }
     });
 
     // Tooltip initialization
@@ -1211,71 +1130,8 @@
     if (plantBtn) {
         plantBtn.addEventListener('click', async function() {
             if (!selectedCropForPlanting) return;
-
-            // If not registered, ask to register
-            if (!selectedCropForPlanting.isRegistered) {
-                showConfirm('This crop is not registered. Do you want to register it before planting?', async function() {
-                    // Register the crop
-                    try {
-                        const cropId = selectedCropForPlanting.id;
-                        if (!cropId) {
-                            showNotification('Crop ID not found. Cannot register.', 'danger');
-                            return;
-                        }
-                        const regRes = await fetch(`/api/crops/${cropId}/register`, { method: 'POST' });
-                        const regData = await regRes.json();
-                        if (!regData.success) {
-                            showNotification(regData.message || 'Failed to register crop.', 'danger');
-                            return;
-                        }
-                        // Mark as registered locally so the next step works
-                        selectedCropForPlanting.isRegistered = true;
-                    } catch (err) {
-                        showNotification('Server error while registering crop.', 'danger');
-                        return;
-                    }
-                    // Continue to planting after registration
-                    doPlantCrop();
-                });
-                return;
-            }
-
-            doPlantCrop();
-            async function doPlantCrop() {
-                plantBtn.disabled = true;
-                plantBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Planting...';
-                try {
-                    const res = await fetch('/confirmCropSelection', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ cropData: selectedCropForPlanting })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        showNotification(data.message, 'success');
-                        $('#cropDetailsModal').modal('hide');
-                        setTimeout(() => { window.location.href = '/plant-overview'; }, 1200);
-                    } else {
-                        showNotification(data.error || data.message || 'Failed to plant crop.', 'danger');
-                    }
-                } catch (err) {
-                    showNotification('Server error. Please try again.', 'danger');
-                } finally {
-                    plantBtn.disabled = false;
-                    plantBtn.innerHTML = '<i class="fas fa-seedling mr-2"></i>Plant this Crop';
-                }
-            }
-        });
-    }
-
-    // Plant this Crop button handler for registered crops
-    const plantRegisteredBtn = document.getElementById('plantRegisteredCropBtn');
-    if (plantRegisteredBtn) {
-        plantRegisteredBtn.addEventListener('click', async function() {
-            if (!selectedCropForPlanting) return;
-
-            plantRegisteredBtn.disabled = true;
-            plantRegisteredBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Planting...';
+            plantBtn.disabled = true;
+            plantBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Planting...';
             try {
                 const res = await fetch('/confirmCropSelection', {
                     method: 'POST',
@@ -1284,201 +1140,22 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showNotification(data.message, 'success');
-                    $('#registeredCropDetailsModal').modal('hide');
-                    setTimeout(() => { window.location.href = '/plant-overview'; }, 1200);
+                    alert(data.message);
+                    $('#cropDetailsModal').modal('hide');
+                    location.reload();
                 } else {
-                    showNotification(data.error || data.message || 'Failed to plant crop.', 'danger');
+                    alert(data.error || data.message || 'Failed to plant crop.');
                 }
             } catch (err) {
-                showNotification('Server error. Please try again.', 'danger');
+                alert('Server error. Please try again.');
             } finally {
-                plantRegisteredBtn.disabled = false;
-                plantRegisteredBtn.innerHTML = '<i class="fas fa-seedling mr-2"></i>Plant this Crop';
+                plantBtn.disabled = false;
+                plantBtn.innerHTML = '<i class="fas fa-seedling mr-2"></i>Plant this Crop';
             }
         });
-    }
-
-    // Auto-open modal if crop was selected from previous page
-    const cropName = sessionStorage.getItem('selectedCrop');
-    if (cropName) {
-        const crop = recommendationsData.find(c => c.name === cropName);
-        if (crop) showCropDetails(crop);
-        sessionStorage.removeItem('selectedCrop');
-    }
-
-    // Registered crop row click handler
-    document.querySelectorAll('.crop-row').forEach(row => {
-        row.addEventListener('click', async function(e) {
-            // Don't trigger if clicking on action buttons
-            if (e.target.closest('.action-btn')) {
-                return;
-            }
-            
-            const cropName = this.dataset.cropName;
-            if (!cropName) return;
-            
-            try {
-                const response = await fetch(`/api/crops/${encodeURIComponent(cropName)}/details`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    showRegisteredCropDetails(data.crop);
-                } else {
-                    showNotification('Failed to load crop details: ' + data.message, 'danger');
-                }
-            } catch (error) {
-                console.error('Error fetching crop details:', error);
-                showNotification('Error loading crop details. Please try again.', 'danger');
-            }
-        });
-    });
-
-    // Function to show registered crop details modal
-    function showRegisteredCropDetails(crop) {
-        selectedCropForPlanting = crop; // Set the selected crop for planting
-        document.getElementById('registeredCropModalTitle').textContent = crop.name;
-        
-        // Use the calculated overall match from the server
-        const overallMatch = crop.overallMatch || 0;
-        document.getElementById('registeredOverallMatch').textContent = `${overallMatch}%`;
-        
-        // Find best and worst matches from analysis
-        const analysis = crop.analysis || {};
-        const bestMatch = analysis.bestParameter || ['', 0];
-        const worstMatch = analysis.worstParameter || ['', 100];
-        
-        document.getElementById('registeredBestMatchParam').textContent = bestMatch[0] ? 
-            `${bestMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(bestMatch[1])}%)` : '--';
-        document.getElementById('registeredWorstMatchParam').textContent = worstMatch[0] ? 
-            `${worstMatch[0].replace('npk_', '').toUpperCase()} (${Math.round(worstMatch[1])}%)` : '--';
-        
-        // Optimal conditions
-        const opt = crop.optimalConditions || {};
-        document.getElementById('registeredOptimalConditions').innerHTML = `
-            <table class='info-table'>
-                <tr><td>Temperature</td><td>${opt.temperature || 'N/A'}°C</td></tr>
-                <tr><td>Humidity</td><td>${opt.humidity || 'N/A'}%</td></tr>
-                <tr><td>Soil Moisture</td><td>${opt.moisture || 'N/A'}%</td></tr>
-                <tr><td>pH Level</td><td>${opt.ph || 'N/A'}</td></tr>
-                <tr><td>Light Intensity</td><td>${opt.light || 'N/A'} lux</td></tr>
-                <tr><td>Nitrogen (N)</td><td>${opt.npk_N || 'N/A'} ppm</td></tr>
-                <tr><td>Phosphorus (P)</td><td>${opt.npk_P || 'N/A'} ppm</td></tr>
-                <tr><td>Potassium (K)</td><td>${opt.npk_K || 'N/A'} ppm</td></tr>
-            </table>
-        `;
-        
-        // Enhanced parameter matches with analysis
-        const sensorData = crop.sensorData || {};
-        const parameterAnalysis = crop.parameterAnalysis || {};
-        const criticalIssues = analysis.criticalIssues || [];
-        const recommendations = analysis.recommendations || [];
-        
-        let parameterMatchesHTML = `
-            <div class="mb-3">
-                <div class="section-title"><i class="fas fa-chart-line"></i> Current Sensor Data</div>
-                <table class="info-table">
-                    <tr><td>Temperature</td><td>${sensorData.temperature || 'N/A'}°C</td></tr>
-                    <tr><td>Humidity</td><td>${sensorData.humidity || 'N/A'}%</td></tr>
-                    <tr><td>Soil Moisture</td><td>${sensorData.moisture || 'N/A'}%</td></tr>
-                    <tr><td>pH Level</td><td>${sensorData.ph || 'N/A'}</td></tr>
-                    <tr><td>Light Intensity</td><td>${sensorData.light || 'N/A'} lux</td></tr>
-                    <tr><td>Nitrogen (N)</td><td>${sensorData.nitrogen || 'N/A'} ppm</td></tr>
-                    <tr><td>Phosphorus (P)</td><td>${sensorData.phosphorus || 'N/A'} ppm</td></tr>
-                    <tr><td>Potassium (K)</td><td>${sensorData.potassium || 'N/A'} ppm</td></tr>
-                </table>
-            </div>
-        `;
-        
-        // Parameter match percentages with status indicators
-        parameterMatchesHTML += `
-            <div class="mb-3">
-                <div class="section-title"><i class="fas fa-percentage"></i> Parameter Match Analysis</div>
-                ${Object.entries(parameterAnalysis).map(([key, analysis]) => {
-                    const paramName = key.replace('npk_', '').toUpperCase();
-                    const statusClass = getStatusClass(analysis.status);
-                    const statusIcon = getStatusIcon(analysis.status);
-                    return `
-                        <div class='mb-3 p-3 border rounded' style='background: ${getStatusBackground(analysis.status)}'>
-                            <div class='d-flex justify-content-between align-items-center mb-2'>
-                                <span class='font-weight-bold'>${paramName}</span>
-                                <span class='badge ${statusClass}'>${statusIcon} ${analysis.status.toUpperCase()}</span>
-                            </div>
-                            <div class='d-flex justify-content-between mb-2'>
-                                <span>Match: ${Math.round(analysis.match)}%</span>
-                                <span>Optimal: ${analysis.optimal || 'N/A'} | Current: ${analysis.current || 'N/A'}</span>
-                            </div>
-                            <div class='param-match-bar mb-2'>
-                                <div class='param-match-bar-inner' style='width: ${analysis.match}%; background: ${getProgressColor(analysis.match)};'></div>
-                            </div>
-                            <div class='small text-muted'>${analysis.recommendation}</div>
-                        </div>
-                    `;
-                }).join('') || '<div class="text-muted">No parameter analysis data.</div>'}
-            </div>
-        `;
-        
-        // Critical issues and recommendations
-        if (criticalIssues.length > 0 || recommendations.length > 0) {
-            parameterMatchesHTML += `
-                <div class="mb-3">
-                    <div class="section-title"><i class="fas fa-exclamation-triangle"></i> Issues & Recommendations</div>
-                    ${criticalIssues.map(issue => `
-                        <div class='alert alert-${issue.severity === 'critical' ? 'danger' : 'warning'} mb-2'>
-                            <i class='fas fa-exclamation-circle mr-2'></i>
-                            <strong>${issue.parameter.toUpperCase()}:</strong> ${issue.issue}
-                        </div>
-                    `).join('')}
-                    ${recommendations.map(rec => `
-                        <div class='alert alert-info mb-2'>
-                            <i class='fas fa-info-circle mr-2'></i>${rec}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        document.getElementById('registeredParameterMatches').innerHTML = parameterMatchesHTML;
-        
-        $('#registeredCropDetailsModal').modal('show');
-    }
-    
-    // Helper function to get status class
-    function getStatusClass(status) {
-        switch (status) {
-            case 'excellent': return 'badge-success';
-            case 'good': return 'badge-info';
-            case 'acceptable': return 'badge-warning';
-            case 'poor': return 'badge-warning';
-            case 'critical': return 'badge-danger';
-            default: return 'badge-secondary';
-        }
-    }
-    
-    // Helper function to get status icon
-    function getStatusIcon(status) {
-        switch (status) {
-            case 'excellent': return 'fas fa-star';
-            case 'good': return 'fas fa-check-circle';
-            case 'acceptable': return 'fas fa-exclamation-triangle';
-            case 'poor': return 'fas fa-exclamation-triangle';
-            case 'critical': return 'fas fa-times-circle';
-            default: return 'fas fa-question-circle';
-        }
-    }
-    
-    // Helper function to get status background
-    function getStatusBackground(status) {
-        switch (status) {
-            case 'excellent': return '#d4edda';
-            case 'good': return '#d1ecf1';
-            case 'acceptable': return '#fff3cd';
-            case 'poor': return '#f8d7da';
-            case 'critical': return '#f8d7da';
-            default: return '#f8f9fa';
-        }
     }
     </script>
+        </script>
 
             <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -1491,5 +1168,6 @@
                 }
             });
         </script>
+        
 </body>
-</html>
+</html> 

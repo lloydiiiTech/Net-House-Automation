@@ -16,14 +16,14 @@ module.exports.generateTrainingChart = async (history) => {
     const data = [
       {
         x: epochs,
-        y: history.loss,  // Correct: history.loss is an array
+        y: history.loss,  // Fixed: history.loss
         type: 'line',
         name: 'Training Loss',
         line: { color: '#1f77b4' }
       },
       {
         x: epochs,
-        y: history.val_loss,  // Correct: history.val_loss is an array
+        y: history.val_loss,  // Fixed: history.val_loss
         type: 'line',
         name: 'Validation Loss',
         line: { color: '#ff7f0e' }
@@ -62,9 +62,9 @@ module.exports.generateTrainingChart = async (history) => {
   <div class="container">
     <h1>Model Training Progress</h1>
     <div class="info">
-      Final Training Loss: ${history.loss[history.loss.length - 1].toFixed(4)}<br>
-      Final Validation Loss: ${history.val_loss[history.val_loss.length - 1].toFixed(4)}<br>
-      Epochs: ${history.loss.length}
+      Final Training Loss: ${history.loss[history.loss.length - 1].toFixed(4)}<br>  // Fixed: history.loss
+      Final Validation Loss: ${history.val_loss[history.val_loss.length - 1].toFixed(4)}<br>  // Fixed: history.val_loss
+      Epochs: ${history.loss.length}  // Fixed: history.loss
     </div>
     <div id="chart"></div>
   </div>

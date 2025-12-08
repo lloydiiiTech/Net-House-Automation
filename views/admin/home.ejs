@@ -1549,15 +1549,15 @@
 
         // Initialize automation state
         function initializeAutomationState() {
-            fetch('/api/automation-state')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('autoModeSwitch').checked = data.enabled;
-                })
-                .catch(error => {
-                    console.error('Error fetching automation state:', error);
-                });
-        }
+                    fetch('/api/automation-state')
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('autoModeSwitch').checked = data.enabled;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching automation state:', error);
+                        });
+                }
 
         // Calapan City Coordinates
         const CALAPAN_LAT = 13.4125;

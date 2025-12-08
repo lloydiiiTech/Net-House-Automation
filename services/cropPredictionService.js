@@ -29,8 +29,6 @@ class CropPredictionService {
     this.lastTrainingTime = null;
     this.pendingRetrainTimeout = null;
     this.newOutcomesSinceLastTrain = 0;
-    this.sequenceLength = 7; // New: Length of time-series sequences (e.g., 7 days)
-    this.forecastHorizon = 7; // New: Forecast next 7 days
   }
 
   async initialize() {
@@ -55,45 +53,54 @@ class CropPredictionService {
     }
   }
 
-  createModel(inputShape = [this.sequenceLength, 8]) { // Updated: Input shape for sequences (time steps x features)
+  createModel(inputShape = 20) { // Updated input shape to include optimal conditions (8 additional features)
     const model = tf.sequential();
     
-    // New: LSTM layers for time-series processing
-    model.add(tf.layers.lstm({
-      units: 128,
-      inputShape: inputShape, // [sequenceLength, numFeatures]
-      returnSequences: true, // Return sequences for stacking
+    // Enhanced architecture with more layers for better learning of complex relationships
+    model.add(tf.layers.dense({
+      units: 256,
+      activation: 'relu',
+      inputShape: [inputShape],
       kernelInitializer: 'heNormal',
       kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })
     }));
     model.add(tf.layers.batchNormalization());
     model.add(tf.layers.dropout({ rate: 0.3 }));
     
-    model.add(tf.layers.lstm({
-      units: 64,
-      returnSequences: false, // Flatten for dense layers
+    model.add(tf.layers.dense({ 
+      units: 128, 
+      activation: 'relu',
       kernelInitializer: 'heNormal',
       kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })
     }));
     model.add(tf.layers.batchNormalization());
     model.add(tf.layers.dropout({ rate: 0.25 }));
     
-    // Dense layers for final prediction
+    model.add(tf.layers.dense({ 
+      units: 64, 
+      activation: 'relu',
+      kernelInitializer: 'heNormal',
+      kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })
+    }));
+    model.add(tf.layers.batchNormalization());
+    model.add(tf.layers.dropout({ rate: 0.2 }));
+    
     model.add(tf.layers.dense({ 
       units: 32, 
       activation: 'relu',
       kernelInitializer: 'heNormal',
       kernelRegularizer: tf.regularizers.l2({ l2: 0.01 })
     }));
-    model.add(tf.layers.dropout({ rate: 0.2 }));
+    model.add(tf.layers.dropout({ rate: 0.1 }));
     
     model.add(tf.layers.dense({ 
-      units: this.forecastHorizon * 8, // Forecast next horizon days for 8 sensor features
-      activation: 'linear' // Linear for regression forecasting
+      units: 1, 
+      activation: 'sigmoid',
+      kernelInitializer: 'glorotNormal'
     }));
     
     model.compile({
-      optimizer: tf.train.adam(0.0003),
+      optimizer: tf.train.adam(0.0003), // Slightly lower learning rate for stability
       loss: 'meanSquaredError',
       metrics: ['mae', 'mse']
     });
@@ -109,7 +116,7 @@ class CropPredictionService {
       }
       
       const modelPath = path.join(modelsDir, 'saved_model');
-      await this.model.save(`file://${modelPath}`);  // Fixed: Add file:// prefix
+      await this.model.save(modelPath);  // Save model to file
       
       const metadata = {
         version: this.modelVersion,
@@ -136,7 +143,7 @@ class CropPredictionService {
       const modelsDir = path.join(__dirname, '../models');
       const modelPath = path.join(modelsDir, 'saved_model');
       if (fs.existsSync(modelPath)) {
-        this.model = await tf.loadLayersModel(`file://${modelPath}/model.json`);  // Fixed: Add file:// prefix
+        this.model = await tf.loadLayersModel(`${modelPath}/model.json`);
         console.log('✅ Model loaded from file');
         this.modelTrained = true;
       } else {
@@ -151,7 +158,7 @@ class CropPredictionService {
     }
   }
 
-  async getPlantedCropsTrainingData(limit = 500) { // Updated: Fetch sequences of sensor data for time-series
+  async getPlantedCropsTrainingData(limit = 500) { // Increased limit for better training
     try {
       const snapshot = await firestore.collection('planted_crops')
         .where('status', '==', 'harvested')
@@ -163,65 +170,101 @@ class CropPredictionService {
         console.warn('⚠️ No harvested crops available for training');
         return [];
       }
-
+  
       const trainingData = [];
       for (const doc of snapshot.docs) {
         const data = doc.data();
+        
+        // Include all harvested crops for retraining (old and new data)
+        // Removed skip for isTrained to ensure complete dataset is used
         
         if (
           typeof data.harvestSuccessRate !== 'number' ||
           data.harvestSuccessRate < 5 || data.harvestSuccessRate > 100 ||
           !data.finalSensorSummary ||
-          !data.endDate
+          !data.endDate  // Ensure dates for seasonality
         ) continue;
         
-        // New: Fetch historical sensor sequences for the crop's duration
-        const sensorSequences = await this.getSensorSequencesForCrop(data.startDate.toDate(), data.endDate.toDate());
-        if (sensorSequences.length < this.sequenceLength) continue; // Skip if insufficient data
+        // Get optimal conditions directly from planted_crops document
+        // Assuming optimal fields are stored here (e.g., optimal_n, optimal_p, etc.)
+        const optimalConditions = {
+          optimal_n: parseFloat(data.optimal_n) || 0,
+          optimal_p: parseFloat(data.optimal_p) || 0,
+          optimal_k: parseFloat(data.optimal_k) || 0,
+          optimal_temperature: parseFloat(data.optimal_temperature) || 0,
+          optimal_humidity: parseFloat(data.optimal_humidity) || 0,
+          optimal_moisture: parseFloat(data.optimal_moisture) || 0,
+          optimal_ph: parseFloat(data.optimal_ph) || 0,
+          optimal_light: parseFloat(data.optimal_light) || 0
+        };
         
-        // Normalize sequences and convert to arrays of numbers
-        const normalizedSequences = sensorSequences.slice(-this.sequenceLength).map(day => {
-          const norm = normalizeData({
-            nitrogen: day.nitrogen,
-            phosphorus: day.phosphorus,
-            potassium: day.potassium,
-            temperature: day.temperature,
-            humidity: day.humidity,
-            moisture: day.moisture,
-            ph: day.ph,
-            light: day.light
-          });
-          // Convert object to array: [n, p, k, temperature, humidity, moisture, ph, light]
-          return [norm.n ?? 0, norm.p ?? 0, norm.k ?? 0, norm.temperature ?? 0, norm.humidity ?? 0, norm.moisture ?? 0, norm.ph ?? 0, norm.light ?? 0];
+        const s = data.finalSensorSummary;
+        
+        // Normalize sensor data
+        const normalizedSensor = normalizeData({
+          nitrogen: s.nitrogen ?? 0,
+          phosphorus: s.phosphorus ?? 0,
+          potassium: s.potassium ?? 0,
+          temperature: s.temperature ?? 0,
+          humidity: s.humidity ?? 0,
+          moisture: s.moistureAve ?? 0,
+          ph: s.ph ?? 0,
+          light: s.light ?? 0
         });
         
-        // Prepare target: Forecasted sensor values (next horizon days)
-        const targetSequences = await this.getFutureSensorSequences(data.endDate.toDate(), this.forecastHorizon);
-        const normalizedTargets = targetSequences.map(day => {
-          const norm = normalizeData({
-            nitrogen: day.nitrogen,
-            phosphorus: day.phosphorus,
-            potassium: day.potassium,
-            temperature: day.temperature,
-            humidity: day.humidity,
-            moisture: day.moisture,
-            ph: day.ph,
-            light: day.light
-          });
-          // Convert to array and flatten
-          return [norm.n ?? 0, norm.p ?? 0, norm.k ?? 0, norm.temperature ?? 0, norm.humidity ?? 0, norm.moisture ?? 0, norm.ph ?? 0, norm.light ?? 0];
-        }).flat(); // Flatten for output
+        // Normalize optimal conditions using the same normalizer for consistency
+        const normalizedOptimal = normalizeData({
+          nitrogen: optimalConditions.optimal_n,
+          phosphorus: optimalConditions.optimal_p,
+          potassium: optimalConditions.optimal_k,
+          temperature: optimalConditions.optimal_temperature,
+          humidity: optimalConditions.optimal_humidity,
+          moisture: optimalConditions.optimal_moisture,
+          ph: optimalConditions.optimal_ph,
+          light: optimalConditions.optimal_light
+        });
+        
+        // Enhanced features: sensor data + optimal conditions + seasonality + registration
+        const features = [
+          // Normalized sensor data (8)
+          normalizedSensor.n ?? 0,
+          normalizedSensor.p ?? 0,
+          normalizedSensor.k ?? 0,
+          normalizedSensor.temperature ?? 0,
+          normalizedSensor.humidity ?? 0,
+          normalizedSensor.moisture ?? 0,
+          normalizedSensor.ph ?? 0,
+          normalizedSensor.light ?? 0,
+          // Normalized optimal conditions (8)
+          normalizedOptimal.n ?? 0,
+          normalizedOptimal.p ?? 0,
+          normalizedOptimal.k ?? 0,
+          normalizedOptimal.temperature ?? 0,
+          normalizedOptimal.humidity ?? 0,
+          normalizedOptimal.moisture ?? 0,
+          normalizedOptimal.ph ?? 0,
+          normalizedOptimal.light ?? 0
+        ];
+        
+        const startDate = data.startDate?.toDate ? data.startDate.toDate() : null;
+        const endDate = data.endDate?.toDate ? data.endDate.toDate() : null;
+        const { month, duration, season } = extractSeasonalityFeatures(startDate, endDate);
+        features.push(month, duration, season);
+        
+        // Get isRegistered from planted_crops or default to true
+        const isRegistered = data.isRegistered !== false;
+        features.push(isRegistered ? 1 : 0);
         
         trainingData.push({
-          features: normalizedSequences, // Now number[][] (sequence of feature arrays)
-          label: normalizedTargets, // Flattened number[]
-          cropId: data.cropId || doc.id,
+          features,
+          label: Math.min(1, Math.max(0, data.harvestSuccessRate / 100)),
+          cropId: data.cropId || doc.id, // Use cropId if available, else doc.id
           docId: doc.id,
-          isRegistered: true // Add this (all are registered)
+          isRegistered
         });
       }
   
-      console.log(`📊 Retrieved ${trainingData.length} training samples with sequences`);
+      console.log(`📊 Retrieved ${trainingData.length} training samples (all harvested crops)`);
       return trainingData;
     } catch (err) {
       // Handle missing index error
@@ -238,38 +281,7 @@ class CropPredictionService {
       return [];
     }
   }
-
-  // New: Helper to fetch sensor sequences for a crop's period
-  async getSensorSequencesForCrop(startDate, endDate) {
-    const snapshot = await firestore.collection('daily_sensor_summaries')
-      .where('timestamp', '>=', startDate)
-      .where('timestamp', '<=', endDate)
-      .orderBy('timestamp', 'asc')
-      .get();
-    
-    return snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        nitrogen: data.nitrogen?.average || 0,
-        phosphorus: data.phosphorus?.average || 0,
-        potassium: data.potassium?.average || 0,
-        temperature: data.temperature?.average || 0,
-        humidity: data.humidity?.average || 0,
-        moisture: data.moistureAve?.average || 0,
-        ph: data.ph?.average || 0,
-        light: data.light?.average || 0,
-        timestamp: data.timestamp.toDate()
-      };
-    });
-  }
-
-  // New: Helper to get future sequences (use historical averages or predictions as proxy)
-  async getFutureSensorSequences(fromDate, horizon) {
-    // For simplicity, use recent averages; in production, use a separate forecasting model
-    const recentData = await this.get31DaysSensorData();
-    const avgData = this.calculateWeightedAverages(recentData);
-    return Array.from({ length: horizon }, () => avgData); // Repeat averages for horizon
-  }
+  
 
   async get31DaysSensorData() {
     const now = new Date();
@@ -333,114 +345,87 @@ class CropPredictionService {
   }
 
   async predict() {
-    // Updated: Forecast future sensor values and use them for crop prediction
     if (this.currentTraining) {
       throw new Error('Prediction service is currently training');
     }
     
-    const sensorSequences = await this.getRecentSensorSequences(); // New: Get recent sequences
-    if (sensorSequences.length < this.sequenceLength) {
-      throw new Error('Insufficient sensor data for forecasting');
+    const sensorData = await this.get31DaysSensorData();
+    if (sensorData.length === 0) {
+      throw new Error('No sensor data available for prediction');
     }
-    
-    const normalizedSequences = sensorSequences.map(day => normalizeData({
-      nitrogen: day.nitrogen,
-      phosphorus: day.phosphorus,
-      potassium: day.potassium,
-      temperature: day.temperature,
-      humidity: day.humidity,
-      moisture: day.moisture,
-      ph: day.ph,
-      light: day.light
-    }));
-    
+  
+    const averagedData = this.calculateWeightedAverages(sensorData);
     const crops = await this.getAllCrops();
-    
-    // Forecast future sensor values
-    let forecastedSensors = [];
-    let forecastDetails = {};
-    if (this.modelTrained) {
-      const inputTensor = tf.tensor3d([normalizedSequences.slice(-this.sequenceLength)], [1, this.sequenceLength, 8]);
-      const forecast = await this.model.predict(inputTensor).dataSync();
-      forecastedSensors = this.reshapeForecast(forecast); // Reshape to [horizon, features]
-      tf.dispose(inputTensor);
-      
-      // Prepare forecast details for visualization
-      const featureNames = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'humidity', 'moisture', 'ph', 'light'];
-      featureNames.forEach((name, i) => {
-        forecastDetails[name] = forecastedSensors.map(day => day[name]);
-      });
-    } else {
-      // Fallback: Use averages
-      const avgData = this.calculateWeightedAverages(sensorSequences);
-      forecastedSensors = Array.from({ length: this.forecastHorizon }, () => avgData);
-    }
-    
-    // Use forecasted data for crop scoring
+  
     const predictions = [];
     for (const [cropId, crop] of Object.entries(crops)) {
-      const avgForecast = this.calculateWeightedAverages(forecastedSensors); // Average forecasted values
-      const { suitability } = this.calculateScore(avgForecast, crop);
+      // Rule-based score (now enhanced with all parameterMatches data)
+      const { suitability, parameterMatches } = this.calculateScore(averagedData, crop);
       
-      // ...existing code... (adapt scoring logic)
+      // Calculate additional metrics from parameterMatches for better scoring
+      const matchScores = Object.values(parameterMatches).filter(s => typeof s === 'number' && s !== null);
+      const avgParameterMatch = matchScores.length > 0 
+        ? matchScores.reduce((a, b) => a + b, 0) / matchScores.length 
+        : 0;
+      const minParameterMatch = matchScores.length > 0 ? Math.min(...matchScores) : 0;
+      const maxParameterMatch = matchScores.length > 0 ? Math.max(...matchScores) : 0;
       
+      // Count how many parameters are above 70% match (good matches)
+      const goodMatchesCount = matchScores.filter(s => s >= 70).length;
+      const goodMatchesRatio = matchScores.length > 0 ? goodMatchesCount / matchScores.length : 0;
+      
+      // ML-based score with enhanced features
+      let mlScore = suitability;
+      if (this.modelTrained) {
+        try {
+          const inputTensor = this.createInputTensor(averagedData, crop); // Pass crop optimal
+          const prediction = await this.model.predict(inputTensor).data();
+          mlScore = Math.round(prediction[0] * 100);
+          tf.dispose(inputTensor);
+        } catch (err) {
+          console.error('❌ ML prediction failed:', err);
+          mlScore = suitability;
+        }
+      }
+
+      // Enhanced final score calculation with higher ML weight for accuracy
+      let finalScore;
+      
+      if (this.modelTrained) {
+        const ruleBasedComponent = suitability * 0.30; // Reduced rule-based weight
+        const avgMatchComponent = avgParameterMatch * 0.20;
+        const goodMatchesComponent = goodMatchesRatio * 100 * 0.10;
+        const mlComponent = mlScore * 0.40; // Increased ML weight
+        
+        finalScore = Math.round(ruleBasedComponent + avgMatchComponent + goodMatchesComponent + mlComponent);
+      } else {
+        // When ML not trained: use parameterMatches data more heavily
+        const ruleBasedComponent = suitability * 0.50; // Enhanced suitability
+        const avgMatchComponent = avgParameterMatch * 0.30; // Average of all parameter matches
+        const goodMatchesComponent = goodMatchesRatio * 100 * 0.20; // Good matches bonus
+        
+        finalScore = Math.round(ruleBasedComponent + avgMatchComponent + goodMatchesComponent);
+      }
+      
+      // Ensure score is within valid range
+      finalScore = Math.max(0, Math.min(100, finalScore));
+      
+      // Fair scoring - no boost or penalty for registered/unregistered crops
+      // All crops compete equally based on their actual suitability scores
+
       predictions.push({
         cropId,
         ...crop,
-        score: suitability, // Use forecasted suitability
-        forecastedSensors: avgForecast,
+        score: finalScore,
+        parameterMatches,
+        ruleBasedScore: suitability,
+        mlScore: this.modelTrained ? mlScore : null,
+        registeredBoost: 0, // No boost for fair competition
         timestamp: new Date()
       });
     }
-    
-    return this.savePredictionResults(predictions, forecastedSensors, forecastDetails);
-  }
-
-  // New: Get recent sensor sequences
-  async getRecentSensorSequences() {
-    const now = new Date();
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - this.sequenceLength);
-    
-    const snapshot = await firestore.collection('daily_sensor_summaries')
-      .where('timestamp', '>=', startDate)
-      .where('timestamp', '<=', now)
-      .orderBy('timestamp', 'asc')
-      .get();
-    
-    return snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        nitrogen: data.nitrogen?.average || 0,
-        phosphorus: data.phosphorus?.average || 0,
-        potassium: data.potassium?.average || 0,
-        temperature: data.temperature?.average || 0,
-        humidity: data.humidity?.average || 0,
-        moisture: data.moistureAve?.average || 0,
-        ph: data.ph?.average || 0,
-        light: data.light?.average || 0,
-        timestamp: data.timestamp.toDate()
-      };
-    });
-  }
-
-  // New: Reshape forecast output
-  reshapeForecast(flatForecast) {
-    const features = 8;
-    const reshaped = [];
-    for (let i = 0; i < this.forecastHorizon; i++) {
-      reshaped.push({
-        nitrogen: flatForecast[i * features],
-        phosphorus: flatForecast[i * features + 1],
-        potassium: flatForecast[i * features + 2],
-        temperature: flatForecast[i * features + 3],
-        humidity: flatForecast[i * features + 4],
-        moisture: flatForecast[i * features + 5],
-        ph: flatForecast[i * features + 6],
-        light: flatForecast[i * features + 7]
-      });
-    }
-    return reshaped;
+  
+    return this.savePredictionResults(predictions, averagedData);
   }
 
   calculateWeightedAverages(sensorData) {
@@ -478,6 +463,7 @@ class CropPredictionService {
       timestamp: new Date()
     };
   }
+
   createInputTensor(sensorData, cropOptimal, isRegistered = true, startDate = null, endDate = null) {
     // Normalize sensor data
     const normalizedSensor = normalizeData({
@@ -664,7 +650,7 @@ class CropPredictionService {
     return Math.round(enhancedScore);
   }
 
-  async savePredictionResults(predictions, sensorData, forecastDetails) {
+  async savePredictionResults(predictions, sensorData) {
     // Separate registered and unregistered crops for display purposes only
     const registeredCrops = predictions.filter(p => p.isRegistered);
     const unregisteredCrops = predictions.filter(p => !p.isRegistered);
@@ -717,7 +703,6 @@ class CropPredictionService {
         registeredCropPercentage: registeredCrops.length / predictions.length * 100
       },
       sensorData: this.formatSensorSummary(sensorData),
-      forecastData: forecastDetails, // Add forecast details
       modelInfo: {
         version: this.modelVersion,
         isTrained: this.modelTrained,
@@ -737,7 +722,6 @@ class CropPredictionService {
       top5Overall,
       topOverall,
       sensorData: this.formatSensorSummary(sensorData),
-      forecastData: forecastDetails, // Include in response
       modelInfo: {
         version: this.modelVersion,
         isTrained: this.modelTrained
@@ -833,21 +817,18 @@ class CropPredictionService {
     try {
       console.log('⏳ Loading training data...');
       const trainingData = await this.getPlantedCropsTrainingData();
-      if (trainingData.length < 2) {  // Lowered to 2 for testing
-        throw new Error(`Insufficient training data (${trainingData.length} samples). Need at least 2.`);
+      if (trainingData.length < 10) {  // Require at least 10 samples
+        throw new Error(`Insufficient training data (${trainingData.length} samples). Need at least 10.`);
       }
       
       console.log(`📊 Training with ${trainingData.length} samples`);
       console.log(`📈 Registered crops: ${trainingData.filter(d => d.isRegistered).length}`);
       console.log(`📉 Unregistered crops: ${trainingData.filter(d => !d.isRegistered).length}`);
       
-      const features = trainingData.map(d => d.features); // Now number[][][]
-      const labels = trainingData.map(d => d.label); // number[][]
-      
-      // Create 3D tensor for features: [batch, sequenceLength, features]
-      const featureTensor = tf.tensor3d(features, [features.length, this.sequenceLength, 8]);
-      // Create 2D tensor for labels: [batch, forecastHorizon * 8]
-      const labelTensor = tf.tensor2d(labels, [labels.length, this.forecastHorizon * 8]);
+      const features = trainingData.map(d => d.features);
+      const labels = trainingData.map(d => d.label);
+      const featureTensor = tf.tensor2d(features);
+      const labelTensor = tf.tensor1d(labels);
       
       // Split into train/val with stratification for registered crops
       const valSplit = 0.2;
@@ -866,7 +847,7 @@ class CropPredictionService {
       const yVal = labelTensor.gather(valIndices);
       
       // Recreate model for new input shape
-      this.model = this.createModel([this.sequenceLength, 8]);
+      this.model = this.createModel(features[0].length);
       
       // Enhanced training with callbacks
       const earlyStopping = tf.callbacks.earlyStopping({ monitor: 'val_loss', patience: 20 });
@@ -879,7 +860,7 @@ class CropPredictionService {
       for (let epoch = 0; epoch < 200; epoch++) { // Increased epochs
         const h = await this.model.fit(xTrain, yTrain, {
           epochs: 1,
-          batchSize: Math.max(1, Math.min(32, Math.floor(trainIndices.length / 4))), // Ensure at least 1
+          batchSize: Math.min(32, Math.floor(trainIndices.length / 4)),
           validationData: [xVal, yVal],
           shuffle: true,
           verbose: 0,
