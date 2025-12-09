@@ -368,6 +368,11 @@ exports.getTrainingTrials = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const result = await CropPredictionService.getTrainingTrials(limit);
     
+    // Mark the best trial in the trials array for display purposes
+    result.trials.forEach(trial => {
+      trial.isBest = trial.trialId === result.bestTrial?.trialId;
+    });
+    
     // Analyze trials to provide insights
     const insights = {
       totalTrials: result.totalTrials,
@@ -446,6 +451,126 @@ exports.getTrainingTrials = async (req, res) => {
       success: false, 
       error: error.message,
       message: 'Failed to get training trials'
+    });
+  }
+};
+
+exports.getTrainingTrialsPage = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await CropPredictionService.getTrainingTrials(limit);
+    
+    // Mark best and worst trials
+    let bestTrial = null;
+    let worstTrial = null;
+    let bestScore = -Infinity;
+    let worstScore = Infinity;
+    
+    result.trials.forEach(trial => {
+      const score = trial.trialScore;
+      if (score > bestScore) {
+        bestScore = score;
+        bestTrial = trial;
+      }
+      if (score < worstScore) {
+        worstScore = score;
+        worstTrial = trial;
+      }
+      trial.isBest = trial.trialId === bestTrial?.trialId;
+      trial.isWorst = trial.trialId === worstTrial?.trialId;
+    });
+    
+    // Prepare data for rendering
+    const trialsData = result.trials.map(trial => ({
+      trialId: trial.trialId,
+      trialScore: trial.trialScore.toFixed(2),
+      accuracy: trial.metrics.valAccuracy.toFixed(1) + '%',
+      mae: trial.metrics.valMAE.toFixed(4),
+      rmse: trial.metrics.valRMSE.toFixed(4),
+      samples: trial.metrics.samples,
+      trainedAt: trial.trainedAt?.toDate?.()?.toLocaleString() || trial.trainedAt,
+      isBest: trial.isBest,
+      isWorst: trial.isWorst
+    }));
+    
+    // Prepare bar graph data for best and worst accuracy comparison only
+    const barGraphData = [{
+      x: [
+        bestTrial ? `Best (${bestTrial.trialId.substring(0, 8)})` : 'Best',
+        worstTrial ? `Worst (${worstTrial.trialId.substring(0, 8)})` : 'Worst'
+      ],
+      y: [
+        bestTrial ? bestTrial.metrics.valAccuracy : 0,
+        worstTrial ? worstTrial.metrics.valAccuracy : 0
+      ],
+      type: 'bar',
+      name: 'Accuracy (%)',
+      marker: {
+        color: ['green', 'red']
+      }
+    }];
+    
+    const barLayout = {
+      title: 'Best vs Worst Trial Accuracy Comparison',
+      xaxis: { title: 'Trial Type' },
+      yaxis: { title: 'Accuracy (%)' },
+      plot_bgcolor: '#f5f5f5',
+      paper_bgcolor: '#ffffff'
+    };
+    
+    // Prepare line graph data for trial scores over time
+    const lineGraphData = [{
+      x: trialsData.map(t => t.trainedAt),
+      y: trialsData.map(t => parseFloat(t.trialScore)),
+      type: 'line',
+      name: 'Trial Score',
+      line: { color: 'orange' },
+      mode: 'lines+markers'
+    }];
+    
+    const lineLayout = {
+      title: 'Trial Scores Over Time',
+      xaxis: { title: 'Trained At' },
+      yaxis: { title: 'Trial Score' },
+      plot_bgcolor: '#f5f5f5',
+      paper_bgcolor: '#ffffff'
+    };
+    
+    res.render('trainging-trials', { 
+      trials: trialsData,
+      bestTrial: bestTrial ? {
+        trialId: bestTrial.trialId,
+        trialScore: bestScore.toFixed(2),
+        accuracy: bestTrial.metrics.valAccuracy.toFixed(1) + '%',
+        mae: bestTrial.metrics.valMAE.toFixed(4),
+        rmse: bestTrial.metrics.valRMSE.toFixed(4),
+        samples: bestTrial.metrics.samples,
+        trainedAt: bestTrial.trainedAt?.toDate?.()?.toLocaleString() || bestTrial.trainedAt
+      } : null,
+      worstTrial: worstTrial ? {
+        trialId: worstTrial.trialId,
+        trialScore: worstScore.toFixed(2),
+        accuracy: worstTrial.metrics.valAccuracy.toFixed(1) + '%',
+        mae: worstTrial.metrics.valMAE.toFixed(4),
+        rmse: worstTrial.metrics.valRMSE.toFixed(4),
+        samples: worstTrial.metrics.samples,
+        trainedAt: worstTrial.trainedAt?.toDate?.()?.toLocaleString() || worstTrial.trainedAt
+      } : null,
+      graphs: {
+        bar: barGraphData[0],
+        barLayout,
+        line: lineGraphData[0],
+        lineLayout
+      },
+      title: 'Training Trials Comparison',
+      user: req.session.user || null 
+    });
+  } catch (error) {
+    console.error('Training trials page error:', error);
+    res.render('error', { 
+      message: 'Failed to load training trials', 
+      error: error,
+      timestamp: new Date().toISOString()
     });
   }
 };

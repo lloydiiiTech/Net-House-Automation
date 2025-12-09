@@ -58,45 +58,91 @@ function computeCropHealth(sensorSummary, optimalConditions) {
         return { score: null, status: 'Unknown' };
     }
 
-    const params = [
-        { key: 'temperature', summaryKey: 'temperature', weight: 20, tolerance: 5 }, // ±5°C, high weight
-        { key: 'humidity', summaryKey: 'humidity', weight: 15, tolerance: 10 }, // ±10%, medium weight
-        { key: 'moisture', summaryKey: 'moistureAve', weight: 20, tolerance: 20 }, // ±20%, high weight
-        { key: 'ph', summaryKey: 'ph', weight: 25, tolerance: 0.5 }, // ±0.5 pH, highest weight
-        { key: 'npk_N', summaryKey: 'nitrogen', weight: 10, tolerance: null }, // Percentage-based, medium weight
-        { key: 'npk_P', summaryKey: 'phosphorus', weight: 5, tolerance: null }, // Percentage-based, low weight
-        { key: 'npk_K', summaryKey: 'potassium', weight: 5, tolerance: null }, // Percentage-based, low weight
-        { key: 'light', summaryKey: 'light', weight: 0, tolerance: null } // Excluded from scoring
-    ];
+    let totalScore = 0;
+    let factors = 0;
 
-    let totalWeightedScore = 0;
-    let totalWeight = 0;
+    // Temperature score (0-100)
+    const temp = Number(sensorSummary.temperature?.average);
+    const tempOptimal = Number(optimalConditions.temperature);
+    if (!isNaN(temp) && !isNaN(tempOptimal)) {
+        const tempDiff = Math.abs(temp - tempOptimal);
+        const tempScore = Math.max(0, 100 - (tempDiff * 5)); // 5 points deduction per degree difference
+        totalScore += tempScore;
+        factors++;
+    }
 
-    params.forEach(param => {
-        const optimal = optimalConditions[param.key];
-        const summaryVal = sensorSummary[param.summaryKey]?.average;
-        if (typeof optimal === 'number' && typeof summaryVal === 'number' && param.weight > 0) {
-            const deviation = Math.abs(summaryVal - optimal);
-            let tolerance = param.tolerance;
-            if (tolerance === null) {
-                // For NPK, use percentage tolerance
-                tolerance = optimal * 0.25; // 25% for N, 20% for P/K handled below
-                if (param.key === 'npk_P' || param.key === 'npk_K') {
-                    tolerance = optimal * 0.20;
-                }
-            }
-            // Calculate score: 100 if at optimal, decreasing linearly to 0 at tolerance limit
-            const score = Math.max(0, 100 - (deviation / tolerance) * 100);
-            totalWeightedScore += param.weight * score;
-            totalWeight += param.weight;
-        }
-    });
+    // Humidity score (0-100)
+    const humidity = Number(sensorSummary.humidity?.average);
+    const humidityOptimal = Number(optimalConditions.humidity);
+    if (!isNaN(humidity) && !isNaN(humidityOptimal)) {
+        const humidityDiff = Math.abs(humidity - humidityOptimal);
+        const humidityScore = Math.max(0, 100 - (humidityDiff * 2)); // 2 points deduction per percentage difference
+        totalScore += humidityScore;
+        factors++;
+    }
 
-    const overallScore = totalWeight > 0 ? Math.round(totalWeightedScore / totalWeight) : 0;
+    // Moisture score (0-100)
+    const moisture = Number(sensorSummary.moistureAve?.average);
+    const moistureOptimal = Number(optimalConditions.moisture);
+    if (!isNaN(moisture) && !isNaN(moistureOptimal)) {
+        const moistureDiff = Math.abs(moisture - moistureOptimal);
+        const moistureScore = Math.max(0, 100 - (moistureDiff * 2)); // 2 points deduction per percentage difference
+        totalScore += moistureScore;
+        factors++;
+    }
+
+    // pH score (0-100)
+    const ph = Number(sensorSummary.ph?.average);
+    const phOptimal = Number(optimalConditions.ph);
+    if (!isNaN(ph) && !isNaN(phOptimal)) {
+        const phDiff = Math.abs(ph - phOptimal);
+        const phScore = Math.max(0, 100 - (phDiff * 20)); // 20 points deduction per pH unit difference
+        totalScore += phScore;
+        factors++;
+    }
+
+    // NPK scores (0-100 each, averaged)
+    const n = Number(sensorSummary.nitrogen?.average);
+    const nOptimal = Number(optimalConditions.npk_N);
+    const p = Number(sensorSummary.phosphorus?.average);
+    const pOptimal = Number(optimalConditions.npk_P);
+    const k = Number(sensorSummary.potassium?.average);
+    const kOptimal = Number(optimalConditions.npk_K);
+
+    let npkScore = 0;
+    let npkFactors = 0;
+
+    if (!isNaN(n) && !isNaN(nOptimal)) {
+        const nDiff = Math.abs(n - nOptimal);
+        const nScore = Math.max(0, 100 - (nDiff * 2));
+        npkScore += nScore;
+        npkFactors++;
+    }
+
+    if (!isNaN(p) && !isNaN(pOptimal)) {
+        const pDiff = Math.abs(p - pOptimal);
+        const pScore = Math.max(0, 100 - (pDiff * 2));
+        npkScore += pScore;
+        npkFactors++;
+    }
+
+    if (!isNaN(k) && !isNaN(kOptimal)) {
+        const kDiff = Math.abs(k - kOptimal);
+        const kScore = Math.max(0, 100 - (kDiff * 2));
+        npkScore += kScore;
+        npkFactors++;
+    }
+
+    if (npkFactors > 0) {
+        totalScore += npkScore / npkFactors;
+        factors++;
+    }
+
+    const overallScore = factors > 0 ? Math.round(totalScore / factors) : 0;
     let status;
     // Define health status based on overall score
-    if (overallScore >= 80) status = 'Good'; // Excellent conditions
-    else if (overallScore >= 60) status = 'Warning'; // Needs attention
+    if (overallScore >= 75) status = 'Good'; // Excellent conditions
+    else if (overallScore >= 50) status = 'Warning'; // Needs attention
     else status = 'Critical'; // Immediate action required
 
     return { score: overallScore, status };
