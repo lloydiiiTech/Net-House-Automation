@@ -2,6 +2,7 @@ const CropPredictionService = require('../services/cropPredictionService');
 const { firestore } = require('../config/firebase');
 const path = require('path');
 const fs = require('fs');
+const TimeSeriesForecaster = require('../services/timeSeriesForecaster');
 
 exports.recordOutcome = async (req, res) => {
   try {
@@ -525,6 +526,36 @@ exports.compareToAveragePerformance = (bestTrial) => {
     accuracyVsAverage: 'Above average', // Implement actual comparison
     maeVsAverage: 'Below average'
   };
+};
+
+exports.getLatestForecast = async (req, res) => {
+  try {
+    const forecast = await TimeSeriesForecaster.getLatestForecast();
+    if (!forecast) {
+      return res.json({ success: true, message: 'No forecast available yet' });
+    }
+    res.json({ success: true, data: forecast });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.getForecastsPage = async (req, res) => {
+  try {
+    const forecast = await TimeSeriesForecaster.getLatestForecast();
+    res.render('forecasts', { 
+      forecast, 
+      title: 'Sensor Forecasts',
+      user: req.session.user || null 
+    });
+  } catch (error) {
+    console.error('Forecasts page error:', error);
+    res.render('error', { 
+      message: 'Failed to load forecasts', 
+      error: error,
+      timestamp: new Date().toISOString()
+    });
+  }
 };
 
 

@@ -509,6 +509,37 @@
         .page-footer .to-top {
             margin: 5px 0;
         }
+        /* Enhanced forecast styles */
+.forecast-param-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(42,127,98,0.15);
+}
+
+.forecast-details {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 200px; }
+}
+
+/* Tooltip styling */
+.tooltip-inner {
+    background: #2a7f62;
+    color: white;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .forecast-card {
+        max-height: 400px;
+    }
+    .forecast-param-card {
+        padding: 1rem;
+    }
+}
     </style>
 </head>
 <body class="fixed-navbar">
@@ -650,38 +681,127 @@
             </div>
             <div class="page-content fade-in-up">
                 <div class="container">
-                    <!-- Top 5 Recommendations Section -->
-                    <div class="recommendation-section">
-                        <div class="recommendation-header mb-0">
-                            <h3 class="mb-0"><i class="fas fa-seedling mr-2"></i>Top 5 Recommended Crops</h3>
-                        </div>
-                        <div class="recommendation-grid mt-3">
-                            <% if (recommendations.length > 0) { %>
-                                <% recommendations.forEach((crop, index) => { %>
-                                    <div class="recommendation-card d-flex align-items-center" onclick="showCropDetails(recommendationsData[<%= index %>])" title="View Details">
-                                        <div class="crop-rank"><%= index + 1 %></div>
-                                        <div class="crop-info">
-                                            <div class="crop-name">
-                                                <%= crop.name %>
-                                                <span class="crop-status <%= crop.isRegistered ? 'registered' : 'new' %>">
-                                                    <%= crop.isRegistered ? 'Registered' : 'New' %>
-                                                </span>
-                                            </div>
-                                            <div class="crop-match">
-                                                <div class="match-bar" style="width: <%= Number(crop.score || crop.ruleBasedScore) %>%"></div>
-                                                <span><%= Math.round(crop.score || crop.ruleBasedScore) %>% Match</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            <% } else { %>
-                                <div class="alert alert-info text-center mt-3 w-100">
-                                    <i class="fa fa-info-circle mr-2"></i> No crop recommendations available at this time.
+                    <!-- Top 5 Recommendations and Forecasts Row -->
+                    <div class="row">
+                        <!-- Top 5 Recommendations Section -->
+                        <div class="col-md-8">
+                            <div class="recommendation-section">
+                                <div class="recommendation-header mb-0">
+                                    <h3 class="mb-0"><i class="fas fa-seedling mr-2"></i>Top 5 Recommended Crops</h3>
                                 </div>
-                            <% } %>
+                                <div class="recommendation-grid mt-3">
+                                    <% if (recommendations.length > 0) { %>
+                                        <% recommendations.forEach((crop, index) => { %>
+                                            <div class="recommendation-card d-flex align-items-center" onclick="showCropDetails(recommendationsData[<%= index %>])" title="View Details">
+                                                <div class="crop-rank"><%= index + 1 %></div>
+                                                <div class="crop-info">
+                                                    <div class="crop-name">
+                                                        <%= crop.name %>
+                                                        <span class="crop-status <%= crop.isRegistered ? 'registered' : 'new' %>">
+                                                            <%= crop.isRegistered ? 'Registered' : 'New' %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="crop-match">
+                                                        <div class="match-bar" style="width: <%= Number(crop.score || crop.ruleBasedScore) %>%"></div>
+                                                        <span><%= Math.round(crop.score || crop.ruleBasedScore) %>% Match</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <div class="alert alert-info text-center mt-3 w-100">
+                                            <i class="fa fa-info-circle mr-2"></i> No crop recommendations available at this time.
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Time Series Forecasting Section -->
+                        <!-- Time Series Forecasting Section -->
+<div class="col-md-4">
+    <div class="forecast-section">
+        <div class="recommendation-header mb-0">
+            <h3 class="mb-0"><i class="fas fa-chart-line mr-2"></i>Time Series Forecasts</h3>
+            <small class="text-muted">Next 24-hour predictions</small>
+        </div>
+        <div class="forecast-card mt-3" style="background: #fff; border-radius: 1rem; box-shadow: 0 4px 16px rgba(42,127,98,0.08); padding: 1.5rem; border: 1px solid #e9ecef; max-height: 600px; overflow-y: auto;">
+            <% if (forecast && forecast.forecasts) { %>
+                <% 
+                    // Parameter icons and units for better UX
+                    const paramConfig = {
+                        temperature: { icon: 'fas fa-thermometer-half', unit: '°C', color: '#ff6b6b' },
+                        humidity: { icon: 'fas fa-tint', unit: '%', color: '#4ecdc4' },
+                        light: { icon: 'fas fa-sun', unit: 'lux', color: '#ffd93d' },
+                        moistureAve: { icon: 'fas fa-water', unit: '%', color: '#6c5ce7' },
+                        nitrogen: { icon: 'fas fa-leaf', unit: 'ppm', color: '#a29bfe' },
+                        phosphorus: { icon: 'fas fa-seedling', unit: 'ppm', color: '#fd79a8' },
+                        potassium: { icon: 'fas fa-apple-alt', unit: 'ppm', color: '#e17055' },
+                        ph: { icon: 'fas fa-flask', unit: '', color: '#00b894' }
+                    };
+                %>
+                <% Object.entries(forecast.forecasts).forEach(([param, forecastValue]) => { %>
+                    <% 
+                        const config = paramConfig[param] || { icon: 'fas fa-chart-bar', unit: '', color: '#636e72' };
+                        const currentValue = sensorData ? sensorData[param.replace('moistureAve', 'moisture')] : null;
+                        const displayName = param.replace('moistureAve', 'Soil Moisture').replace('_', ' ').toUpperCase();
+                        const isHigher = currentValue !== null && forecastValue > currentValue;
+                        const isLower = currentValue !== null && forecastValue < currentValue;
+                        const trendIcon = isHigher ? 'fas fa-arrow-up text-success' : isLower ? 'fas fa-arrow-down text-danger' : 'fas fa-minus text-muted';
+                        const trendText = isHigher ? 'Increasing' : isLower ? 'Decreasing' : 'Stable';
+                    %>
+                    <div class="forecast-param-card mb-3 p-3 border rounded shadow-sm" 
+                         style="background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(<%= config.color.replace('#', '') %>, 0.05)); border-left: 4px solid <%= config.color %>; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;"
+                         data-toggle="tooltip" 
+                         title="Click for details | Current: <%= currentValue !== null ? currentValue.toFixed(2) + config.unit : 'N/A' %> | Forecast: <%= forecastValue.toFixed(2) + config.unit %>">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="<%= config.icon %> mr-2" style="color: <%= config.color %>; font-size: 1.2rem;"></i>
+                                <span class="font-weight-bold" style="color: <%= config.color %>;"><%= displayName %></span>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge badge-pill" style="background: <%= config.color %>; color: white;"><%= forecastValue.toFixed(2) %><%= config.unit %></span>
+                            </div>
+                        </div>
+                        <div class="forecast-details" style="display: none;">
+                            <div class="row text-center mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Current</small>
+                                    <div class="font-weight-bold"><%= currentValue !== null ? currentValue.toFixed(2) + config.unit : 'N/A' %></div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Forecast</small>
+                                    <div class="font-weight-bold"><%= forecastValue.toFixed(2) %><%= config.unit %></div>
+                                </div>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: <%= currentValue !== null ? Math.min(100, (forecastValue / Math.max(currentValue, forecastValue)) * 100) : 50 %>% ; background: <%= config.color %>;" 
+                                     aria-valuenow="<%= forecastValue %>" aria-valuemin="0" aria-valuemax="<%= currentValue !== null ? Math.max(currentValue, forecastValue) : forecastValue %>">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted"><i class="<%= trendIcon %> mr-1"></i><%= trendText %></small>
+                                <small class="text-muted">Based on <%= forecast.basedOnDays || 'N/A' %> days</small>
+                            </div>
                         </div>
                     </div>
-
+                <% }); %>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Forecasts updated: <%= forecast.timestamp ? new Date(forecast.timestamp).toLocaleString() : 'N/A' %> | Model: <%= forecast.modelVersion || 'N/A' %>
+                    </small>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info text-center">
+                    <i class="fa fa-info-circle mr-2"></i> No forecast data available at this time.
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+                    </div>
+                
                     <!-- Registered Crops Section -->
                     <div class="registered-crops-card card mb-5">
                         <div class="registered-crops-header">
@@ -720,7 +840,7 @@
                             </table>
                         </div>
                     </div>
-
+                
                     <!-- Floating Register Crop Button (for mobile/quick access) -->
                     <button class="floating-btn" id="floatingRegisterCropBtn" data-toggle="tooltip" title="Register New Crop" onclick="openRegisterModal()"><i class="fa fa-plus"></i></button>
                 </div>
@@ -1583,6 +1703,25 @@
                     });
                 }
             });
+        </script>
+        <script>
+            // Add interactivity to forecast cards
+document.addEventListener('DOMContentLoaded', function() {
+    const forecastCards = document.querySelectorAll('.forecast-param-card');
+    forecastCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const details = this.querySelector('.forecast-details');
+            const isVisible = details.style.display === 'block';
+            details.style.display = isVisible ? 'none' : 'block';
+            
+            // Toggle icon or add animation
+            this.style.transform = isVisible ? 'translateY(0)' : 'translateY(-2px)';
+        });
+    });
+
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+});
         </script>
 </body>
 </html>

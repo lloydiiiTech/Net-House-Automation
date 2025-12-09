@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        .chart-container { margin: 20px 0; }
+        .forecast-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 20px; }
+        .forecast-item { background: #f8f9fa; padding: 10px; border-radius: 5px; text-align: center; }
+        .forecast-item strong { color: #007bff; }
+        .no-data { text-align: center; color: #666; font-style: italic; }
+        .timestamp { text-align: center; color: #999; margin-top: 20px; }
+        .info { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><%= title %></h1>
+        <% if (forecast) { %>
+            <div class="info">
+                <strong>Next Day Sensor Forecasts</strong><br>
+                Based on <%= forecast.basedOnDays %> days of data | Generated: <%= new Date(forecast.timestamp).toLocaleString() %>
+            </div>
+            <div class="chart-container">
+                <div id="forecastChart"></div>
+            </div>
+            <div class="forecast-list">
+                <% Object.entries(forecast.forecasts).forEach(([param, value]) => { %>
+                    <div class="forecast-item">
+                        <strong><%= param.charAt(0).toUpperCase() + param.slice(1) %>:</strong><br><%= value %>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="no-data">No forecasts available yet. Forecasts are generated daily after sensor summarization.</p>
+        <% } %>
+    </div>
+
+    <% if (forecast) { %>
+    <script>
+        const forecastData = <%= JSON.stringify(forecast.forecasts) %>;
+        const parameters = Object.keys(forecastData);
+        const values = Object.values(forecastData);
+
+        const data = [{
+            x: parameters.map(p => p.charAt(0).toUpperCase() + p.slice(1)),
+            y: values,
+            type: 'bar',
+            marker: { color: '#007bff' },
+            hovertemplate: '<b>%{x}</b><br>Value: %{y}<extra></extra>'
+        }];
+
+        const layout = {
+            title: 'Next Day Sensor Forecasts',
+            xaxis: { title: 'Parameters' },
+            yaxis: { title: 'Forecasted Values' },
+            plot_bgcolor: '#f8f9fa',
+            paper_bgcolor: '#ffffff',
+            font: { family: 'Arial, sans-serif' },
+            margin: { t: 50, b: 50, l: 50, r: 50 }
+        };
+
+        Plotly.newPlot('forecastChart', data, layout, { responsive: true });
+    </script>
+    <% } %>
+</body>
+</html>

@@ -1,4 +1,5 @@
 const { firestore, admin } = require('../config/firebase');
+const TimeSeriesForecaster = require('../services/timeSeriesForecaster');
 exports.confirmCropSelection = async (req, res) => {
     try {
       const { cropData } = req.body;
@@ -136,6 +137,15 @@ exports.recommendationsPage = async (req, res) => {
         const cropsSnapshot = await firestore.collection('crops').where('isRegistered', '==', true).get();
         const registeredCrops = cropsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+        // Fetch latest forecast data
+        let forecast = null;
+        try {
+            forecast = await TimeSeriesForecaster.getLatestForecast();
+        } catch (error) {
+            console.error('Error fetching forecast data:', error);
+        }
+
+        console.log(forecast);
         // Check for active planted crop
         let hasActiveCrop = false;
         if (userId) {
@@ -156,7 +166,8 @@ exports.recommendationsPage = async (req, res) => {
             recommendations,
             registeredCrops,
             hasActiveCrop,
-            sensorData
+            sensorData,
+            forecast
         });} else
         {
             res.render('recommendations', {
@@ -168,7 +179,8 @@ exports.recommendationsPage = async (req, res) => {
                 recommendations,
                 registeredCrops,
                 hasActiveCrop,
-                sensorData
+                sensorData,
+                forecast
             });}
     } catch (error) {
         console.error('Error rendering recommendations page:', error);
@@ -183,7 +195,8 @@ exports.recommendationsPage = async (req, res) => {
             recommendations: [],
             registeredCrops: [],
             hasActiveCrop: false,
-            sensorData: null
+            sensorData: null,
+            forecast: null
         });
     }
     else {
@@ -196,7 +209,8 @@ exports.recommendationsPage = async (req, res) => {
             recommendations: [],
             registeredCrops: [],
             hasActiveCrop: false,
-            sensorData: null
+            sensorData: null,
+            forecast: null
         });
     
     }

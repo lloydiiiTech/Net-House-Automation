@@ -17,7 +17,7 @@ exports.initScheduledJobs = () => {
     });
 
     // Run daily at 11:59 PM to summarize the entire day's data
-    cron.schedule('20 0 * * *', async () => {
+    cron.schedule('32 20 * * *', async () => {
         try {
             await summarizeDailySensorData();
             console.log('✅ Daily sensor data summarized successfully');
@@ -213,6 +213,16 @@ async function summarizeDailySensorData() {
         console.log(
             `💾 Saved daily summary (from ${snapshot.size} six-hour summaries, ${summary.data_points} raw points) between ${formatDate(startOfDay)} and ${formatTime(now)}`
         );
+        
+        // Run time series forecasting using the latest daily data (for display purposes)
+        try {
+            const TimeSeriesForecaster = require('../services/timeSeriesForecaster');
+            await TimeSeriesForecaster.forecastSensorData();
+            console.log('✅ Time series forecasting completed and saved for display');
+        } catch (forecastError) {
+            console.error('❌ Error during time series forecasting:', forecastError);
+            // Don't throw - this is optional for display
+        }
     } catch (e) {
         console.error("❌ Error saving daily summary:", e);
         throw e;

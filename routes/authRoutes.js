@@ -16,6 +16,7 @@ const reportIrrigationController = require('../controller/reportIrrigationContro
 const reportPlantedCropsController = require('../controller/reportPlantedCropsController');
 const reportPredictionHistoryController = require('../controller/reportPredictionHistoryController');
 const reportAIDiseaseController = require('../controller/reportAIDiseaseController');
+const trainingController = require('../controller/trainingController');
 
 router.get('/', aController.login);
 router.get('/login', aController.login);
@@ -188,6 +189,8 @@ router.post('/register-crop-with-ai', reportCropsController.registerCropWithAI);
 
 router.get('/report-planted-crops/export/excel', aController.isAuthenticated, reportPlantedCropsController.exportExcel);
 router.get('/report-planted-crops/export/pdf', aController.isAuthenticated, reportPlantedCropsController.exportPdf);
+
+router.get('/forecasts', aController.isAuthenticated, trainingController.getForecastsPage);
 
 module.exports = router;
 

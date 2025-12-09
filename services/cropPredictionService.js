@@ -1264,5 +1264,3 @@ class CropPredictionService {
 }
 
 module.exports = new CropPredictionService();
-
-
