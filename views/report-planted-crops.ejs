@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
-    <title>AgriNetTech Planted Crops Report</title>
+    <title>NetHouseAutomation Planted Crops Report</title>
     <link href="./assets/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="./assets/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="./assets/vendors/themify-icons/css/themify-icons.css" rel="stylesheet" />
@@ -295,12 +295,8 @@
                 font-size: 1rem;
             }
         }
-
-        
-			
-			
-			    /* Dashboard Card Styles */
-        .page-sidebar {
+            /* Dashboard Card Styles */
+            .page-sidebar {
             position: fixed;
             top: 0;
             left: 0;
@@ -467,7 +463,7 @@
 </head>
 <body class="fixed-navbar">
     <div class="page-wrapper">
-          <!-- Header -->
+        <!-- START HEADER-->
         <header class="header">
             <div class="page-brand">
                 <a class="link" href="/dashboard">
@@ -584,11 +580,7 @@
 
                 </li>
 
-                <li>
-                    <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
-                        <span class="nav-label">User Management</span>
-                    </a>
-                </li>
+                
 
                 <li>
                     <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
@@ -599,7 +591,6 @@
 
             </div>
         </nav>
-
         <div class="content-wrapper">
             <div id="crops-data" data-crops='<%- JSON.stringify(plantedCrops) %>' data-filters='<%- JSON.stringify(currentFilters) %>'></div>
             <div class="page-content fade-in-up">
@@ -750,7 +741,6 @@
                             </div>
                 </div>
             </div>
-                    <!-- Footer -->
             <footer class="page-footer">
                 <div class="font-13">2025 © <b>NetHouseAutomation</b> - All rights reserved.</div>
                 <div class="to-top"><i class="fa fa-angle-double-up"></i></div>
@@ -1067,7 +1057,7 @@
             copyFiltersToExportForm('exportPdfForm');
             console.log('[DEBUG] Exporting with filters:', currentFilters);
             if (!(await checkDataExists())) {
-                showExportToast(`No records found for the selected filter.`, 'danger');
+                showExportToast(`Start downloading`, 'success');
                 e.preventDefault && e.preventDefault();
                 return;
             }
@@ -1080,26 +1070,5 @@
         renderTable(currentPage);
     });
     </script>
-
-    <script src="./assets/vendors/jquery/dist/jquery.min.js"></script>
-    <script src="./assets/vendors/popper.js/dist/umd/popper.min.js"></script>
-    <script src="./assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="./assets/vendors/metisMenu/dist/metisMenu.min.js"></script>
-    <script src="./assets/vendors/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="./assets/js/app.min.js"></script>
-
-        <!--Sidebar collapse-->
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const toggleBtn = document.querySelector('.js-sidebar-toggler');
-
-                if (toggleBtn) {
-                    toggleBtn.addEventListener('click', () => {
-                        document.body.classList.toggle('sidebar-collapsed');
-                    });
-                }
-            });
-        </script>
-
 </body>
 </html>

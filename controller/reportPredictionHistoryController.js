@@ -121,21 +121,41 @@ exports.predictionHistoryReport = async (req, res) => {
         };
 
         console.log(currentPrediction);
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/report-prediction-history', {
             user: req.session.user,
             currentPrediction,
             totalPages,
             currentPage: page,
             error: null
-        });
+        });}
+        else{
+            res.render('report-prediction-history', {
+                user: req.session.user,
+                currentPrediction,
+                totalPages,
+                currentPage: page,
+                error: null
+            });
+        }   
     } catch (error) {
         console.error('Error rendering prediction history report:', error);
+        if(rolesession.toUpperCase() === 'ADMIN'){
         res.render('admin/report-prediction-history', {
             user: req.session.user,
             currentPrediction: null,
             totalPages: 1,
             currentPage: 1,
             error: 'Failed to load prediction history report.'
-        });
+        });}
+        else{
+            res.render('report-prediction-history', {
+                user: req.session.user,
+                currentPrediction: null,
+                totalPages: 1,
+                currentPage: 1,
+                error: 'Failed to load prediction history report.'
+            });
+        }
     }
 };

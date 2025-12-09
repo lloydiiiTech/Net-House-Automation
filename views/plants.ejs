@@ -139,11 +139,7 @@
 
                 </li>
 
-                    <li>
-                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
-                            <span class="nav-label">User Management</span>
-                        </a>
-                    </li>
+                   
                     <li>
                         <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
                             <span class="nav-label">Crop Recommendations</span>
@@ -154,6 +150,18 @@
         </nav>
 
         <div class="content-wrapper">
+        <div class="page-heading">
+            <h1 class="page-title">
+                <i class="fas fa-leaf" style="margin-right: 10px;"></i> Plant Overview
+            </h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/dashboard"><i class="fa fa-home font-20"></i></a>
+                </li>
+            </ol>
+        </div>
+
+
           <% if (typeof currentCrop !== 'undefined' && currentCrop && currentCrop.name) { %>
             <div class="page-content fade-in-up">
                 <!-- Modern Dashboard Header -->
@@ -1124,6 +1132,117 @@
 .fertilizer-application {
     font-size: 0.95rem; /* smaller detail text */
 }
+       .page-heading {
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between; /* left & right */
+    align-items: center;
+    background: linear-gradient(135deg, #21646be3, #273a42f8); /* green to blue gradient */
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    margin: 10px auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 4px rgba(255,255,255,0.2);
+    color: #f5fffa; /* soft white with greenish tint */
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;   /* vertically center icon with text */
+    gap: 10px;             /* space between icon and text */
+}
+
+.page-title i {
+    color: #f5fffa;        /* same color as text */
+    font-size: 2rem;       /* match title size */
+    vertical-align: middle;
+}
+
+
+.page-heading .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #f5fffa;
+}
+
+.page-heading .breadcrumb a {
+    color: #f5fffa;
+    font-size: 1.6rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.page-heading .breadcrumb a:hover {
+    transform: scale(1.25);
+    color: #b9fbc0; /* fresh light green on hover */
+    box-shadow: 0 0 12px rgba(185, 251, 192, 0.8);
+}
+
+.page-heading .breadcrumb-item {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #f5fffa;
+}
+@media (max-width: 768px) {
+
+    .page-heading {
+        padding: 10px 15px !important;
+        flex-direction: row !important; /* keep in one row */
+        align-items: center !important;
+        justify-content: space-between !important; /* title left, breadcrumb right */
+        border-radius: 10px !important;
+        text-align: left !important;
+        flex-wrap: nowrap !important; /* prevent wrapping */
+    }
+
+    .page-title {
+        font-size: 1.3rem !important;
+        gap: 5px !important;
+        white-space: nowrap !important; /* prevent icon & text from breaking */
+        overflow: hidden;
+        text-overflow: ellipsis; /* truncate if too long */
+    }
+
+    .page-heading .breadcrumb {
+        flex-wrap: nowrap !important; /* no wrapping */
+        gap: 5px !important;
+        margin-top: 0 !important; /* keep aligned with title */
+    }
+
+    .page-heading .breadcrumb a {
+        font-size: 1rem !important;
+        padding: 3px !important;
+    }
+
+    .page-heading .breadcrumb-item {
+        font-size: 0.8rem !important;
+    }
+
+    .full-container {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .full-row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+}
+
+
 
 
             </style>

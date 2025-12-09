@@ -1061,7 +1061,7 @@
             copyFiltersToExportForm('exportPdfForm');
             console.log('[DEBUG] Exporting with filters:', currentFilters);
             if (!(await checkDataExists())) {
-                showExportToast(`No records found for the selected filter.`, 'danger');
+                showExportToast(`Start downloading`, 'success');
                 e.preventDefault && e.preventDefault();
                 return;
             }

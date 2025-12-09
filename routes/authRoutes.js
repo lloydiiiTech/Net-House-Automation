@@ -104,12 +104,12 @@ router.get('/current-crop', aController.isAuthenticated, adminController.getCurr
 
 // Reports & Analytics Routes
 router.get('/api/sensor-data', aController.isAuthenticated, reportsController.getSensorData);
-router.get('/api/download-data', aController.isAuthenticated, reportsController.downloadSensorData);
+router.get('/api/download-data', aController.isAuthenticated, reportDailySensorsController.downloadSensorData);  // Updated
 router.get('/api/crop-data', aController.isAuthenticated, reportsController.getCropData);
 router.get('/api/planted-crops', aController.isAuthenticated, reportsController.getPlantedCrops);
 router.get('/api/historical-sensor-data', aController.isAuthenticated, reportsController.getHistoricalSensorData);
 router.get('/api/crop-performance', aController.isAuthenticated, reportsController.getCropPerformance);
-router.get('/api/sensor-data/check', aController.isAuthenticated, reportsController.checkSensorData);
+router.get('/api/sensor-data/check', aController.isAuthenticated, reportDailySensorsController.checkSensorData);  // Updated
 
 // Add new routes for user management actions
 // Add routes for pending users (must come before /api/users/:userId)
@@ -175,6 +175,13 @@ router.get('/report-planted-crops', aController.isAuthenticated, reportPlantedCr
 router.get('/report-prediction-history', aController.isAuthenticated, reportPredictionHistoryController.predictionHistoryReport);
 router.get('/report-ai-disease', aController.isAuthenticated, reportAIDiseaseController.aiDiseaseFertilizerReport);
 
+
+
+// Add new routes for irrigation report exports
+router.get('/report-irrigation/export/excel', aController.isAuthenticated, reportIrrigationController.exportExcel);
+router.get('/report-irrigation/export/pdf', aController.isAuthenticated, reportIrrigationController.exportPdf);
+
+// ...existing code...
 // Export endpoints for AI Disease & Fertilizer report
 router.get('/report-ai-disease/export/excel', aController.isAuthenticated, reportAIDiseaseController.exportExcel);
 router.get('/report-ai-disease/export/pdf', aController.isAuthenticated, reportAIDiseaseController.exportPdf);

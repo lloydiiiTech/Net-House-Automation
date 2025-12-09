@@ -371,8 +371,8 @@ exports.Dashboard = async (req, res) => {
         } else{
             res.render("home", { 
                 user: userData || {
-                    name: 'Admin',
-                    role: 'Admin',
+                    name: 'User',
+                    role: 'User',
                     profilePicture: '/assets/img/default-avatar.png'
                 },
                 sensorData,

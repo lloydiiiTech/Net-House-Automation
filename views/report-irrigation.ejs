@@ -1078,11 +1078,7 @@
                     </ul>
 
                 </li>
-                <li>
-                    <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
-                        <span class="nav-label">User Management</span>
-                    </a>
-                </li>
+                
                 <li>
                     <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
                         <span class="nav-label">Crop Recommendations</span>
@@ -1302,6 +1298,41 @@
         document.getElementById('filterDateTo').value = '';
         window.location.href = window.location.pathname;
     });
+
+
+    // ...existing code...
+
+document.getElementById('exportExcelBtn').addEventListener('click', function() {
+    const dateFrom = document.getElementById('filterDateFrom').value;
+    const dateTo = document.getElementById('filterDateTo').value;
+    if (!dateFrom || !dateTo) {
+        showExportToast('Please select both Date From and Date To.');
+        return;
+    }
+    if (dateFrom > dateTo) {
+        showExportToast('Date From should not be later than Date To.', 'danger');
+        return;
+    }
+    window.location.href = `/report-irrigation/export/excel?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    showExportToast('Export started. Your Excel file will download shortly.', 'success');
+});
+
+document.getElementById('exportPdfBtn').addEventListener('click', function() {
+    const dateFrom = document.getElementById('filterDateFrom').value;
+    const dateTo = document.getElementById('filterDateTo').value;
+    if (!dateFrom || !dateTo) {
+        showExportToast('Please select both Date From and Date To.');
+        return;
+    }
+    if (dateFrom > dateTo) {
+        showExportToast('Date From should not be later than Date To.', 'danger');
+        return;
+    }
+    window.location.href = `/report-irrigation/export/pdf?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    showExportToast('Export started. Your PDF file will download shortly.', 'success');
+});
+
+// ...existing code...
     </script>
 
             <script>

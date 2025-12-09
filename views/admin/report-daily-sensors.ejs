@@ -1237,7 +1237,7 @@
                                                 <th>Light (lux)</th>
                                                 <th>pH Level</th>
                                                 <th>NPK Values</th>
-                                                <th>Status</th>
+                                                
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1284,21 +1284,7 @@
                                                                 Max: N<%= (data.nitrogen?.max || 0).toFixed(1) %> P<%= (data.phosphorus?.max || 0).toFixed(1) %> K<%= (data.potassium?.max || 0).toFixed(1) %>
                                                             </small>
                                                         </td>
-                                                        <td>
-                                                            <% const tempStatus = data.temperature?.average >= 25 && data.temperature?.average <= 30;
-                                                               const humidityStatus = data.humidity?.average >= 50 && data.humidity?.average <= 70;
-                                                               const moistureStatus = data.moistureAve?.average >= 50 && data.moistureAve?.average <= 80;
-                                                               let statusClass = 'status-normal', statusText = 'Optimal';
-                                                               if (!(tempStatus && humidityStatus && moistureStatus)) {
-                                                                 statusClass = 'status-warning'; statusText = 'Warning';
-                                                               }
-                                                               if (!tempStatus && !humidityStatus && !moistureStatus) {
-                                                                 statusClass = 'status-danger'; statusText = 'Critical';
-                                                               }
-                                                            %>
-                                                            <span class="status-badge <%= statusClass %>"><%= statusText %></span>
-                                                            <small class="text-muted d-block">Data Points: <%= data.data_points || 0 %></small>
-                                                        </td>
+                                                        
                                                     </tr>
                                                 <% }); %>
                                             <% } else { %>

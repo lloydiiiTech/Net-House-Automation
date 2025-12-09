@@ -16,6 +16,7 @@ const irrigationController = require('./controller/irrigationController');
 const initializeSocket = require('./config/socket');
 const { initAIScheduledJobs } = require('./controller/aiController');
 const { initPlantedCropsListener } = require('./services/plantedCropsListener');
+const TimeSeriesForecaster = require('./services/timeSeriesForecaster');
 
 const redis = require('redis');
 const client = redis.createClient();
@@ -80,7 +81,7 @@ const initializeServices = async () => {
     initPlantedCropsListener();
     
     // Configure prediction timing - run at specific times
-    const PREDICTION_TIMES = process.env.PREDICTION_TIMES || '14:17'; // Default: 9 AM, 3 PM, 9 PM
+    const PREDICTION_TIMES = process.env.PREDICTION_TIMES || '23:59'; // Default: 9 AM, 3 PM, 9 PM
     const predictionTimes = PREDICTION_TIMES.split(',').map(time => time.trim());
     
     console.log(`⏰ Setting up scheduled predictions at: ${predictionTimes.join(', ')}`);
@@ -106,6 +107,21 @@ const initializeServices = async () => {
       
       console.log(`📅 Scheduled prediction for ${time} daily`);
     });
+
+    await TimeSeriesForecaster.initialize();
+    console.log('✅ Time-series forecaster initialized');
+
+    // Schedule daily forecasting (e.g., at 2 AM)
+    schedule.scheduleJob('0 0 2 * * *', async () => {
+      try {
+        console.log('⏳ Running scheduled forecasting...');
+        await TimeSeriesForecaster.forecastSensorData();
+        console.log('✅ Scheduled forecasting completed');
+      } catch (err) {
+        console.error('❌ Scheduled forecasting failed:', err);
+      }
+    });
+    console.log('📅 Scheduled daily forecasting at 2 AM');
     
   } catch (err) {
     console.error('❌ Service initialization failed:', err);
@@ -160,6 +176,16 @@ app.get('/predict', async (req, res) => {
       error: err.message,
       timestamp: new Date().toISOString()
     });
+  }
+});
+
+// Add endpoint for manual forecasting
+app.get('/api/forecast', async (req, res) => {
+  try {
+    const result = await TimeSeriesForecaster.forecastSensorData();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -28,10 +28,18 @@ exports.cropsReport = async (req, res) => {
                 lastPredictionTime: data.lastPredictionTime
             };
         });
-        res.render('admin/report-crops', { user: req.session.user, cropSummary });
+        if(rolesession.toUpperCase() === 'ADMIN'){
+        res.render('admin/report-crops', { user: req.session.user, cropSummary });}
+        else{
+            res.render('report-crops', { user: req.session.user, cropSummary });
+        }
     } catch (error) {
         console.error('Error rendering crops report:', error);
-        res.render('admin/report-crops', { user: req.session.user, error: 'Failed to load crops report.', cropSummary: [] });
+        if(rolesession.toUpperCase() === 'ADMIN'){
+            res.render('admin/report-crops', { user: req.session.user, error: 'Failed to load crops report.', cropSummary: [] });}
+            else{
+                res.render('report-crops', { user: req.session.user, error: 'Failed to load crops report.', cropSummary: [] });
+            }
     }
 };
 

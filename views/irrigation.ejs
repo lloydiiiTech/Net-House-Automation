@@ -138,11 +138,7 @@
 
                 </li>
 
-                    <li>
-                        <a href="/user-management"><i class="sidebar-item-icon fas fa-users-cog"></i>
-                            <span class="nav-label">User Management</span>
-                        </a>
-                    </li>
+                  
                     <li>
                         <a href="/crop-recommendations"><i class="sidebar-item-icon fas fa-seedling"></i>
                             <span class="nav-label">Crop Recommendations</span>
@@ -152,6 +148,16 @@
             </div>
         </nav>
         <div class="content-wrapper">
+                  <div class="page-heading">
+                        <h1 class="page-title">
+                            <i class="fas fa-faucet" style="margin-right: 10px;"></i> Irrigation Control
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard"><i class="fa fa-home font-20"></i></a>
+                            </li>
+                        </ol>
+                    </div>
             <div class="page-content fade-in-up">
                 <!-- Add No Crop Overlay -->
                 <div id="noCropOverlay" class="no-crop-overlay" style="display: none;">
@@ -167,204 +173,184 @@
 
                 <!-- Add wrapper div for all irrigation content -->
                 <div id="irrigationContent" class="irrigation-content">
+     
+
+
                     <div class="row">
                         <!-- Left Column -->
                         <div class="col-lg-8">
                             
 
-                            <!-- Soil Status -->
-                            <div class="ibox">
-                                <div class="ibox-head">
-                                    <div class="ibox-title">Soil Status</div>
-                                </div>
-                                <div class="ibox-body">
-                                    <div class="row">
-                                        <!-- Moisture Gauge -->
-                                        <div class="col-md-6">
-                                            <div class="sensor-gauge moisture">
-                                                <div class="gauge-header">
-                                                    <div class="gauge-icon">
-                                                        <i class="fas fa-tint"></i>
-                                                    </div>
-                                                    <div class="gauge-title">Soil Moisture</div>
-                                                </div>
-                                                <div class="gauge-content">
-                                                    <div class="gauge-value" id="moistureValue">--%</div>
-                                                    <div class="gauge-status">
-                                                        <span class="badge" id="moistureStatus">Loading...</span>
-                                                    </div>
-                                                </div>
-                                            </div>
+
+                <!-- Soil Status -->
+                <div class="ibox ibox-soil">
+                    <div class="ibox-head">
+                        <div class="ibox-title">Soil Status</div>
+                    </div>
+                    <div class="ibox-body">
+                        <div class="row">
+                            <!-- Moisture Gauge -->
+                            <div class="col-md-6">
+                                <div class="sensor-gauge moisture">
+                                    <div class="gauge-header">
+                                        <div class="gauge-icon">
+                                            <i class="fas fa-tint"></i>
                                         </div>
-                                        <!-- Temperature Gauge -->
-                                        <div class="col-md-6">
-                                            <div class="sensor-gauge temperature">
-                                                <div class="gauge-header">
-                                                    <div class="gauge-icon">
-                                                        <i class="fas fa-thermometer-half"></i>
-                                                    </div>
-                                                    <div class="gauge-title">Soil Temperature</div>
-                                                </div>
-                                                <div class="gauge-content">
-                                                    <div class="gauge-value" id="temperatureValue">--°C</div>
-                                                    <div class="gauge-status">
-                                                        <span class="badge" id="temperatureStatus">Loading...</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <div class="gauge-title">Soil Moisture</div>
                                     </div>
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <div class="sensor-stats">
-                                                <!-- Removed trend stat item -->
-                                            </div>
+                                    <div class="gauge-content">
+                                        <div class="gauge-value" id="moistureValue">--%</div>
+                                        <div class="gauge-status">
+                                            <span class="badge" id="moistureStatus">Loading...</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Current Crop Information -->
-                            <div class="ibox">
-                                <div class="ibox-head">
-                                    <div class="ibox-title">Current Crop Information</div>
-                                </div>
-                                <div class="ibox-body" id="currentCropSection">
-                                    <div id="noCropMessage" style="display: none;">
-                                        <div class="text-center py-4">
-                                            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-                                            <h4>No Active Crop</h4>
-                                            <p class="text-muted">There is currently no active crop in the system.</p>
-                                            <a href="/plant-overview" class="btn btn-primary mt-3">
-                                                <i class="fas fa-plus"></i> Plant New Crop
-                                            </a>
+                            <!-- Temperature Gauge -->
+                            <div class="col-md-6">
+                                <div class="sensor-gauge temperature">
+                                    <div class="gauge-header">
+                                        <div class="gauge-icon">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </div>
+                                        <div class="gauge-title">Soil Temperature</div>
+                                    </div>
+                                    <div class="gauge-content">
+                                        <div class="gauge-value" id="temperatureValue">--°C</div>
+                                        <div class="gauge-status">
+                                            <span class="badge" id="temperatureStatus">Loading...</span>
                                         </div>
                                     </div>
-                                    <div id="cropInfo" style="display: none;">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="crop-details">
-                                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                                        <h3 class="crop-name" id="cropName"></h3>
-                                                        <a href="/plant-overview" class="btn btn-primary">
-                                                            <i class="fas fa-leaf"></i> Plant Overview
-                                                        </a>
-                                                    </div>
-                                                    <div class="crop-info-grid">
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
-                                                                <i class="fas fa-calendar"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Planted Date</div>
-                                                                <div class="info-value" id="plantedDate"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
-                                                                <i class="fas fa-leaf"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Growth Stage</div>
-                                                                <div class="info-value" id="growthStage"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
-                                                                <i class="fas fa-clock"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Health Status</div>
-                                                                <div class="info-value" id="healthStatus"></div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="info-item">
-                                                            <div class="info-icon">
-                                                                <i class="fas fa-chart-line"></i>
-                                                            </div>
-                                                            <div class="info-content">
-                                                                <div class="info-label">Health Score</div>
-                                                                <div class="info-value" id="healthScore"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mt-4">
-                                                        <h5 class="optimal-conditions-title">Optimal Conditions</h5>
-                                                        <div class="optimal-conditions-grid">
-                                                            <div class="info-item">
-                                                                <div class="info-icon">
-                                                                    <i class="fas fa-tint"></i>
-                                                                </div>
-                                                                <div class="info-content">
-                                                                    <div class="info-label">Moisture</div>
-                                                                    <div class="info-value" id="optimalMoisture"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="info-item">
-                                                                <div class="info-icon">
-                                                                    <i class="fas fa-thermometer-half"></i>
-                                                                </div>
-                                                                <div class="info-content">
-                                                                    <div class="info-label">Temperature</div>
-                                                                    <div class="info-value" id="optimalTemperature"></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="sensor-stats">
+                                    <!-- Removed trend stat item -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                        <!-- Current Crop Information -->
+                        <div class="ibox ibox-crop">
+                            <div class="ibox-head d-flex justify-content-between align-items-center">
+                                <div class="ibox-title">Current Crop Information</div>
+                                <a href="/plant-overview" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-leaf"></i> Plant Overview
+                                </a>
+                            </div>
+                            <div class="ibox-body" id="currentCropSection">
+                                <div id="noCropMessage" style="display: none;">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                                        <h4>No Active Crop</h4>
+                                        <p class="text-muted">There is currently no active crop in the system.</p>
+                                        <a href="/plant-overview" class="btn btn-primary mt-3">
+                                            <i class="fas fa-plus"></i> Plant New Crop
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="cropInfo" style="display: none;">
+                                    <div class="row crop-grid">
+                                        <!-- Left Column (70%) -->
+                                        <div class="col-md-8 crop-left">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h3 class="crop-name" id="cropName"></h3>
+                                            </div>
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <div class="info-label">Planted Date</div>
+                                                    <div class="info-value" id="plantedDate"></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-label">Growth Stage</div>
+                                                    <div class="info-value" id="growthStage"></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-label">Health Status</div>
+                                                    <div class="info-value" id="healthStatus"></div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-label">Health Score</div>
+                                                    <div class="info-value" id="healthScore"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column (30%) -->
+                                        <div class="col-md-4 crop-right">
+                                            <h5 class="optimal-conditions-title">Optimal Conditions</h5>
+                                            <div class="optimal-cards d-flex gap-2">
+                                                <!-- Moisture Card -->
+                                                <div class="info-item card-optimal">
+                                                    <div class="info-label">Moisture</div>
+                                                    <div class="info-value" id="optimalMoisture"></div>
+                                                </div>
+                                                <!-- Temperature Card -->
+                                                <div class="info-item card-optimal">
+                                                    <div class="info-label">Temperature</div>
+                                                    <div class="info-value" id="optimalTemperature"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Irrigation History -->
-                            <div class="ibox">
-                                <div class="ibox-head">
-                                    <div class="ibox-title">Irrigation History</div>
-                                </div>
-                                <div class="ibox-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date & Time</th>
-                                                    <th>Duration</th>
-                                                    <th>Moisture Before</th>
-                                                    <th>Moisture After</th>
-                                                    <th>Type</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="irrigationHistoryBody">
-                                                <!-- Data will be loaded dynamically -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <!-- Simplified Pagination -->
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <div>
-                                            Page <span id="currentPageInfo">1</span> of <span id="totalPagesInfo">1</span>
-                                        </div>
-                                        <nav aria-label="Page navigation">
-                                            <ul class="pagination mb-0">
-                                                <li class="page-item" id="prevPageBtn">
-                                                    <a class="page-link" href="#" aria-label="Previous">
-                                                        <i class="fa fa-chevron-left"></i>
-                                                    </a>
-                                                </li>
-                                                <li class="page-item" id="nextPageBtn">
-                                                    <a class="page-link" href="#" aria-label="Next">
-                                                        <i class="fa fa-chevron-right"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
 
-                            </div>
+
+         <!-- Irrigation History -->
+<div class="ibox irrigation-box">
+    <div class="ibox-head irrigation-head">
+        <div class="ibox-title irrigation-title">Irrigation History</div>
+    </div>
+
+    <div class="ibox-body irrigation-body">
+        <div class="table-responsive irrigation-table-wrapper">
+            <table class="table table-hover irrigation-table">
+                <thead class="irrigation-thead">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Moisture Before</th>
+                        <th>Moisture After</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="irrigationHistoryBody">
+                    <!-- Data will be loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Simplified Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3 irrigation-pagination">
+            <div>
+                Page <span id="currentPageInfo">1</span> of <span id="totalPagesInfo">1</span>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item" id="prevPageBtn">
+                        <a class="page-link irrigation-page-link" href="#" aria-label="Previous">
+                            <i class="fa fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" id="nextPageBtn">
+                        <a class="page-link irrigation-page-link" href="#" aria-label="Next">
+                            <i class="fa fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
                         </div>
 
                         <!-- Right Column -->
@@ -1668,6 +1654,460 @@
             margin-right: 0; 
         }
 
+                .page-heading {
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between; /* left & right */
+    align-items: center;
+    background: linear-gradient(135deg, #21646be3, #273a42f8); /* green to blue gradient */
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    margin: 10px auto;
+    border: 1px solid rgba(255,255,255,0.3);
+    font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 4px rgba(255,255,255,0.2);
+    color: #f5fffa; /* soft white with greenish tint */
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;   /* vertically center icon with text */
+    gap: 10px;             /* space between icon and text */
+}
+
+.page-title i {
+    color: #f5fffa;        /* same color as text */
+    font-size: 2rem;       /* match title size */
+    vertical-align: middle;
+}
+
+
+.page-heading .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #f5fffa;
+}
+
+.page-heading .breadcrumb a {
+    color: #f5fffa;
+    font-size: 1.6rem;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.page-heading .breadcrumb a:hover {
+    transform: scale(1.25);
+    color: #b9fbc0; /* fresh light green on hover */
+    box-shadow: 0 0 12px rgba(185, 251, 192, 0.8);
+}
+
+.page-heading .breadcrumb-item {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #f5fffa;
+}
+@media (max-width: 768px) {
+
+    .page-heading {
+        padding: 10px 15px !important;
+        flex-direction: row !important; /* keep in one row */
+        align-items: center !important;
+        justify-content: space-between !important; /* title left, breadcrumb right */
+        border-radius: 10px !important;
+        text-align: left !important;
+        flex-wrap: nowrap !important; /* prevent wrapping */
+    }
+
+    .page-title {
+        font-size: 1.3rem !important;
+        gap: 5px !important;
+        white-space: nowrap !important; /* prevent icon & text from breaking */
+        overflow: hidden;
+        text-overflow: ellipsis; /* truncate if too long */
+    }
+
+    .page-heading .breadcrumb {
+        flex-wrap: nowrap !important; /* no wrapping */
+        gap: 5px !important;
+        margin-top: 0 !important; /* keep aligned with title */
+    }
+
+    .page-heading .breadcrumb a {
+        font-size: 1rem !important;
+        padding: 3px !important;
+    }
+
+    .page-heading .breadcrumb-item {
+        font-size: 0.8rem !important;
+    }
+
+    .full-container {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .full-row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+}
+/* Soil Status IBox */
+.ibox-soil {
+    background: #e8f5e9; /* soft green */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 15px 15px; /* reduced padding */
+    
+}
+
+/* Header - Improved title style */
+.ibox-soil .ibox-head {
+    text-align: center;
+  
+}
+
+.ibox-soil .ibox-title {
+    font-size: 1.3rem; /* slightly smaller */
+    font-weight: 700;
+    color: #2e7d32;
+    position: relative;
+    display: inline-block;
+   
+}
+
+.ibox-soil .ibox-title::after {
+    content: "";
+    display: block;
+    width: 40%;
+    height: 2px;
+    background-color: #4caf50;
+ 
+    border-radius: 2px;
+}
+
+/* Sensor Gauges - compact size */
+.ibox-soil .sensor-gauge {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px; /* reduced padding */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.ibox-soil .sensor-gauge:hover {
+    transform: translateY(-2px);
+}
+
+.ibox-soil .gauge-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px; /* reduced margin */
+}
+
+.ibox-soil .gauge-icon i {
+    font-size: 1.7rem; /* slightly smaller */
+    color: #4caf50;
+    margin-bottom: 3px;
+}
+
+.ibox-soil .gauge-title {
+    font-size: 1rem; /* slightly smaller */
+    font-weight: 500;
+    color: #333;
+}
+
+.ibox-soil .gauge-value {
+    font-size: 1.6rem; /* slightly smaller */
+    font-weight: bold;
+    color: #1b5e20;
+    margin-bottom: 4px;
+}
+
+.ibox-soil .gauge-status .badge {
+    padding: 4px 8px; /* smaller badge */
+    font-size: 0.8rem;
+    border-radius: 15px;
+}
+
+/* Status badge colors */
+.ibox-soil #moistureStatus {
+    background-color: #81c784;
+    color: #1b5e20;
+}
+
+.ibox-soil #temperatureStatus {
+    background-color: #ffb74d;
+    color: #e65100;
+}
+
+/* Responsive columns */
+.ibox-soil .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* reduced gap */
+}
+
+.ibox-soil .col-md-6 {
+    flex: 0 0 48%;
+}
+
+/* Bottom sensor stats */
+.ibox-soil .sensor-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 8px; /* reduced margin */
+}
+
+/* Responsive for small screens */
+@media (max-width: 768px) {
+    .ibox-soil .col-md-6 {
+        flex: 0 0 100%;
+    }
+}
+/* IBox */
+.ibox-crop {
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+/* Header */
+.ibox-crop .ibox-head {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ibox-crop .ibox-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2e7d32;
+    display: inline-block; /* makes border only as wide as specified */
+ 
+    text-align: center;
+}
+
+
+/* Left Info Grid */
+.crop-left .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+}
+
+.crop-left .info-item {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.crop-left .info-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.crop-left .info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+/* Right Column: Optimal Conditions */
+.crop-right {
+    flex: 0 0 30%;
+    background: #c7e6ae3d; /* soft green background for the whole column */
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+/* Optimal Conditions Title */
+.optimal-conditions-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #14851a;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Container for the two cards */
+.optimal-cards {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Each card */
+.card-optimal {
+    flex: 1;
+    background: #ffffffb0; /* slightly darker green */
+    border-radius: 12px;
+    padding: 15px 10px;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card-optimal:hover {
+    transform: translateY(-3px);
+}
+
+/* Label and Value */
+.card-optimal .info-label {
+    font-size: 0.85rem;
+    color: #1b5e20;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.card-optimal .info-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1b5e20;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .crop-grid {
+        flex-direction: column;
+    }
+    .crop-left, .crop-right {
+        flex: 0 0 100%;
+    }
+    .optimal-cards {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* ===========================
+   IRRIGATION HISTORY UI STYLE
+   =========================== */
+
+/* Main Box */
+.irrigation-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 25px;
+}
+
+/* Header */
+.irrigation-head {
+    background: rgb(254, 255, 254);
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.irrigation-title {
+    color: #3b6e19;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+/* Table Wrapper */
+.irrigation-table-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Table Header */
+.irrigation-thead th {
+    background: linear-gradient(135deg, #21646be3, #273a42f8);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 12px;
+    text-align: center;   /* CENTER HEADER */
+}
+
+/* Table Body Rows */
+.irrigation-table tbody tr {
+    transition: 0.2s ease;
+    text-align: center;   /* CENTER ROW TEXT */
+}
+
+.irrigation-table tbody tr:hover {
+    background: #f0f7f4;
+}
+
+/* Table Cells */
+.irrigation-table td {
+    padding: 12px;
+    font-size: 0.9rem;
+    color: #333;
+    vertical-align: middle;
+    text-align: center;   /* CENTER CELLS */
+}
+
+
+/* Pagination */
+.irrigation-pagination {
+    border-top: 1px solid #ddd;
+    padding-top: 12px;
+    margin-top: 10px;
+}
+
+.irrigation-page-link {
+    border-radius: 8px;
+    border: none;
+    padding: 8px 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.irrigation-page-link:hover {
+    background: #c8e6c9;
+    color: #1b5e20;
+}
+
+/* Mobile Scroll Fix */
+@media (max-width: 768px) {
+
+    /* Make table scrollable horizontally */
+    .irrigation-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
+    }
+
+    .irrigation-table {
+        width: 800px; /* ensure scroll appears */
+    }
+
+    /* Make header readable on small screens */
+    .irrigation-thead th {
+        white-space: nowrap;
+    }
+
+    .irrigation-table td {
+        white-space: nowrap;
+    }
+}
 
             </style>
 
@@ -3306,6 +3746,10 @@
 
 
     </style>
+
+        </script>
+        </script>
+
 
 </body>
 
